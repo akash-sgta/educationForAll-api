@@ -1,0 +1,103 @@
+API Contract Drafts:
+
+----------------------------------------------------------
+**USER_API
+
+http://127.0.0.1:8000/api/user/
+GET : id or all
+{}
+
+POST :
+{
+    "user_f_name" : "First Name",
+    "user_m_name" : "Middle Name - Optional",
+    "user_l_name" : "Last_name",
+    "user_email" : "email@domain.com",
+    "user_password" : "User Password"
+}
+
+PUT :
+{
+    "user_id" : "1",
+    "user_f_name" : "Changes",
+    "user_m_name" : "Changes",
+    "user_l_name" : "Changes",
+    "user_email" : "Changes@Changes.Changes",
+    "user_password" : "Changes"
+}
+
+http://127.0.0.1:8000/api/user/id
+DELETE :
+{}
+
+----------------------------------------------------------
+**TOKEN_API
+
+http://127.0.0.1:8000/api/token/
+GET : id or all
+{}
+
+POST :
+{
+    "token_hash" : "original hash",
+    "token_date_start" : "dd-mm-yyyy",
+    "token_date_end" : "dd-mm-yyyy"
+}
+
+PUT :
+{
+    "token_id" : "1",
+    "token_hash" : "Changes",
+    "token_date_start" : "dd-mm-yyyy",
+    "token_date_end" : "dd-mm-yyyy"
+}
+
+http://127.0.0.1:8000/api/user/id
+DELETE
+{}
+
+----------------------------------------------------------
+**ADMIN_API
+
+http://127.0.0.1:8000/api/admin/
+GET : id or all
+{}
+
+POST :
+{
+    "user_id" : "User ID to be granted admin priviledges"
+}
+
+PUT :
+{
+    "admin_id" : "1";
+    "user_id" : "Changes"
+}
+
+http://127.0.0.1:8000/api/user/id
+DELETE :
+{}
+
+----------------------------------------------------------
+**ADMIN_PRIVILEGE_API
+
+http://127.0.0.1:8000/api/admin/privilege/
+GET : id or all
+{}
+
+POST :
+{
+    "privilege_name" : "Privilege Name",
+    "privilege_description" : "Allows What"
+}
+
+PUT :
+{
+    "privilege_id" : "1",
+    "privilege_name" : "Privilege Name",
+    "privilege_description" : "Allows What"
+}
+
+http://127.0.0.1:8000/api/admin/privilege/id
+DELETE :
+{}
