@@ -3,8 +3,8 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from django.http.response import JsonResponse
 
-from auth_prime.models import User_Table,Admin_Table,Token_Table
-from auth_prime.serializer import User_Table_Serializer, Admin_Table_Serializer, Token_Table_Serializer
+from auth_prime.models import User_Table, Admin_Privilege, Admin_Table, Token_Table
+from auth_prime.serializer import User_Table_Serializer, Admin_Privilege_Serializer, Admin_Table_Serializer, Token_Table_Serializer
 
 # Create your views here.
 
@@ -56,6 +56,55 @@ def user_API(request, id=0):
     
     else:
         return JsonResponse("USER : [x] Invalid Method. (use POST/GET/PUT/DELETE)", safe=False)
+
+@csrf_exempt
+def admin_privilege_API(request, id=0):
+
+    if(request.method == 'GET'):
+        try:
+            if(id == 0):
+                admin_privileges = Admin_Privilege.objects.all()
+                admin_privileges_serialized = Admin_Privilege_Serializer(admin_privileges, many=True)
+                return JsonResponse(admin_privileges_serialized.data, safe=False)
+            else:
+                admin_privileges = Admin_Privilege.objects.get(privilege_id=id)
+                admins_privileges_serialized = Admin_Privilege_Serializer(admin_privileges, many=False)
+                return JsonResponse(admins_privileges_serialized.data, safe=False)
+        except Exception as ex:
+            print(f"[!] ADMIN PREV API : GET : {ex}")
+            return JsonResponse("ADMIN PREV : [x] Data Get -> Unsuccessful.", safe=False)
+    
+    elif(request.method == 'POST'):
+        admin_privilege_data = JSONParser().parse(request)
+        admin_privilege_de_serialized = Admin_Privilege_Serializer(data=admin_privilege_data)
+        if(admin_privilege_de_serialized.is_valid()):
+            admin_privilege_de_serialized.save()
+            return JsonResponse("ADMIN PREV : [.] Data Add -> Successful.", safe=False)
+        else:
+            return JsonResponse("ADMIN PREV : [x] Data Add -> Unsuccessful.", safe=False)
+    
+    elif(request.method == 'PUT'):
+        admin_privilege_data = JSONParser().parse(request)
+        admin_privilege = Admin_Privilege.objects.get(privilege_id = admin_privilege_data['privilege_id'])
+        admin_privilege_de_serialized = Admin_Privilege_Serializer(admin_privilege, data=admin_privilege_data)
+        if(admin_privilege_de_serialized.is_valid()):
+            admin_privilege_de_serialized.save()
+            return JsonResponse("ADMIN PREV : [.] Update -> Successful.", safe=False)
+        else:
+            return JsonResponse("ADMIN PREV : [x] Update -> Unsuccessful.", safe=False)
+    
+    elif(request.method == 'DELETE'):
+        try:
+            admin_privilege = Admin_Privilege.objects.get(privilege_id=id)
+            admin_privilege.delete()
+        except Exception as ex:
+            print(f"[!] ADMIN PREV API : DELETE : {ex}")
+            return JsonResponse("ADMIN PREV : [.] Delete -> Unsuccessful.", safe=False)
+        else:
+            return JsonResponse("ADMIN PREV : [x] Delete -> Successful.", safe=False)
+    
+    else:
+        return JsonResponse("[x] Invalid Method. (use POST/GET/PUT/DELETE)", safe=False)
 
 @csrf_exempt
 def admin_API(request, id=0):

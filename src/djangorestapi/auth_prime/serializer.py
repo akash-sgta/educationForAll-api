@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from auth_prime.models import User_Table,Admin_Table,Token_Table
+from auth_prime.models import User_Table, Admin_Privilege, Admin_Table, Token_Table
 
 # ---------------------------------------------------------------
 # auth_prime
@@ -15,18 +15,28 @@ class User_Table_Serializer(serializers.ModelSerializer):
             'user_email',
             'user_password')
 
+class Admin_Privilege_Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = Admin_Privilege
+        fields = (
+            "privilege_id",
+            "privilege_name",
+            "privilege_description")
+
 class Admin_Table_Serializer(serializers.ModelSerializer):
     class Meta:
         model = Admin_Table
         fields = (
             'admin_id',
-            'user_id')
+            'user_id',
+            'privilege_id')
 
 class Token_Table_Serializer(serializers.ModelSerializer):
     class Meta:
         model = Token_Table
         fields = (
             'token_id',
+            'token_hash',
             'token_date_start',
             'token_date_end')
 

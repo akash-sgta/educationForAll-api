@@ -39,6 +39,7 @@ GET : id or all
 
 POST :
 {
+    "token_hash" : "original hash",
     "token_date_start" : "dd-mm-yyyy",
     "token_date_end" : "dd-mm-yyyy"
 }
@@ -46,6 +47,7 @@ POST :
 PUT :
 {
     "token_id" : "1",
+    "token_hash" : "Changes",
     "token_date_start" : "dd-mm-yyyy",
     "token_date_end" : "dd-mm-yyyy"
 }
@@ -76,4 +78,26 @@ http://127.0.0.1:8000/api/user/id
 DELETE :
 {}
 
+----------------------------------------------------------
+**ADMIN_PRIVILEGE_API
 
+http://127.0.0.1:8000/api/admin/privilege/
+GET : id or all
+{}
+
+POST :
+{
+    "privilege_name" : "Privilege Name",
+    "privilege_description" : "Allows What"
+}
+
+PUT :
+{
+    "privilege_id" : "1",
+    "privilege_name" : "Privilege Name",
+    "privilege_description" : "Allows What"
+}
+
+http://127.0.0.1:8000/api/admin/privilege/id
+DELETE :
+{}
