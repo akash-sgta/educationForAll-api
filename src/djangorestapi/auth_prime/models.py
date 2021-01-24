@@ -10,7 +10,7 @@ class User_Table(models.Model):
     user_f_name = models.CharField(max_length=32)
     user_m_name = models.CharField(max_length=32, null=True, blank=True)
     user_l_name = models.CharField(max_length=32)
-    user_email = models.EmailField(max_length=256)
+    user_email = models.EmailField(max_length=256, unique=True)
     user_password = models.CharField(max_length=1024)
 
     def __str__(self):

@@ -6,56 +6,226 @@ from django.http.response import JsonResponse
 from auth_prime.models import User_Table, Admin_Privilege, Admin_Table, Token_Table
 from auth_prime.serializer import User_Table_Serializer, Admin_Privilege_Serializer, Admin_Table_Serializer, Token_Table_Serializer
 
+import json
+from auth_prime.authorize import create_password_hash, is_user_authorized, is_admin_authorized, create_check_hash
 # Create your views here.
 
 @csrf_exempt
 def user_API(request, id=0):
+    data_returned = dict()
 
-    if(request.method == 'GET'):
-        try:
-            if(id == 0):
+    if(request.method == 'FETCH'):
+        data_returned['action'] = "FETCH"
+
+        user_data = JSONParser().parse(request)
+        incoming_action = user_data["action"]
+        incoming_data = user_data["data"]
+
+        if(incoming_action == 'user'):
+            data_returned['action'] += '-USER'
+            
+            if(is_user_authorized(incoming_data['user_id'], incoming_data['hash'])
+                and incoming_data['user_id'] == incoming_data['f_user_id']): # singular user info request
+
+                users = User_Table.objects.filter(user_id=incoming_data['f_user_id'])
+                if(len(users) < 1):
+                    data_returned['return'] = False
+                    data_returned['code'] = 2001 # Invalid user id
+                    return JsonResponse(data_returned, safe=True)
+                else:
+                    users = users[0]
+                    data_returned['return'] = True
+                    data_returned['code'] = 1000 # No error encountered
+                    data_returned['data'] = dict(User_Table_Serializer(users, many=False).data)
+                    return JsonResponse(data_returned, safe=True)
+        
+        elif(incoming_action == 'user_s'):
+            data_returned['action'] += '-USER_S'
+
+            if(is_admin_authorized(incoming_data['user_id'], incoming_data['hash'])):
+
                 users = User_Table.objects.all()
                 users_serialized = User_Table_Serializer(users, many=True)
-                return JsonResponse(users_serialized.data, safe=False)
+                data_returned['return'] = True
+                data_returned['code'] = 1000
+
+                data_returned['data'] = dict()
+                i = 0
+                for data in users_serialized.data:
+                    data_returned['data'][i] = dict(data)
+                    i += 1
+                
+                return JsonResponse(data_returned, safe=True)
+
             else:
-                users = User_Table.objects.get(user_id=id)
-                users_serialized = User_Table_Serializer(users, many=False)
-                return JsonResponse(users_serialized.data, safe=False)
-        except Exception as ex:
-            print(f"[!] USER API : GET : {ex}")
-            return JsonResponse("USER : [x] Data Get -> Unsuccessful.", safe=False)
+                data_returned['return'] = False
+                data_returned['code'] = 3002 # unauthorized admin access
+                return JsonResponse(data_returned, safe=True)
+        
+        else:
+            data_returned['return'] = False
+            data_returned['code'] = 1002 # Invalid action specified in message
+            data_returned['message'] = "invalid action specified."
+            return JsonResponse(data_returned, safe=True)
     
     elif(request.method == 'POST'):
+        data_returned['action'] = "POST"
+
         user_data = JSONParser().parse(request)
-        user_de_serialized = User_Table_Serializer(data=user_data)
-        if(user_de_serialized.is_valid()):
-            user_de_serialized.save()
-            return JsonResponse("USER : [.] Data Add -> Successful.", safe=False)
+        incoming_action = user_data["action"]
+        incoming_data = user_data["data"]
+
+        if(incoming_action == "signup"):
+
+            # SIGNUP REQUEST
+            # if successful return hash for login confirmation too
+            
+            data_returned['action'] += "-SIGNUP"
+
+            user_de_serialized = User_Table_Serializer(data=incoming_data)
+            data_to_check = user_de_serialized.initial_data
+            data_to_check['user_email'] = (data_to_check['user_email']).lower()
+            temp_fetch = User_Table.objects.filter(user_email=data_to_check['user_email'])
+
+            if(len(temp_fetch) > 0):
+                data_returned['return'] = False
+                data_returned['code'] = 1001 # User Email Exists
+                return JsonResponse(data_returned, safe=True)
+            
+            else:
+                user_de_serialized.initial_data['user_password'] = create_password_hash(data_to_check['user_password'])
+
+                if(user_de_serialized.is_valid()):
+                    user_de_serialized.save()
+
+                    data_returned['return'] = True
+                    data_returned['code'] = 1000 # No error encountered
+                    data_returned['data'] = dict()
+                    data_returned['data']['user_id'] = User_Table.objects.latest('user_id').user_id
+                    data_returned['data']['hash'] = create_check_hash(user_de_serialized.validated_data['user_email'],
+                                                                        user_de_serialized.validated_data['user_password']) # return hash as login confirmation
+                    return JsonResponse(data_returned, safe=True)
+                
+                else:
+                    data_returned['return'] = False
+                    data_returned['code'] = 9001 # Amiguous Error
+                    data_returned['message'] = user_de_serialized.errors
+                    return JsonResponse(data_returned, safe=True)
+
+        elif(incoming_action == "login"):
+            data_returned['action'] += "-LOGIN"
+
+            user_check = User_Table.objects.filter(user_email = incoming_data['user_email'].lower(),
+                                    user_password = create_password_hash(incoming_data['user_password']))
+            if(len(user_check) < 1):
+                data_returned['return'] = False
+                data_returned['code'] = 1003 # email id or password wrong
+                return JsonResponse(data_returned, safe=True)
+            
+            else:
+                user_check = user_check[0]
+                data_returned['return'] = True
+                data_returned['code'] = 1000 # No error encountered
+                data_returned['data'] = dict()
+                data_returned['data']['user_id'] = user_check.user_id
+                data_returned['data']['hash'] = create_check_hash(incoming_data['user_email'].lower(),
+                                                                    create_password_hash(incoming_data['user_password']))
+                return JsonResponse(data_returned, safe=True)
+
         else:
-            return JsonResponse("USER : [x] Data Add -> Unsuccessful.", safe=False)
+            data_returned['return'] = False
+            data_returned['code'] = 1002 # Invalid action specified in message
+            data_returned['message'] = "invalid action specified."
+            return JsonResponse(data_returned, safe=True)
     
     elif(request.method == 'PUT'):
+        data_returned['action'] = "PUT"
+
         user_data = JSONParser().parse(request)
-        user = User_Table.objects.get(user_id = user_data['user_id'])
-        user_de_serialized = User_Table_Serializer(user, data=user_data)
-        if(user_de_serialized.is_valid()):
-            user_de_serialized.save()
-            return JsonResponse("USER : [.] Update -> Successful.", safe=False)
+        incoming_action = user_data['action']
+        incoming_data = user_data['data']
+
+        if(incoming_action == 'user'):
+            data_returned['action'] += "-USER"
+
+
+            user = User_Table.objects.get(user_id = incoming_data['user_id'])
+
+            if(incoming_data['hash'] != create_check_hash(user.user_email, user.user_password)): #hash cross validate
+                data_returned['return'] = False
+                data_returned['code'] = 3001
+                return JsonResponse(data_returned, safe=True)
+            else:
+                user_de_serialized = User_Table_Serializer(user, data=incoming_data['data'])
+                user_de_serialized.initial_data['user_id'] = incoming_data['user_id']
+
+                temp = User_Table.objects.filter(user_email=user_de_serialized.initial_data['user_email'].lower())
+                if(len(temp) == 1):
+                    if(temp[0].user_id == user.user_id):
+                        user_de_serialized.initial_data['user_email'] = user_de_serialized.initial_data['user_email'].lower()
+                        user_de_serialized.initial_data['user_password'] = user.user_password
+                    else:
+                        data_returned['return'] = False
+                        data_returned['code'] = 1001 # User Email Exists
+                        return JsonResponse(data_returned, safe=True)
+                else:
+                    user_de_serialized.initial_data['user_email'] = user_de_serialized.initial_data['user_email'].lower()
+                    user_de_serialized.initial_data['user_password'] = user.user_password
+
+                if(user_de_serialized.is_valid()):
+                    user_de_serialized.save()
+
+                    data_returned['return'] = True
+                    data_returned['code'] = 1000
+                    return JsonResponse(data_returned, safe=True)
+                else:
+                    data_returned['return'] = False
+                    data_returned['code'] = 9001
+                    data_returned['message'] = user_de_serialized.errors
+                    return JsonResponse(data_returned, safe=True)
+        
         else:
-            return JsonResponse("USER : [x] Update -> Unsuccessful.", safe=False)
-    
+            data_returned['return'] = False
+            data_returned['code'] = 1002 # Invalid action specified in message
+            data_returned['message'] = "invalid action specified."
+            return JsonResponse(data_returned, safe=True)
+
     elif(request.method == 'DELETE'):
-        try:
-            user = User_Table.objects.get(user_id=id)
-            user.delete()
-        except Exception as ex:
-            print(f"USER API : DELETE : {ex}")
-            return JsonResponse("USER : [.] Delete -> Unsuccessful.", safe=False)
+        data_returned['action'] = "DELETE"
+
+        user_data = JSONParser().parse(request)
+        incoming_action = user_data['action']
+        incoming_data = user_data['data']
+
+        if(incoming_action == 'user'):
+            data_returned['action'] += "-USER"
+
+            if(is_user_authorized(incoming_data['user_id'], incoming_data['hash'])):
+                user = User_Table.objects.filter(user_id=incoming_data['user_id'])
+
+                if(len(user) < 1):
+                    data_returned['return'] = False
+                    data_returned['code'] = 2001
+                    return JsonResponse(data_returned, safe=True)
+                else:
+                    user.delete()
+                    data_returned['return'] = True
+                    data_returned['code'] = 1000
+                    return JsonResponse(data_returned, safe=True)
+            
+            else:
+                data_returned['return'] = False
+                data_returned['code'] = 3001
+                return JsonResponse(data_returned, safe=True)
+        
         else:
-            return JsonResponse("USER : [.] Delete -> Successful.", safe=False)
-    
+            data_returned['return'] = False
+            data_returned['code'] = 1002 # Invalid action specified in message
+            data_returned['message'] = "invalid action specified."
+            return JsonResponse(data_returned, safe=True)
+
     else:
-        return JsonResponse("USER : [x] Invalid Method. (use POST/GET/PUT/DELETE)", safe=False)
+        return JsonResponse("USER : [x] Invalid Method. read API contract.", safe=False)
 
 @csrf_exempt
 def admin_privilege_API(request, id=0):

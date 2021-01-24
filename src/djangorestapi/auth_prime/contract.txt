@@ -1,34 +1,83 @@
 API Contract Drafts:
 
+CODE LIST :
+
+1000    :   No error encountered
+1001    :   User Email Exists
+1002    :   Invalid action specified in message
+1003    :   email id or password wrong
+
+2001    :   Invalid user id
+
+3001    :   User_id and Hash Mismatch
+3002    :   unauthorized admin access
+
+9001    :   Amiguous Error
+
 ----------------------------------------------------------
 **USER_API
 
 http://127.0.0.1:8000/api/user/
-GET : id or all
-{}
+FETCH
+{
+    "action" : "user",
+    "data" : {
+        "f_user_id" : 18,
+        "user_id" : 18,
+        "hash": "b'z\\x15\\xd5*\\xd19\\x07\\xa4\\xeayyp\\x0c\\xc8\\xca\\x97|\\x05\\x85YRl\\x85\\xb0l\\xb9!K\\x17\\xa4\\xd1\\xfe'"
+    }
+}
+{
+    "action" : "user_s",
+    "data" : {
+        "user_id" : 18,
+        "hash": "b'z\\x15\\xd5*\\xd19\\x07\\xa4\\xeayyp\\x0c\\xc8\\xca\\x97|\\x05\\x85YRl\\x85\\xb0l\\xb9!K\\x17\\xa4\\xd1\\xfe'"
+    }
+}
 
 POST :
 {
-    "user_f_name" : "First Name",
-    "user_m_name" : "Middle Name - Optional",
-    "user_l_name" : "Last_name",
-    "user_email" : "email@domain.com",
-    "user_password" : "User Password"
+    "action" : "signup",
+    "data" : {
+        "user_f_name": "Testing",
+        "user_m_name": "Dummy",
+        "user_l_name": "Account",
+        "user_email": "TestingDummyAccount@domain.com",
+        "user_password": "password"
+    }
+}
+{
+    "action" : "login",
+    "data" : {
+        "user_email": "TestingDummyAccount@domain.com",
+        "user_password": "password"
+    }
 }
 
 PUT :
 {
-    "user_id" : "1",
-    "user_f_name" : "Changes",
-    "user_m_name" : "Changes",
-    "user_l_name" : "Changes",
-    "user_email" : "Changes@Changes.Changes",
-    "user_password" : "Changes"
+    "action" : "user",
+    "data" : {
+        "user_id" : 19,
+        "hash" : "b'9\\xc7\\xb1\\xc0\\x143\\x87\\x19R\\xf0}\\x84*C\\xef\\x0fD\\xfd5\\x99\\xcf<\\xc5]\\xc8\\xbaBj\\xe9\\x87\\x9c\\xdb'",
+        "data" : {
+            "user_f_name" : "Second",
+            "user_m_name" : "Renamed Dummy",
+            "user_l_name" : "Account",
+            "user_email" : "email@domain.com"
+        }
+    }
 }
 
 http://127.0.0.1:8000/api/user/id
 DELETE :
-{}
+{
+    "action" : "user",
+    "data" : {
+        "user_id" : 19,
+        "hash": "b\"\\x80\\xea\\xac\\x1d\\x1b\\xa3X\\xd2\\x0c\\xc6\\x8d\\x1e\\x9fs\\x96\\xe9\\x15\\x86^\\xf3?\\x90\\xcb\\xaa'b\\xc3\\xb1=[/\\xfc\""
+    }
+}
 
 ----------------------------------------------------------
 **TOKEN_API
