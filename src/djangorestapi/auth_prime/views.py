@@ -3,8 +3,8 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from django.http.response import JsonResponse
 
-from auth_prime.models import User_Table, Admin_Privilege, Admin_Table, Token_Table
-from auth_prime.serializer import User_Table_Serializer, Admin_Privilege_Serializer, Admin_Table_Serializer, Token_Table_Serializer
+from auth_prime.models import User_Credential, Admin_Privilege, Admin_Credential, Token_Table
+from auth_prime.serializer import User_Credential_Serializer, Admin_Privilege_Serializer, Admin_Credential_Serializer, Token_Table_Serializer
 
 import json
 from auth_prime.authorize import create_password_hash, is_user_authorized, is_admin_authorized, create_check_hash
