@@ -7,7 +7,7 @@ CODE LIST :
 1002    :   Invalid action specified in message
 1003    :   email id or password wrong
 
-2001    :   Invalid user id
+2001    :   Invalid Hash, Clear and reHash
 
 3001    :   User_id and Hash Mismatch
 3002    :   unauthorized admin access
@@ -18,24 +18,23 @@ CODE LIST :
 **USER_API
 
 http://127.0.0.1:8000/api/user/
-FETCH
+FETCH - To get your specific datas
 {
-    "action" : "user",
+    "action" : "get_one",
     "data" : {
-        "f_user_id" : 18,
-        "user_id" : 18,
-        "hash": "b'z\\x15\\xd5*\\xd19\\x07\\xa4\\xeayyp\\x0c\\xc8\\xca\\x97|\\x05\\x85YRl\\x85\\xb0l\\xb9!K\\x17\\xa4\\xd1\\xfe'"
-    }
-}
-{
-    "action" : "user_s",
-    "data" : {
-        "user_id" : 18,
-        "hash": "b'z\\x15\\xd5*\\xd19\\x07\\xa4\\xeayyp\\x0c\\xc8\\xca\\x97|\\x05\\x85YRl\\x85\\xb0l\\xb9!K\\x17\\xa4\\xd1\\xfe'"
+        "hash": "b'$\\xe1\\xe0\\x88M\\x1eAr\\xa1\\xca\\xbe2\\x98\\x86\\x96T\\xcf6\\xed\\x11\\x056wX>\\xaa\\xc3\\xa3\\x1b\\xec\\xde\\xc8'"
     }
 }
 
-POST :
+FETCH - To get all user data as admin
+{
+    "action" : "get_all",
+    "data" : {
+        "hash": "b'\\xe7\\xb7\\xe5\\xa6\\xac\\xa8\"6\\xcc\\x9c\\x99F\\xf34I\\xda\\xb0\\xef\\x06y\\xdf\\xff\\x865\\x91\\xd4\\xd5\\xb4Qo\\x93\\x1c'"
+    }
+}
+-----------------------
+POST - post data for signup as new user
 {
     "action" : "signup",
     "data" : {
@@ -43,9 +42,12 @@ POST :
         "user_m_name": "Dummy",
         "user_l_name": "Account",
         "user_email": "TestingDummyAccount@domain.com",
-        "user_password": "password"
+        "user_password": "password",
+        "user_security_question":"Who let the dogs out?",
+        "user_security_answer":"who who who"
     }
 }
+POST - post data for login of old user
 {
     "action" : "login",
     "data" : {
@@ -53,13 +55,12 @@ POST :
         "user_password": "password"
     }
 }
-
-PUT :
+-----------------------
+PUT - Change data belonging to you or indivisual user
 {
     "action" : "user",
     "data" : {
-        "user_id" : 19,
-        "hash" : "b'9\\xc7\\xb1\\xc0\\x143\\x87\\x19R\\xf0}\\x84*C\\xef\\x0fD\\xfd5\\x99\\xcf<\\xc5]\\xc8\\xbaBj\\xe9\\x87\\x9c\\xdb'",
+        "hash" : "b'$\\xe1\\xe0\\x88M\\x1eAr\\xa1\\xca\\xbe2\\x98\\x86\\x96T\\xcf6\\xed\\x11\\x056wX>\\xaa\\xc3\\xa3\\x1b\\xec\\xde\\xc8'",
         "data" : {
             "user_f_name" : "Second",
             "user_m_name" : "Renamed Dummy",
@@ -72,10 +73,9 @@ PUT :
 http://127.0.0.1:8000/api/user/id
 DELETE :
 {
-    "action" : "user",
+    "action" : "one",
     "data" : {
-        "user_id" : 19,
-        "hash": "b\"\\x80\\xea\\xac\\x1d\\x1b\\xa3X\\xd2\\x0c\\xc6\\x8d\\x1e\\x9fs\\x96\\xe9\\x15\\x86^\\xf3?\\x90\\xcb\\xaa'b\\xc3\\xb1=[/\\xfc\""
+        "hash": "b'$\\xe1\\xe0\\x88M\\x1eAr\\xa1\\xca\\xbe2\\x98\\x86\\x96T\\xcf6\\xed\\x11\\x056wX>\\xaa\\xc3\\xa3\\x1b\\xec\\xde\\xc8'"
     }
 }
 

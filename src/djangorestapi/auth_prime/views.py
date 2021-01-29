@@ -7,11 +7,14 @@ from auth_prime.models import User_Credential, Admin_Privilege, Admin_Credential
 from auth_prime.serializer import User_Credential_Serializer, Admin_Privilege_Serializer, Admin_Credential_Serializer, Token_Table_Serializer
 
 import json
-from auth_prime.authorize import create_password_hash, is_user_authorized, is_admin_authorized, create_check_hash
+from auth_prime.authorize import Authorize
 # Create your views here.
+
+auth = Authorize()
 
 @csrf_exempt
 def user_API(request, id=0):
+    global auth
     data_returned = dict()
 
     if(request.method == 'FETCH'):
@@ -21,46 +24,63 @@ def user_API(request, id=0):
         incoming_action = user_data["action"]
         incoming_data = user_data["data"]
 
-        if(incoming_action == 'user'):
-            data_returned['action'] += '-USER'
+        if(incoming_action == 'get_one'):
+            data_returned['action'] += '-GET_ONE'
             
-            if(is_user_authorized(incoming_data['user_id'], incoming_data['hash'])
-                and incoming_data['user_id'] == incoming_data['f_user_id']): # singular user info request
+            auth.clear()
+            auth.token = incoming_data['hash']
 
-                users = User_Table.objects.filter(user_id=incoming_data['f_user_id'])
-                if(len(users) < 1):
+            data = auth.is_authorized()
+
+            if(data[0] == True):
+                user_credential_ref = User_Credential.objects.filter(user_credential_id = int(data[1]))
+                if(len(user_credential_ref) < 1):
                     data_returned['return'] = False
-                    data_returned['code'] = 2001 # Invalid user id
+                    data_returned['code'] = 2001 # Invalid Hash, Clear and reHash
                     return JsonResponse(data_returned, safe=True)
                 else:
-                    users = users[0]
+                    user_credential_ref = user_credential_ref[0]
                     data_returned['return'] = True
                     data_returned['code'] = 1000 # No error encountered
-                    data_returned['data'] = dict(User_Table_Serializer(users, many=False).data)
+                    data_returned['data'] = dict(User_Credential_Serializer(user_credential_ref, many=False).data)
+                    del(data_returned['data']['user_password'])
+                    del(data_returned['data']['user_credential_id'])
+                    del(data_returned['data']["user_security_question"])
+                    del(data_returned['data']["user_security_answer"])
                     return JsonResponse(data_returned, safe=True)
+            else:
+                data_returned['return'] = False
+                data_returned['code'] = 9001 # Amiguous Error
+                data_returned['message'] = data[1]
+                return JsonResponse(data_returned, safe=True)                
         
-        elif(incoming_action == 'user_s'):
-            data_returned['action'] += '-USER_S'
+        elif(incoming_action == 'get_all'):
+            data_returned['action'] += '-GET_ALL'
 
-            if(is_admin_authorized(incoming_data['user_id'], incoming_data['hash'])):
+            auth.clear()
+            auth.token = incoming_data['hash']
 
-                users = User_Table.objects.all()
-                users_serialized = User_Table_Serializer(users, many=True)
+            data = auth.is_authorized_admin()
+
+            if(data[0] == False):
+                data_returned['return'] = False
+                data_returned['code'] = 3002 # unauthorized admin access
+                return JsonResponse(data_returned, safe=True)
+            else:
+
+                user_credential_ref = User_Credential.objects.all()
+                user_credential_serialized = User_Credential_Serializer(user_credential_ref, many=True)
                 data_returned['return'] = True
                 data_returned['code'] = 1000
 
                 data_returned['data'] = dict()
                 i = 0
-                for data in users_serialized.data:
+                for data in user_credential_serialized.data:
                     data_returned['data'][i] = dict(data)
+                    del(data_returned['data'][i]['user_password'])
                     i += 1
                 
-                return JsonResponse(data_returned, safe=True)
-
-            else:
-                data_returned['return'] = False
-                data_returned['code'] = 3002 # unauthorized admin access
-                return JsonResponse(data_returned, safe=True)
+                return JsonResponse(data_returned, safe=True)                
         
         else:
             data_returned['return'] = False
@@ -77,15 +97,12 @@ def user_API(request, id=0):
 
         if(incoming_action == "signup"):
 
-            # SIGNUP REQUEST
-            # if successful return hash for login confirmation too
-            
             data_returned['action'] += "-SIGNUP"
 
-            user_de_serialized = User_Table_Serializer(data=incoming_data)
-            data_to_check = user_de_serialized.initial_data
+            user_credential_de_serialized = User_Credential_Serializer(data=incoming_data)
+            data_to_check = user_credential_de_serialized.initial_data
             data_to_check['user_email'] = (data_to_check['user_email']).lower()
-            temp_fetch = User_Table.objects.filter(user_email=data_to_check['user_email'])
+            temp_fetch = User_Credential.objects.filter(user_email=data_to_check['user_email'])
 
             if(len(temp_fetch) > 0):
                 data_returned['return'] = False
@@ -93,44 +110,60 @@ def user_API(request, id=0):
                 return JsonResponse(data_returned, safe=True)
             
             else:
-                user_de_serialized.initial_data['user_password'] = create_password_hash(data_to_check['user_password'])
-
-                if(user_de_serialized.is_valid()):
-                    user_de_serialized.save()
+                auth.clear()
+                auth.user_email = data_to_check['user_email'].lower()
+                auth.user_password = data_to_check['user_password']
+                
+                data = auth.create_password_hashed()
+                if(data[0] == False):
+                    data_returned['return'] = False
+                    data_returned['code'] = 8001 # Amiguous Error
+                    data_returned['message'] = data[1]
+                    return JsonResponse(data_returned, safe=True)
+                else:
+                    user_credential_de_serialized.initial_data['user_password'] = data[1]
+                    
+                if(user_credential_de_serialized.is_valid()):
+                    user_credential_de_serialized.save()
 
                     data_returned['return'] = True
                     data_returned['code'] = 1000 # No error encountered
-                    data_returned['data'] = dict()
-                    data_returned['data']['user_id'] = User_Table.objects.latest('user_id').user_id
-                    data_returned['data']['hash'] = create_check_hash(user_de_serialized.validated_data['user_email'],
-                                                                        user_de_serialized.validated_data['user_password']) # return hash as login confirmation
-                    return JsonResponse(data_returned, safe=True)
+
+                    data = auth.sanction_authorization()
+                    if(data[0] == False):
+                        data_returned['return'] = False
+                        data_returned['code'] = 8001 # Amiguous Error
+                        data_returned['message'] = data[1]
+                        return JsonResponse(data_returned, safe=True)
+                    else:
+                        data_returned['data'] = dict()
+                        data_returned['data']['hash'] = data[1]
+                        return JsonResponse(data_returned, safe=True)
                 
                 else:
                     data_returned['return'] = False
                     data_returned['code'] = 9001 # Amiguous Error
-                    data_returned['message'] = user_de_serialized.errors
+                    data_returned['message'] = user_credential_de_serialized.errors
                     return JsonResponse(data_returned, safe=True)
 
         elif(incoming_action == "login"):
             data_returned['action'] += "-LOGIN"
 
-            user_check = User_Table.objects.filter(user_email = incoming_data['user_email'].lower(),
-                                    user_password = create_password_hash(incoming_data['user_password']))
-            if(len(user_check) < 1):
+            auth.clear()
+            auth.user_email = incoming_data['user_email'].lower()
+            auth.user_password = incoming_data['user_password']
+
+            data = auth.sanction_authorization()
+            if(data[0] == False):
                 data_returned['return'] = False
-                data_returned['code'] = 1003 # email id or password wrong
-                return JsonResponse(data_returned, safe=True)
-            
+                data_returned['code'] = 9001 # Amiguous Error
+                data_returned['message'] = data[1]
             else:
-                user_check = user_check[0]
                 data_returned['return'] = True
                 data_returned['code'] = 1000 # No error encountered
                 data_returned['data'] = dict()
-                data_returned['data']['user_id'] = user_check.user_id
-                data_returned['data']['hash'] = create_check_hash(incoming_data['user_email'].lower(),
-                                                                    create_password_hash(incoming_data['user_password']))
-                return JsonResponse(data_returned, safe=True)
+                data_returned['data']['hash'] = data[1]
+            return JsonResponse(data_returned, safe=True)
 
         else:
             data_returned['return'] = False
@@ -148,32 +181,46 @@ def user_API(request, id=0):
         if(incoming_action == 'user'):
             data_returned['action'] += "-USER"
 
-
-            user = User_Table.objects.get(user_id = incoming_data['user_id'])
-
-            if(incoming_data['hash'] != create_check_hash(user.user_email, user.user_password)): #hash cross validate
+            auth.clear()
+            auth.token = incoming_data['hash']
+            data = auth.is_authorized()
+            if(data[0] == False):
                 data_returned['return'] = False
-                data_returned['code'] = 3001
+                data_returned['code'] = 2001 # hash not in db
+                data_returned['message'] = data[1]
                 return JsonResponse(data_returned, safe=True)
             else:
-                user_de_serialized = User_Table_Serializer(user, data=incoming_data['data'])
-                user_de_serialized.initial_data['user_id'] = incoming_data['user_id']
+                user_credential_ref = User_Credential.objects.filter(user_credential_id=int(data[1]))[0]
+                user_credential_de_serialized = User_Credential_Serializer(user_credential_ref, data=incoming_data['data'])
 
-                temp = User_Table.objects.filter(user_email=user_de_serialized.initial_data['user_email'].lower())
-                if(len(temp) == 1):
-                    if(temp[0].user_id == user.user_id):
-                        user_de_serialized.initial_data['user_email'] = user_de_serialized.initial_data['user_email'].lower()
-                        user_de_serialized.initial_data['user_password'] = user.user_password
+                temp = User_Credential.objects.filter(user_email=user_credential_de_serialized.initial_data['user_email'].lower())
+                if(len(temp) > 0):
+                    temp = temp[0]
+                    if(temp.user_credential_id == user_credential_ref.user_credential_id):
+                        user_credential_de_serialized.initial_data['user_email'] = user_credential_de_serialized.initial_data['user_email'].lower()
+                        if(user_credential_de_serialized.initial_data['user_email'] != user_credential_ref.user_email):
+                            auth.clear()
+                            auth.token = incoming_data['hash']
+                            auth.user_email = user_credential_de_serialized.initial_data['user_email']
+                        
+                        # necessary fields for serializer but can not be given permission to user
+                        user_credential_de_serialized.initial_data['user_password'] = user_credential_ref.user_password
+                        user_credential_de_serialized.initial_data['user_security_question'] = user_credential_ref.user_security_question
+                        user_credential_de_serialized.initial_data['user_security_answer'] = user_credential_ref.user_security_answer
                     else:
                         data_returned['return'] = False
                         data_returned['code'] = 1001 # User Email Exists
                         return JsonResponse(data_returned, safe=True)
                 else:
-                    user_de_serialized.initial_data['user_email'] = user_de_serialized.initial_data['user_email'].lower()
-                    user_de_serialized.initial_data['user_password'] = user.user_password
+                    user_credential_de_serialized.initial_data['user_email'] = user_credential_de_serialized.initial_data['user_email'].lower()
+                    
+                    # necessary fields for serializer but can not be given permission to user
+                    user_credential_de_serialized.initial_data['user_password'] = user_credential_ref.user_password
+                    user_credential_de_serialized.initial_data['user_security_question'] = user_credential_ref.user_security_question
+                    user_credential_de_serialized.initial_data['user_security_answer'] = user_credential_ref.user_security_answer
 
-                if(user_de_serialized.is_valid()):
-                    user_de_serialized.save()
+                if(user_credential_de_serialized.is_valid()):
+                    user_credential_de_serialized.save()
 
                     data_returned['return'] = True
                     data_returned['code'] = 1000
@@ -181,7 +228,7 @@ def user_API(request, id=0):
                 else:
                     data_returned['return'] = False
                     data_returned['code'] = 9001
-                    data_returned['message'] = user_de_serialized.errors
+                    data_returned['message'] = user_credential_de_serialized.errors
                     return JsonResponse(data_returned, safe=True)
         
         else:
@@ -197,25 +244,23 @@ def user_API(request, id=0):
         incoming_action = user_data['action']
         incoming_data = user_data['data']
 
-        if(incoming_action == 'user'):
-            data_returned['action'] += "-USER"
+        if(incoming_action == 'one'):
+            data_returned['action'] += "-ONE"
 
-            if(is_user_authorized(incoming_data['user_id'], incoming_data['hash'])):
-                user = User_Table.objects.filter(user_id=incoming_data['user_id'])
-
-                if(len(user) < 1):
-                    data_returned['return'] = False
-                    data_returned['code'] = 2001
-                    return JsonResponse(data_returned, safe=True)
-                else:
-                    user.delete()
-                    data_returned['return'] = True
-                    data_returned['code'] = 1000
-                    return JsonResponse(data_returned, safe=True)
-            
-            else:
+            auth.clear()
+            auth.token = incoming_data['hash']
+            data = auth.is_authorized()
+            if(data[0] == False):
                 data_returned['return'] = False
-                data_returned['code'] = 3001
+                data_returned['code'] = 8001
+                data_returned['message'] = data[1]
+                return JsonResponse(data_returned, safe=True)
+            else:
+                user_credential_ref = User_Credential.objects.filter(user_credential_id=int(data[1]))
+                user_credential_ref = user_credential_ref[0]
+                user_credential_ref.delete()
+                data_returned['return'] = True
+                data_returned['code'] = 1000
                 return JsonResponse(data_returned, safe=True)
         
         else:
@@ -282,12 +327,12 @@ def admin_API(request, id=0):
     if(request.method == 'GET'):
         try:
             if(id == 0):
-                admins = Admin_Table.objects.all()
-                admins_serialized = Admin_Table_Serializer(admins, many=True)
+                admins = Admin_Credential.objects.all()
+                admins_serialized = Admin_Credential_Serializer(admins, many=True)
                 return JsonResponse(admins_serialized.data, safe=False)
             else:
-                admins = Admin_Table.objects.get(admin_id=id)
-                admins_serialized = Admin_Table_Serializer(admins, many=False)
+                admins = Admin_Credential.objects.get(admin_id=id)
+                admins_serialized = Admin_Credential_Serializer(admins, many=False)
                 return JsonResponse(admins_serialized.data, safe=False)
         except Exception as ex:
             print(f"[!] ADMIN API : GET : {ex}")
@@ -295,7 +340,7 @@ def admin_API(request, id=0):
     
     elif(request.method == 'POST'):
         admin_data = JSONParser().parse(request)
-        admin_de_serialized = Admin_Table_Serializer(data=admin_data)
+        admin_de_serialized = Admin_Credential_Serializer(data=admin_data)
         if(admin_de_serialized.is_valid()):
             admin_de_serialized.save()
             return JsonResponse("ADMIN : [.] Data Add -> Successful.", safe=False)
@@ -304,8 +349,8 @@ def admin_API(request, id=0):
     
     elif(request.method == 'PUT'):
         admin_data = JSONParser().parse(request)
-        admin = Admin_Table.objects.get(admin_id = admin_data['admin_id'])
-        admin_de_serialized = Admin_Table_Serializer(admin, data=admin_data)
+        admin = Admin_Credential.objects.get(admin_id = admin_data['admin_id'])
+        admin_de_serialized = Admin_Credential_Serializer(admin, data=admin_data)
         if(admin_de_serialized.is_valid()):
             admin_de_serialized.save()
             return JsonResponse("ADMIN : [.] Update -> Successful.", safe=False)
@@ -314,7 +359,7 @@ def admin_API(request, id=0):
     
     elif(request.method == 'DELETE'):
         try:
-            admin = Admin_Table.objects.get(admin_id=id)
+            admin = Admin_Credential.objects.get(admin_id=id)
             admin.delete()
         except Exception as ex:
             print(f"[!] ADMIN API : DELETE : {ex}")

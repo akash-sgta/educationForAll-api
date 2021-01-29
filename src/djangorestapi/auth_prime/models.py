@@ -32,7 +32,7 @@ class User_Credential(models.Model):
     user_security_answer = models.CharField(max_length=512, null=False, blank=False)
 
     def __str__(self):
-        return f"{self.user_id} | {self.user_f_name[0]}.{self.user_l_name}"
+        return f"{self.user_credential_id} | {self.user_f_name[0]}.{self.user_l_name}"
 
 class Admin_Privilege(models.Model):
     admin_privilege_id = models.AutoField(primary_key=True)
@@ -52,7 +52,7 @@ class Admin_Credential(models.Model):
     privilege_id_3 = models.ForeignKey(Admin_Privilege, related_name='privilege_id_3', null=True, blank=True, on_delete=models.SET_NULL)
     
     def __str__(self):
-        return f"{self.admin_id} | {self.user_id.user_f_name[0]}.{self.user_id.user_l_name}"
+        return f"{self.admin_credential_id} | {self.user_credential_id.user_f_name[0]}.{self.user_credential_id.user_l_name}"
 
 # -------------------------------------------
 def get_from():
@@ -70,7 +70,7 @@ def get_till():
 class Token_Table(models.Model):
     token_id = models.AutoField(primary_key=True)
 
-    user_credential_id = models.ForeignKey(User_Credential, null=True, blank=True, on_delete=models.SET_NULL)
+    user_credential_id = models.ForeignKey(User_Credential, null=True, blank=True, on_delete=models.CASCADE)
 
     token_hash = models.CharField(default='', max_length=512)
     token_start = models.CharField(default='dd-mm-yyyy HH:MM:SS', max_length=32)
