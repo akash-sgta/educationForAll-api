@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 from pathlib import Path
 import os
-from djangorestapi.development import S_KEY, DE_BUG
+from djangorestapi.development import S_KEY, DE_BUG, DB_SETTINGS
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'rest_framework',
     
     'auth_prime',
+    'user_personal',
     'content_delivery',
 ]
 
@@ -82,10 +83,7 @@ WSGI_APPLICATION = 'djangorestapi.wsgi.application'
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': DB_SETTINGS['DEFAULT'],
 }
 
 

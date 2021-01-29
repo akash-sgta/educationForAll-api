@@ -1,34 +1,83 @@
 API Contract Drafts:
 
+CODE LIST :
+
+1000    :   No error encountered
+1001    :   User Email Exists
+1002    :   Invalid action specified in message
+1003    :   email id or password wrong
+
+2001    :   Invalid Hash, Clear and reHash
+
+3001    :   User_id and Hash Mismatch
+3002    :   unauthorized admin access
+
+9001    :   Amiguous Error
+
 ----------------------------------------------------------
 **USER_API
 
 http://127.0.0.1:8000/api/user/
-GET : id or all
-{}
-
-POST :
+FETCH - To get your specific datas
 {
-    "user_f_name" : "First Name",
-    "user_m_name" : "Middle Name - Optional",
-    "user_l_name" : "Last_name",
-    "user_email" : "email@domain.com",
-    "user_password" : "User Password"
+    "action" : "get_one",
+    "data" : {
+        "hash": "b'$\\xe1\\xe0\\x88M\\x1eAr\\xa1\\xca\\xbe2\\x98\\x86\\x96T\\xcf6\\xed\\x11\\x056wX>\\xaa\\xc3\\xa3\\x1b\\xec\\xde\\xc8'"
+    }
 }
 
-PUT :
+FETCH - To get all user data as admin
 {
-    "user_id" : "1",
-    "user_f_name" : "Changes",
-    "user_m_name" : "Changes",
-    "user_l_name" : "Changes",
-    "user_email" : "Changes@Changes.Changes",
-    "user_password" : "Changes"
+    "action" : "get_all",
+    "data" : {
+        "hash": "b'\\xe7\\xb7\\xe5\\xa6\\xac\\xa8\"6\\xcc\\x9c\\x99F\\xf34I\\xda\\xb0\\xef\\x06y\\xdf\\xff\\x865\\x91\\xd4\\xd5\\xb4Qo\\x93\\x1c'"
+    }
+}
+-----------------------
+POST - post data for signup as new user
+{
+    "action" : "signup",
+    "data" : {
+        "user_f_name": "Testing",
+        "user_m_name": "Dummy",
+        "user_l_name": "Account",
+        "user_email": "TestingDummyAccount@domain.com",
+        "user_password": "password",
+        "user_security_question":"Who let the dogs out?",
+        "user_security_answer":"who who who"
+    }
+}
+POST - post data for login of old user
+{
+    "action" : "login",
+    "data" : {
+        "user_email": "TestingDummyAccount@domain.com",
+        "user_password": "password"
+    }
+}
+-----------------------
+PUT - Change data belonging to you or indivisual user
+{
+    "action" : "user",
+    "data" : {
+        "hash" : "b'$\\xe1\\xe0\\x88M\\x1eAr\\xa1\\xca\\xbe2\\x98\\x86\\x96T\\xcf6\\xed\\x11\\x056wX>\\xaa\\xc3\\xa3\\x1b\\xec\\xde\\xc8'",
+        "data" : {
+            "user_f_name" : "Second",
+            "user_m_name" : "Renamed Dummy",
+            "user_l_name" : "Account",
+            "user_email" : "email@domain.com"
+        }
+    }
 }
 
 http://127.0.0.1:8000/api/user/id
 DELETE :
-{}
+{
+    "action" : "one",
+    "data" : {
+        "hash": "b'$\\xe1\\xe0\\x88M\\x1eAr\\xa1\\xca\\xbe2\\x98\\x86\\x96T\\xcf6\\xed\\x11\\x056wX>\\xaa\\xc3\\xa3\\x1b\\xec\\xde\\xc8'"
+    }
+}
 
 ----------------------------------------------------------
 **TOKEN_API
