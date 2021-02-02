@@ -41,7 +41,7 @@ class Admin_Privilege(models.Model):
     admin_privilege_description = models.CharField(max_length=1024)
 
     def __str__(self):
-        return f"{self.privilege_id} | {self.privilege_name}"
+        return f"{self.admin_privilege_id} | {self.admin_privilege_name}"
 
 class Admin_Credential(models.Model):
     admin_credential_id = models.AutoField(primary_key=True, null=False, blank=False, unique=True)
@@ -53,19 +53,6 @@ class Admin_Credential(models.Model):
     
     def __str__(self):
         return f"{self.admin_credential_id} | {self.user_credential_id.user_f_name[0]}.{self.user_credential_id.user_l_name}"
-
-# -------------------------------------------
-def get_from():
-    now = datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
-    return now
-
-def get_till():
-    now = datetime.datetime.now()
-    hours_added = datetime.timedelta(hours=12)
-    future = now + hours_added
-    future = future.strftime("%d-%m-%Y %H:%M:%S")
-    return future
-# -------------------------------------------
 
 class Token_Table(models.Model):
     token_id = models.AutoField(primary_key=True)

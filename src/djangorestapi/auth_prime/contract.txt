@@ -2,27 +2,30 @@ API Contract Drafts:
 
 CODE LIST :
 
-1000    :   No error encountered
-1001    :   User Email Exists
-1002    :   Invalid action specified in message
-1003    :   email id or password wrong
+200     :   Successful Execution.
 
-2001    :   Invalid Hash, Clear and reHash
+401     :   User Not found.
+402     :   Invalid action specified.
+403     :   Email Already Exists.
+404     :   Serializing error.
+405     :   Admin not alpha
+406     :   Invalid user id
+407     :   User ID not ADMIN.
+408     :   Admin exists.
 
-3001    :   User_id and Hash Mismatch
-3002    :   unauthorized admin access
-
-9001    :   Amiguous Error
+501     :   Error from Authorize.
+502     :   Invalid api contract reference, see doc.
+503     :   Action not allowed through api
 
 ----------------------------------------------------------
 **USER_API
-
 http://127.0.0.1:8000/api/user/
+
 FETCH - To get your specific datas
 {
     "action" : "get_one",
     "data" : {
-        "hash": "b'$\\xe1\\xe0\\x88M\\x1eAr\\xa1\\xca\\xbe2\\x98\\x86\\x96T\\xcf6\\xed\\x11\\x056wX>\\xaa\\xc3\\xa3\\x1b\\xec\\xde\\xc8'"
+        "hash": "USER_HASH"
     }
 }
 
@@ -30,7 +33,7 @@ FETCH - To get all user data as admin
 {
     "action" : "get_all",
     "data" : {
-        "hash": "b'\\xe7\\xb7\\xe5\\xa6\\xac\\xa8\"6\\xcc\\x9c\\x99F\\xf34I\\xda\\xb0\\xef\\x06y\\xdf\\xff\\x865\\x91\\xd4\\xd5\\xb4Qo\\x93\\x1c'"
+        "hash": "USER_ADMIN_HASH"
     }
 }
 -----------------------
@@ -38,21 +41,22 @@ POST - post data for signup as new user
 {
     "action" : "signup",
     "data" : {
-        "user_f_name": "Testing",
-        "user_m_name": "Dummy",
-        "user_l_name": "Account",
-        "user_email": "TestingDummyAccount@domain.com",
-        "user_password": "password",
-        "user_security_question":"Who let the dogs out?",
-        "user_security_answer":"who who who"
+        "user_f_name" : "FIRST_NAME",
+        "user_m_name" : "MIDDLE_NAME / blank / null",
+        "user_l_name" : "LAST_NAME",
+        "user_email" : "email@domain.com",
+        "user_password" : "PASSWORD_LEAST_8_CHARACTERS",
+        "user_security_question" : "SECURITY_QUESTION",
+        "user_security_answer" : "ANSWER_TO_THE_SECURITY_QUESTION"
     }
 }
+
 POST - post data for login of old user
 {
     "action" : "login",
     "data" : {
-        "user_email": "TestingDummyAccount@domain.com",
-        "user_password": "password"
+        "user_email" : "email@domain.com THAT_WAS_USED_TO_SIGNUP_WITH",
+        "user_password" : "PASSWORD_THAT_WAS_USED_TO_SIGNUP_WITH"
     }
 }
 -----------------------
@@ -60,93 +64,100 @@ PUT - Change data belonging to you or indivisual user
 {
     "action" : "user",
     "data" : {
-        "hash" : "b'$\\xe1\\xe0\\x88M\\x1eAr\\xa1\\xca\\xbe2\\x98\\x86\\x96T\\xcf6\\xed\\x11\\x056wX>\\xaa\\xc3\\xa3\\x1b\\xec\\xde\\xc8'",
+        "hash" : "USER_HASH",
         "data" : {
-            "user_f_name" : "Second",
-            "user_m_name" : "Renamed Dummy",
-            "user_l_name" : "Account",
-            "user_email" : "email@domain.com"
+            "user_f_name" : "CHANGES",
+            "user_m_name" : "CHANGES",
+            "user_l_name" : "CHANGES",
+            "user_email" : "CHANGES"
         }
     }
 }
-
-http://127.0.0.1:8000/api/user/id
-DELETE :
+-----------------------
+DELETE - delete your account
 {
     "action" : "one",
     "data" : {
-        "hash": "b'$\\xe1\\xe0\\x88M\\x1eAr\\xa1\\xca\\xbe2\\x98\\x86\\x96T\\xcf6\\xed\\x11\\x056wX>\\xaa\\xc3\\xa3\\x1b\\xec\\xde\\xc8'"
+        "hash": "USER_HASH"
     }
 }
 
 ----------------------------------------------------------
-**TOKEN_API
-
-http://127.0.0.1:8000/api/token/
-GET : id or all
-{}
-
-POST :
-{
-    "token_hash" : "original hash",
-    "token_date_start" : "dd-mm-yyyy",
-    "token_date_end" : "dd-mm-yyyy"
-}
-
-PUT :
-{
-    "token_id" : "1",
-    "token_hash" : "Changes",
-    "token_date_start" : "dd-mm-yyyy",
-    "token_date_end" : "dd-mm-yyyy"
-}
-
-http://127.0.0.1:8000/api/user/id
-DELETE
-{}
-
-----------------------------------------------------------
 **ADMIN_API
-
 http://127.0.0.1:8000/api/admin/
-GET : id or all
-{}
 
-POST :
+FETCH - To get your specific datas
 {
-    "user_id" : "User ID to be granted admin priviledges"
+    "action" : "get_one",
+    "data" : {
+        "hash": "USER_ADMIN_HASH"
+    }
 }
-
-PUT :
+FETCH - To all admin datas as alpha
 {
-    "admin_id" : "1";
-    "user_id" : "Changes"
+    "action" : "get_all",
+    "data" : {
+        "hash": "USER_ADMIN_HASH"
+    }
 }
-
-http://127.0.0.1:8000/api/user/id
-DELETE :
-{}
-
+-----------------------
+POST - post your hash and the user id to grant admin to
+{
+    "hash" : "USER_ALPHA_ADMIN_HASH",
+    "data" : {
+        "user_id" : 26
+    }
+}
+-----------------------
+PUT - changes admin priviledges
+{
+    "hash" : "USER_ADMIN_HASH / USER_ALPHA_ADMIN_HASH",
+    "data" : {
+        "user_id" : 21,
+        "privilege_id_1" : null,
+        "privilege_id_2" : null,
+        "privilege_id_3" : null
+    }
+}
+-----------------------
+DELETE - self admin delete or other non alpha delete
+{
+    "hash" : "USER_ADMIN_HASH / USER_ALPHA_ADMIN_HASH"
+    "data" : {
+        "user_id" : 26
+    }
+}
 ----------------------------------------------------------
 **ADMIN_PRIVILEGE_API
-
 http://127.0.0.1:8000/api/admin/privilege/
-GET : id or all
+
+GET - All the privileges
 {}
-
-POST :
+-----------------------
+POST - add new privilege
 {
-    "privilege_name" : "Privilege Name",
-    "privilege_description" : "Allows What"
+    "hash" : "USER_ADMIN_HASH",
+    "data" : {
+        "admin_privilege_name" : "Privilege Name",
+        "admin_privilege_description" : "Allows What"
+    }
 }
-
-PUT :
+-----------------------
+PUT - change privilege specifics
 {
-    "privilege_id" : "1",
-    "privilege_name" : "Privilege Name",
-    "privilege_description" : "Allows What"
+    "hash" : "USER_ADMIN_HASH",
+    "data" : {
+        "admin_privilege_id" : id,
+        "admin_privilege_name" : "Privilege Name",
+        "admin_privilege_description" : "Allows What"
+    }
 }
-
-http://127.0.0.1:8000/api/admin/privilege/id
-DELETE :
-{}
+-----------------------
+DELETE - delete privilege
+{
+    "hash" : "USER_ADMIN_HASH",
+    "data" : {
+        "admin_privilege_id" : id
+    }
+}
+----------------------------------------------------------
