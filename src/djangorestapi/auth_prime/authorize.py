@@ -197,4 +197,24 @@ class Authorize(Authorize_Prime):
                 admin_credential_ref = admin_credential_ref[0]
                 return True,admin_credential_ref.admin_credential_id
     
+    def is_alpha_admin(self):
+        from auth_prime.models import Admin_Credential
+
+        data = self.is_authorized_admin()
+        if(data[0] == False):
+            return False, data[1]
+        else:
+            admin_credential_ref = Admin_Credential.objects.filter(admin_credential_id = int(data[1]))
+            admin_credential_ref = admin_credential_ref[0]
+
+            if(((admin_credential_ref.privilege_id_1 != None) and (admin_credential_ref.privilege_id_1.admin_privilege_id == 2))
+            or ((admin_credential_ref.privilege_id_2 != None) and (admin_credential_ref.privilege_id_2.admin_privilege_id == 2))
+            or ((admin_credential_ref.privilege_id_3 != None) and (admin_credential_ref.privilege_id_3.admin_privilege_id == 2))):
+
+                return True, data[1]
+            
+            else:
+
+                return False, "[x] Admin not having alpha privileges."
+    
     

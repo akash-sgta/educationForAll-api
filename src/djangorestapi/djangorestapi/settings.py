@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'rest_framework',
+    'django_crontab',
     
     'auth_prime',
     'user_personal',
@@ -130,3 +131,15 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# ---------------------EXPERIMENTAL--------------------------------
+
+# useful when run on linux
+
+# python manage.py corntab add
+# python manage.py crontab show
+# python manage.py crontab remove
+
+CRONJOBS = [
+    ('*/5 * * * *', 'auth_prime.cronjob.clear_residue_tokens'),
+]
