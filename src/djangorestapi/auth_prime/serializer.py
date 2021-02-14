@@ -9,15 +9,15 @@ class User_Profile_Serializer(serializers.ModelSerializer):
         model = User_Profile
         fields = (
             'user_profile_id',
-            'user_profie_headline',
+            'user_profile_headline',
             'user_bio',
             'user_english_efficiency',
             'user_git_profile',
             'user_linkedin_profile',
             'user_profile_pic_url',
-            'user_roll_number'
+            'user_roll_number',
+            'prime'
         )
-
 
 class User_Credential_Serializer(serializers.ModelSerializer):
     class Meta:
@@ -48,9 +48,7 @@ class Admin_Credential_Serializer(serializers.ModelSerializer):
         fields = (
             'admin_credential_id',
             'user_credential_id',
-            'privilege_id_1',
-            'privilege_id_2',
-            'privilege_id_3')
+            'prime')
 
 class Token_Table_Serializer(serializers.ModelSerializer):
     class Meta:
