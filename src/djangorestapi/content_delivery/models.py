@@ -14,16 +14,10 @@ class Coordinator(models.Model):
     prime = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.coordinator_id} | {self.user_credential_id.user_f_name} | {self.user_credential_id.user_l_name}"
+        return f"{self.coordinator_id} | {self.user_credential_id.user_f_name}"
 
 class Subject(models.Model):
     subject_id = models.AutoField(primary_key=True, null=False, blank=False, unique=True)
-
-    coordinator_id_1 = models.ForeignKey(Coordinator, related_name='coordinator_id_1', null=True, blank=True, on_delete=models.SET_NULL)
-    coordinator_id_2 = models.ForeignKey(Coordinator, related_name='coordinator_id_2',  null=True, blank=True, on_delete=models.SET_NULL)
-    coordinator_id_3 = models.ForeignKey(Coordinator, related_name='coordinator_id_3',  null=True, blank=True, on_delete=models.SET_NULL)
-    coordinator_id_4 = models.ForeignKey(Coordinator, related_name='coordinator_id_4',  null=True, blank=True, on_delete=models.SET_NULL)
-    coordinator_id_5 = models.ForeignKey(Coordinator, related_name='coordinator_id_5',  null=True, blank=True, on_delete=models.SET_NULL)
 
     subject_name = models.CharField(max_length=512, null=False, blank=False)
     subject_description = models.TextField(null=False, blank=False)
@@ -32,6 +26,14 @@ class Subject(models.Model):
 
     def __str__(self):
         return f"{self.subject_id} | {self.subject_name}"
+
+class Subject_Coordinator_Int(models.Model):
+
+    subject_id = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    coordinator_id = models.ForeignKey(Coordinator, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.subject_id} || {self.coordinator_id}"
 
 # ----------------------------------------------
 
