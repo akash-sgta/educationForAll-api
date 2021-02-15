@@ -36,7 +36,12 @@ class Authorize_Prime(object):
         return self._user_password
     @user_password.setter
     def user_password(self, data):
-        self._user_password = data
+        import re
+        PATTERN = r'^[a-zA-Z0-9_~!@#$%^&*()_+]{8,}$'
+        if(re.search(PATTERN, data)):
+            self._user_password = data
+        else:
+            raise Exception("[x] Password must be more than 8 characters. [a-zA-Z0-9_~!@#$%^&*()_+]")
     
     @property
     def token(self):
@@ -144,16 +149,58 @@ class Authorize(Authorize_Prime):
     def __init__(self, user_credential_id=None, user_email=None, user_password=None, token=None):
         super().__init__(user_credential_id=user_credential_id, user_email=user_email, user_password=user_password, token=token)
     
-    def is_authorized(self):
+    def check_authorization(self, key_1=None, key_2=None):
+        from auth_prime.models import Admin_Credential, User_Credential
+
         import logging
         logging.basicConfig(filename='app.log', filemode='a', format='%(asctime)s - %(message)s', level=logging.INFO)
 
         data = self.check_token()
+
         if(data['returned'] == False):
-            logging.info("CHECK_TOKEN - "+data['message']) #check here
-            return False,data['message']
+            logging.info("CHECK_TOKEN - {}".format(data['message'])) #check here
+            rdata = (False, data['message'])
+        
         else:
-            return True,data["data"]
+            if(key_1 != None):
+                
+                if(key_1.upper() == "USER"):
+                    rdata = (True, data["data"])
+            
+                elif(key_1.upper() == "ADMIN"):
+
+                    user_credential_ref = User_Credential.objects.get(user_credential_id = int(data['data']))
+                    admin_credential_ref = Admin_Credential.objects.filter(user_credential_id = user_credential_ref)
+                    if(len(admin_credential_ref) > 0):
+
+                        if(key_2 != None and key_2.upper() == "PRIME"):
+                            # hash - true
+                            # user is admin - true
+                            admin_credential_ref = admin_credential_ref[0]
+                            if(admin_credential_ref.prime == True):
+                                rdata = (True, int(data['data'])) # sending back hash related user data
+                            else:
+                                message = "ADMIN not PRIME."
+                                logging.info("CHECK_TOKEN_ADMIN - {}".format(message))
+                                rdata = (False, message)
+
+                        else:
+                            # hash - true
+                            # user is admin - true
+                            rdata = (True, int(data['data'])) # sending back hash related user data
+                    
+                    else:
+                        message = "USER not ADMIN."
+                        logging.info("CHECK_TOKEN_ADMIN - {}".format(message))
+                        rdata = (False, message)
+                
+                else:
+                    rdata = (False, "[1] Check key_1 sent to is_authorized()")
+            
+            else:
+                rdata = (False, "[2] Check key_1 sent to is_authorized()")
+        
+        return rdata
     
     def sanction_authorization(self):
         import logging
@@ -161,10 +208,12 @@ class Authorize(Authorize_Prime):
 
         data = self.create_token()
         if(data['returned'] == False):
-            logging.info("CREATE_TOKEN - "+data['message']) #check here
-            return False,data['message']
+            logging.info("CREATE_TOKEN - {}".format(data['message']))
+            rdata =  (False, data['message'])
         else:
-            return True,data['data']
+            rdata = (True, data['data'])
+        
+        return rdata
     
     def revoke_authorization(self):
         import logging
@@ -172,49 +221,24 @@ class Authorize(Authorize_Prime):
 
         data = self.remove_token()
         if(data['returned'] == False):
-            logging.info("REMOVE_TOKEN - "+data['message']) #check here
-            return False,data['message']
+            logging.info("REMOVE_TOKEN - {}".format(data['message']))
+            rdata = (False, data['message'])
         else:
-            return True,data['data']
+            rdata = (True, data['data'])
+        
+        return rdata
+
+class Cookie(object):
     
-    def is_authorized_admin(self):
-        from auth_prime.models import Admin_Credential
-
-        import logging
-        logging.basicConfig(filename='app.log', filemode='a', format='%(asctime)s - %(message)s', level=logging.INFO)
-
-        data = self.check_token()
-        if(data['returned'] == False):
-            logging.info("CHECK_TOKEN_ADMIN - "+data['message']) #check here
-            return False,data['message']
-        else:
-            admin_credential_ref = Admin_Credential.objects.filter(user_credential_id = int(data['data']))
-            if(len(admin_credential_ref) < 1):
-                message = "[x] User not an ADMIN."
-                logging.info("CHECK_TOKEN_ADMIN - "+message) #check here
-                return False,message
-            else:
-                admin_credential_ref = admin_credential_ref[0]
-                return True,admin_credential_ref.admin_credential_id
+    def __init__(self, hash=None):
+        super().__init__()
+        self._token = hash
     
-    def is_alpha_admin(self):
-        from auth_prime.models import Admin_Credential
-
-        data = self.is_authorized_admin()
-        if(data[0] == False):
-            return False, data[1]
-        else:
-            admin_credential_ref = Admin_Credential.objects.filter(admin_credential_id = int(data[1]))
-            admin_credential_ref = admin_credential_ref[0]
-
-            if(((admin_credential_ref.privilege_id_1 != None) and (admin_credential_ref.privilege_id_1.admin_privilege_id == 2))
-            or ((admin_credential_ref.privilege_id_2 != None) and (admin_credential_ref.privilege_id_2.admin_privilege_id == 2))
-            or ((admin_credential_ref.privilege_id_3 != None) and (admin_credential_ref.privilege_id_3.admin_privilege_id == 2))):
-
-                return True, data[1]
-            
-            else:
-
-                return False, "[x] Admin not having alpha privileges."
+    @property
+    def token(self):
+        return self._token
+    @token.setter
+    def token(self, data):
+        self._token = data
     
     

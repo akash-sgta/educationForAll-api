@@ -11,6 +11,7 @@ class Coordinator_Serializer(serializers.ModelSerializer):
         fields = (
             'coordinator_id',
             'user_credential_id',
+            'prime',
             )
 
 class Subject_Serializer(serializers.ModelSerializer):
@@ -24,7 +25,8 @@ class Subject_Serializer(serializers.ModelSerializer):
             'coordinator_id_4',
             'coordinator_id_5',
             'subject_name',
-            'subject_description'
+            'subject_description',
+            'prime',
         )
 
 # ----------------------------------------------

@@ -1,0 +1,39 @@
+{% load static %}
+<!doctype html>
+<html lang="en-US">
+    
+    <head>
+        
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, minimum-scale=1, maximum-scale=1">
+        <meta name="keywords" content="HTML5 Template">
+        <meta name="description" content="Responsive HTML5 Template">
+        <meta name="author" content="author.com">
+        
+        <title>JASS{% block title_block %}{% endblock %}</title>
+        
+        <!--<link href="{% static 'css/' %}" rel="stylesheet">-->
+        <!--<script src="{% static 'js/' %}"></script>-->
+        
+        {% block head_block %}{% endblock %}
+   
+    </head>
+    
+    <body>
+        
+        <header>
+            {% block head_block %}{% endblock %}
+        </header>
+
+        <main>
+            {% block head_block %}{% endblock %}
+        </main>
+        
+        <footer>
+            {% block head_block %}{% endblock %}
+        </footer>
+    
+    </body>
+
+</html>

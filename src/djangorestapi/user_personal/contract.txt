@@ -1,0 +1,21 @@
+CODE LIST
+
+200     :   Successful Completion of action.
+
+301     :   invalid post ID.
+
+401     :   Serialization Error.
+
+--------------------------------------------------------------
+POST - For new post specific diary
+{
+    "action" : "diary",
+    "data" : {
+        "hash" : "USER HASH",
+        "data" : {
+            "post_id" : "POST ID",
+            "diary_name" : "DIARY NAME FROM USER",
+            "diary_body" : "DIARY BODY FROM USER"
+        }
+    }
+}
