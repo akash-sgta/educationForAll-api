@@ -369,7 +369,7 @@ def subject_API(request):
             
             return JsonResponse(data_returned, safe=True)
         
-        data = auth.check_authorization("admin") # admin coordinators can add or remove subjects
+        data = auth.check_authorization("admin") # admin + coordinators can add or remove subjects
         if(data[0] == False):
             data_returned['return'] = False
             data_returned['code'] = 102
@@ -392,6 +392,23 @@ def subject_API(request):
                     return JsonResponse(data_returned, safe=True)
                 
                 if(len(subject_ref) < 1):
+                    
+                    try: # some special job
+                        name = incoming_data['subject_name'].split(" ")
+                        name = [x[0] for x in name]
+                        name = "".join(name)
+                        
+                        temp = Subject.objects.filter(subject_name__contains = name)
+                        if(len(temp) > 0):
+                            temp = temp[0]
+                            temp = int(temp.subject_name.split(name)[1]) + 1
+                        else:
+                            temp = 1
+
+                        incoming_data['subject_name'] = f"{incoming_data['subject_name']} {name}{temp}"
+                    except Exception as ex:
+                        print(">>> ",ex)
+
                     subject_de_serialized = Subject_Serializer(data=incoming_data)
                     
                     if(subject_de_serialized.is_valid()):
@@ -434,7 +451,9 @@ def subject_API(request):
             return JsonResponse(data_returned, safe=True)
         
         try:
-            incoming_hash = user_data["hash"]
+            incoming_data = user_data["data"]
+            incoming_hash = incoming_data["hash"]
+            subject_ids = incoming_data["subject_id"]
             incoming_api_version = user_data["api_v"]
             incoming_data = user_data["data"]
         except Exception as ex:
@@ -461,31 +480,39 @@ def subject_API(request):
             
             return JsonResponse(data_returned, safe=True)
         
-        data = auth.is_authorized_admin() # only admins authorised to delete subjects
+        data = auth.check_authorization("admin") # admin + coordinators can add or remove subjects
         if(data[0] == False):
             data_returned['return'] = False
             data_returned['code'] = 102
         else:
-            try:
-                subject_ref = Subject.objects.filter(subject_id = int(incoming_data['subject_id']))
-            except Exception as ex:
+            coordinator_ref = Coordinator.objects.filter(user_credential_id = int(data[1]))
+
+            if(len(coordinator_ref) < 1):
                 data_returned['return'] = False
-                data_returned['code'] = 402
-                data_returned['message'] = str(ex)
-                    
-                return JsonResponse(data_returned, safe=True)
-                
-            if(len(subject_ref) < 1):
-                data_returned['return'] = False
-                data_returned['code'] = 107
+                data_returned['code'] = 103
             else:
-                subject_ref = subject_ref[0]
-                subject_ref.delete()
-                    
-                data_returned['return'] = True
-                data_returned['code'] = 100
+                data_returned['return'] = list()
+                data_returned['code'] = list()
                 
-        
+                for sub in subject_ids:
+                    try:
+                        subject_ref = Subject.objects.filter(subject_id=int(sub))
+                        if(len(subject_ref) < 1):
+                            data_returned['return'].append(False)
+                            data_returned['code'].append(107)
+                        else:
+                            subject_ref = subject_ref[0]
+                            subject_ref.delete()
+
+                            data_returned['return'].append(True)
+                            data_returned['code'].append(100)
+                    except Exception as ex:
+                        data_returned['return'].append(False)
+                        data_returned['code'].append(404)
+                        data_returned['message'] = str(ex)
+
+                        return JsonResponse(data_returned, safe=True)
+
         return JsonResponse(data_returned, safe=True)
 
     elif(request.method == 'FETCH'):
@@ -502,8 +529,11 @@ def subject_API(request):
             return JsonResponse(data_returned, safe=True)
         
         try:
-            incoming_hash = user_data["hash"]
+            incoming_data = user_data["data"]
+            incoming_hash = incoming_data["hash"]
+            subject_ids = incoming_data["subject_id"]
             incoming_api_version = user_data["api_v"]
+            incoming_data = user_data["data"]
         except Exception as ex:
             data_returned['return'] = False
             data_returned['code'] = 402
@@ -528,21 +558,47 @@ def subject_API(request):
             
             return JsonResponse(data_returned, safe=True)
         
-        data = auth.is_authorized() # self fetch coordinator id
+        data = auth.check_authorization("user") # every one can see subject data
         if(data[0] == False):
             data_returned['return'] = False
             data_returned['code'] = 102
         else:
-            user_credential_ref = User_Credential.objects.get(user_credential_id = int(data[1]))            
-            coordinator_ref = Coordinator.objects.filter(user_credential_id = user_credential_ref)
-            if(len(coordinator_ref) < 1):
-                data_returned['return'] = True
-                data_returned['code'] = 103
-                data_returned['data'] = None
-            else:
+            if(0 in subject_ids):
+                subject_ref = Subject.objects.all()
+                subject_serialized = Subject_Serializer(subject_ref, many=True)
+
                 data_returned['return'] = True
                 data_returned['code'] = 100
-                data_returned['data'] = None
+                data_returned['data'] = subject_serialized.data
+            else:
+                data_returned['return'] = list()
+                data_returned['code'] = list()
+                data_returned['data'] = list()
+
+                for sub in subject_ids:
+                    try:
+                        subject_ref = Subject.objects.filter(subject_id = int(sub))
+                        if(len(subject_ref) < 1):
+                            data_returned['return'].append(False)
+                            data_returned['code'].append(107)
+                            data_returned['data'].append(None)
+                        else:
+                            subject_ref = subject_ref[0]
+                            subject_serialized = Subject_Serializer(subject_ref, many=False)
+                            
+                            data_returned['return'].append(True)
+                            data_returned['code'].append(100)
+                            data_returned['data'].append(subject_serialized.data)
+                        
+                    except Exception as ex:
+                        data_returned['return'].append(False)
+                        data_returned['code'].append(404)
+                        data_returned['data'].append(None)
+                        data_returned['message'] = str(ex)
+
+                        return JsonResponse(data_returned, safe=True)
+        
+        return JsonResponse(data_returned, safe=True)
 
     else:
         data_returned['return'] = False
@@ -551,4 +607,8 @@ def subject_API(request):
 
         return JsonResponse(data_returned, safe=True)
 
+
+@csrf_exempt
+def subject_n_coordinator(request):
+    pass
 # ---------------------------------------------VIEW SPACE-------------------------------------------------------
