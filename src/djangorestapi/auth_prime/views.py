@@ -11,7 +11,7 @@ from auth_prime.authorize import Authorize, Cookie
 # Create your views here.
 
 auth = Authorize()
-
+API_PRIVATE_KEY = "ugabuga"
 API_VERSION = '1.0'
 # -------------------------------API_SPACE-------------------------------------
 
@@ -1102,6 +1102,234 @@ def admin_API(request):
 
         return JsonResponse(data_returned, safe=True)
 
+@csrf_exempt
+def admin_privilege_API(request):
+    global auth
+    data_returned = dict()
+
+    if(request.method == 'POST'):
+        data_returned['action'] = request.method.upper()
+
+        try:
+            user_data = JSONParser().parse(request)
+        except Exception as ex:
+            data_returned['return'] = False
+            data_returned['code'] = 401
+            data_returned['message'] = str(ex)
+
+            return JsonResponse(data_returned, safe=True)
+        
+        try:
+            incoming_data = user_data["data"]
+            incoming_hash = incoming_data["hash"]
+            incoming_data = incoming_data["data"]
+            incoming_api_version = user_data["api_v"]
+        except Exception as ex:
+            data_returned['return'] = False
+            data_returned['code'] = 402
+            data_returned['message'] = str(ex)
+
+            return JsonResponse(data_returned, safe=True)
+        
+        if(incoming_api_version == API_VERSION):
+            pass
+        else:
+            data_returned['return'] = False
+            data_returned['code'] = 406
+
+            return JsonResponse(data_returned, safe=True)
+
+        try:
+            auth.token = incoming_hash
+        except Exception as ex:
+            data_returned['return'] = False
+            data_returned['code'] = 404
+            data_returned['message'] = str(ex)
+
+            return JsonResponse(data_returned, safe=True)
+
+        data = auth.check_authorization("admin", "prime") #only prime admins can grant admin access
+        
+        if(data[0] == False):
+            data_returned['return'] = False
+            data_returned['code'] = 110
+        else:
+            try:
+                admin_privilege_ref = Admin_Privilege.objects.filter(admin_privilege_name__contains = incoming_data["admin_privilege_name"].upper())
+            except Exception as ex:
+                data_returned['return'] = False
+                data_returned['code'] = 404
+                data_returned['message'] = str(ex)
+
+                return JsonResponse(data_returned, safe=True)
+
+            if(len(admin_privilege_ref) > 0):
+                data_returned['return'] = False
+                data_returned['code'] = 117
+            else:
+                admin_privilege_de_serialized = Admin_Privilege_Serializer(data=incoming_data)
+                if(admin_privilege_de_serialized.is_valid()):
+                    admin_privilege_de_serialized.save()
+
+                    data_returned['return'] = True
+                    data_returned['code'] = 100
+                else:
+                    data_returned['return'] = False
+                    data_returned['code'] = 405
+                    data_returned['message'] = admin_privilege_de_serialized.errors
+        
+        return JsonResponse(data_returned, safe=True)
+    
+    elif(request.method == 'DELETE'):
+        data_returned['action'] = request.method.upper()
+
+        try:
+            user_data = JSONParser().parse(request)
+        except Exception as ex:
+            data_returned['return'] = False
+            data_returned['code'] = 401
+            data_returned['message'] = str(ex)
+
+            return JsonResponse(data_returned, safe=True)
+        
+        try:
+            incoming_data = user_data["data"]
+            incoming_hash = incoming_data["hash"]
+            incoming_privilege_id = incoming_data["admin_privilege_id"]
+            incoming_api_version = user_data["api_v"]
+        except Exception as ex:
+            data_returned['return'] = False
+            data_returned['code'] = 402
+            data_returned['message'] = str(ex)
+
+            return JsonResponse(data_returned, safe=True)
+        
+        if(incoming_api_version == API_VERSION):
+            pass
+        else:
+            data_returned['return'] = False
+            data_returned['code'] = 406
+
+            return JsonResponse(data_returned, safe=True)
+
+        try:
+            auth.token = incoming_hash
+        except Exception as ex:
+            data_returned['return'] = False
+            data_returned['code'] = 404
+            data_returned['message'] = str(ex)
+
+            return JsonResponse(data_returned, safe=True)
+
+        data = auth.check_authorization("admin", "prime") #prime admins can remove privileges
+        
+        if(data[0] == False):
+            data_returned['return'] = False
+            data_returned['code'] = 110
+        else:
+            admin_privilege_ref = Admin_Privilege.objects.filter(admin_privilege_id = int(incoming_privilege_id))
+            if(len(admin_privilege_ref) < 1):
+                data_returned['return'] = False
+                data_returned['code'] = 116
+            else:
+                admin_privilege_ref = admin_privilege_ref[0]
+                admin_privilege_ref.delete()
+
+                data_returned['return'] = True
+                data_returned['code'] = 100
+        
+        return JsonResponse(data_returned, safe=True)
+
+    elif(request.method == 'FETCH'):
+        data_returned['action'] = request.method.upper()
+
+        try:
+            user_data = JSONParser().parse(request)
+        except Exception as ex:
+            data_returned['return'] = False
+            data_returned['code'] = 401
+            data_returned['message'] = str(ex)
+
+            return JsonResponse(data_returned, safe=True)
+        
+        try:
+            incoming_data = user_data["data"]
+            incoming_hash = incoming_data["hash"]
+            incoming_privilege_ids = incoming_data["admin_privilege_id"]
+            incoming_api_version = user_data["api_v"]
+        except Exception as ex:
+            data_returned['return'] = False
+            data_returned['code'] = 402
+            data_returned['message'] = str(ex)
+
+            return JsonResponse(data_returned, safe=True)
+        
+        if(incoming_api_version == API_VERSION):
+            pass
+        else:
+            data_returned['return'] = False
+            data_returned['code'] = 406
+
+            return JsonResponse(data_returned, safe=True)
+
+        try:
+            auth.token = incoming_hash
+        except Exception as ex:
+            data_returned['return'] = False
+            data_returned['code'] = 404
+            data_returned['message'] = str(ex)
+
+            return JsonResponse(data_returned, safe=True)
+
+        data = auth.check_authorization("admin") #all admins can see privileges
+        
+        if(data[0] == False):
+            data_returned['return'] = False
+            data_returned['code'] = 111
+        else:
+            if(0 in incoming_privilege_ids):
+                admin_privilege_ref = Admin_Privilege.objects.all()
+                admin_privilege_serialized = Admin_Privilege_Serializer(admin_privilege_ref, many=True)
+
+                data_returned['return'] = True
+                data_returned['code'] = 100
+                data_returned['data'] = admin_privilege_serialized.data
+            else:
+                data_returned['return'] = list()
+                data_returned['code'] = list()
+                data_returned['data'] = list()
+
+                for id in incoming_privilege_ids:
+                    try:
+                        admin_privilege_ref = Admin_Privilege.objects.filter(admin_privilege_id = int(id))
+                    except Exception as ex:
+                        data_returned['return'].append(False)
+                        data_returned['code'].append(404)
+                        data_returned['data'].append(None)
+                        data_returned['message'] = str(ex)
+
+                        return JsonResponse(data_returned, safe=True)
+
+                    if(len(admin_privilege_ref) < 1):
+                        data_returned['return'].append(False)
+                        data_returned['code'].append(116)
+                        data_returned['data'].append(None)
+                    else:
+                        admin_privilege_serialized = Admin_Privilege_Serializer(admin_privilege_ref[0], many=False)
+                        data_returned['return'].append(True)
+                        data_returned['code'].append(100)
+                        data_returned['data'].append(admin_privilege_serialized.data)
+                
+
+
+        return JsonResponse(data_returned, safe=True)
+
+    else:
+        data_returned['return'] = False
+        data_returned['code'] = 403
+        data_returned['message'] = "[x] parent action invalid."
+
+        return JsonResponse(data_returned, safe=True)
 
 # ------------------------------VIEW_SPACE-------------------------------------
 

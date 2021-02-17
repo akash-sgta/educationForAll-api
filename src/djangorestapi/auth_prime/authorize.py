@@ -240,5 +240,4 @@ class Cookie(object):
     @token.setter
     def token(self, data):
         self._token = data
-    
-    
+

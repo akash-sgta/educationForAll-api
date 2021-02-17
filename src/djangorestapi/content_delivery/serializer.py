@@ -19,11 +19,6 @@ class Subject_Serializer(serializers.ModelSerializer):
         model = Subject
         fields = (
             'subject_id',
-            'coordinator_id_1',
-            'coordinator_id_2',
-            'coordinator_id_3',
-            'coordinator_id_4',
-            'coordinator_id_5',
             'subject_name',
             'subject_description',
             'prime',
