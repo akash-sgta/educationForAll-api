@@ -47,6 +47,18 @@ class User_Credential(models.Model):
     def __str__(self):
         return f"{self.user_credential_id} | {self.user_profile_id} | {self.user_f_name} | {self.user_email} | {self.user_tg_id}"
 
+class User_Token_Table(models.Model):
+    token_id = models.AutoField(primary_key=True)
+
+    user_credential_id = models.ForeignKey(User_Credential, null=True, blank=True, on_delete=models.CASCADE)
+
+    token_hash = models.CharField(default='', max_length=512)
+    token_start = models.CharField(default='dd-mm-yyyy HH:MM:SS', max_length=32)
+    token_end = models.CharField(default='dd-mm-yyyy HH:MM:SS', max_length=32)
+
+    def __str__(self):
+        return f"{self.token_id} | {self.token_hash}"
+
 # ---------------------------------------------------------------------------------------------------------------------------------------
 
 class Admin_Privilege(models.Model):
@@ -80,14 +92,12 @@ class Admin_Cred_Admin_Prev_Int(models.Model):
 
 # ---------------------------------------------------------------------------------------------------------------------------------------
 
-class Token_Table(models.Model):
-    token_id = models.AutoField(primary_key=True)
+class Api_Token_Table(models.Model):
+    user_name = models.CharField(max_length=256, null=False, blank=False)
+    user_email =  models.EmailField(null=False, blank=False)
+    user_password = models.CharField(max_length=256, null=False, blank=False)
 
-    user_credential_id = models.ForeignKey(User_Credential, null=True, blank=True, on_delete=models.CASCADE)
-
-    token_hash = models.CharField(default='', max_length=512)
-    token_start = models.CharField(default='dd-mm-yyyy HH:MM:SS', max_length=32)
-    token_end = models.CharField(default='dd-mm-yyyy HH:MM:SS', max_length=32)
+    user_key_private = models.CharField(max_length=256, null=False, blank=False)
 
     def __str__(self):
-        return f"{self.token_id} | {self.token_hash}"
+        return f'{self.user_name} | {self.user_email}'

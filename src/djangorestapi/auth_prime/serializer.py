@@ -1,6 +1,11 @@
 from rest_framework import serializers
 
-from auth_prime.models import User_Profile, User_Credential, Admin_Privilege, Admin_Credential, Token_Table
+# ---------------------------------------------------------------
+
+from auth_prime.models import User_Profile
+from auth_prime.models import User_Credential
+from auth_prime.models import Admin_Privilege
+from auth_prime.models import Admin_Credential
 
 # ---------------------------------------------------------------
 
@@ -49,15 +54,5 @@ class Admin_Credential_Serializer(serializers.ModelSerializer):
             'admin_credential_id',
             'user_credential_id',
             'prime')
-
-class Token_Table_Serializer(serializers.ModelSerializer):
-    class Meta:
-        model = Token_Table
-        fields = (
-            'token_id',
-            'user_credential_id',
-            'token_hash',
-            'token_start',
-            'token_end')
 
 # ---------------------------------------------------------------

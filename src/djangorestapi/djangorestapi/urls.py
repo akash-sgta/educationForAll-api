@@ -20,11 +20,14 @@ from django.conf.urls import url, include
 from django.conf.urls.static import static
 from django.conf import settings
 
+from djangorestapi import views
 urlpatterns = [
     path('admin/', admin.site.urls),
 
     url(r'^', include('auth_prime.urls')),
     url(r'^', include('content_delivery.urls')),
+
+    url(r'^checkserver/', views.check_server_status, name="CHECK_SERVER_STATUS")
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
