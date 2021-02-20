@@ -1,0 +1,232 @@
+{% extends 'master.html' %}
+{% load static %}
+<!-- ----------------------------------------------------------------------------------- -->
+{% block title_block %} | API{{site.name}} | {{type}}{%endblock%}
+<!-- ----------------------------------------------------------------------------------- -->
+{% block head_block %}
+
+<script>
+    function signup_checkbox(terms){
+        if(terms.checked){
+            document.getElementById("user_submit").disabled = false;
+        } else{
+            document.getElementById("user_submit").disabled = true;
+        }
+    }
+
+    function signin_vars(){
+        var email = document.getElementById("user_email");
+        var password = document.getElementById("user_password");
+        if((email.value == "" || email.value == null) || (password.value == "" || password.value == null)){
+            document.getElementById("user_submit").disabled = true;
+        }else{
+            document.getElementById("user_submit").disabled = false;
+        }
+    }
+
+    function copy_me(){
+        var copyText = document.getElementById("auth_token");
+        copyText.select();
+        copyText.setSelectionRange(0, 99999);
+        document.execCommand("copy");
+        alert("Copied the text: " + copyText.value);
+
+    }
+</script>
+
+{% endblock %}
+<!-- ----------------------------------------------------------------------------------- -->
+{% block main_block %}
+
+<center>
+    <h1>AUTH TOKEN GENERATOR</h1>
+    <hr>
+    <h2>
+        {{type}}
+        {% if user_name %}
+        , {{user_name}}
+        {% endif %}
+    </h2>
+    <hr>
+    <br>
+</center>
+
+{% if not adimin %}
+
+{% if type == 'SIGNUP' %}
+<center>
+    <table>
+        <tbody>
+            <form action="{% url 'API_TOKEN' %}" enctype="multipart/form-data" method="POST">
+                {% csrf_token %}
+                <input type="text" name="form_type" id="form_type" value="signup" hidden required>
+                <tr>
+                    <th>First Name</th>
+                    <td>
+                        <input type="text" name="user_f_name" id="user_f_name" required>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Last Name</th>
+                    <td>
+                        <input type="text" name="user_l_name" id="user_l_name" required>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Email ID</th>
+                    <td>
+                        <input type="email" name="user_email" id="user_email" required>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Password</th>
+                    <td>
+                        <input type="password" name="user_password" id="user_password" required>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Are You Sure ?</th>
+                    <td>
+                        <input type="checkbox" id="user_sure" onclick="signup_checkbox(this)">
+                    </td>
+                </tr>
+                <tr>
+                    <th></th>
+                    <td>
+                        <button type="submit" id="user_submit" value="signup" disabled>Submit</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <center>
+                        {% if messages %}
+                        <ul style="list-style-type:none;" class="messages">
+                            {% for message in messages %}
+                            <li>{{ message }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                        </center>
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        Already have an account ?
+                    </th>
+                    <td>
+                        <a href="{% url 'API_TOKEN' word='signin' %}" style="text-decoration: none;">Click Here</a>
+                    </td>
+                </tr>
+            </form>
+        </tbody>
+    </table>
+    <br>
+    <hr>
+</center>
+{% elif type == 'SIGNIN' %}
+<center>
+    <table>
+        <tbody>
+            <form action="{% url 'API_TOKEN' %}" enctype="multipart/form-data" method="POST">
+                {% csrf_token %}
+                <input type="text" name="form_type" id="form_type" value="signin" hidden required>
+                <tr>
+                    <th>Email ID</th>
+                    <td>
+                        <input type="email" name="user_email" id="user_email"  onkeyup="signin_vars()" required>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Password</th>
+                    <td>
+                        <input type="password" name="user_password" id="user_password" onkeyup="signin_vars()" required>
+                    </td>
+                </tr>
+                <tr>
+                    <th></th>
+                    <td>
+                        <button type="submit" id="user_submit" value="signin" disabled>Submit</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <center>
+                        {% if messages %}
+                        <ul style="list-style-type:none;" class="messages">
+                            {% for message in messages %}
+                            <li>{{ message }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                        </center>
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        Do not have an account ?
+                    </th>
+                    <td>
+                        <a href="{% url 'API_TOKEN' %}" style="text-decoration: none;">Click Here</a>
+                    </td>
+                </tr>
+            </form>
+        </tbody>
+    </table>
+    <br>
+    <hr>
+</center>
+{% elif type == 'LOGGED' %}
+<center>
+    <table>
+        <tbody>
+            <tr>
+                <td>
+                    <h3>
+                        API AUTH TOKEN
+                    </h3>
+                </td>
+                <td>
+                    <input type="text" value="{{api_token}}" id="auth_token" name="auth_token" style="width: 10; background-color: #6b5353; color: #7a8952;" readonly>
+                </td>
+                <td>
+                    <button type="button" onclick="copy_me()">Copy ME</button>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <center>
+                    <form action="{% url 'API_TOKEN' %}" enctype="multipart/form-data" method="POST">
+                        {% csrf_token %}
+                        <input type="text" name="form_type" id="form_type" value="signout" hidden required>
+                        <button type="submit" id="user_submit" value="signout">LOGOUT</button>
+                    </form>
+                    </center>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <br>
+    <hr>
+    <p>
+        <a href="{% static 'docs/ERROR CODES_20022021.pdf' %}" style="text-decoration: none; color:aquamarine;" target="_blank">--> <span style="color: yellow;">Error</span> Codes <span style="color:magenta;">[Latest]</span> <--</a><br><br>
+        <a href="{% static 'docs/User Credential API_20022021.pdf' %}" style="text-decoration: none; color:aquamarine;" target="_blank">--> User Credential API Contract <span style="color:magenta;">[Latest]</span> <--</a><br><br>
+        <a href="{% static 'docs/User Profile API_20022021.pdf' %}" style="text-decoration: none; color:aquamarine;" target="_blank">--> User Profile API Contract <span style="color:magenta;">[Latest]</span> <--</a><br><br>
+    </p>
+    <hr>
+</center>
+{% endif %}
+
+{% else %}
+
+<center>
+    <table>
+        <tbody>
+            404 not constructed yet.
+        </tbody>
+    </table>
+</center>
+
+{% endif %}
+
+{% endblock %}
+<!-- ----------------------------------------------------------------------------------- -->
