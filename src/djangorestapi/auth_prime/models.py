@@ -59,6 +59,11 @@ class User_Token_Table(models.Model):
     def __str__(self):
         return f"{self.token_id} | {self.token_hash}"
 
+# User_Credential.objects = User_Credential.objects.using('authDB')
+# User_Token_Table.objects = User_Token_Table.objects.using('authDB')
+
+# User_Profile.objects = User_Profile.objects.using('authDB')
+
 # ---------------------------------------------------------------------------------------------------------------------------------------
 
 class Admin_Privilege(models.Model):
@@ -90,6 +95,10 @@ class Admin_Cred_Admin_Prev_Int(models.Model):
     def __str__(self):
         return f"{self.admin_credential_id} | {self.admin_privilege_id}"
 
+# Admin_Privilege.objects = Admin_Privilege.objects.using('authDB')
+# Admin_Credential.objects = Admin_Credential.objects.using('authDB')
+# Admin_Cred_Admin_Prev_Int.objects = Admin_Cred_Admin_Prev_Int.objects.using('authDB')
+
 # ---------------------------------------------------------------------------------------------------------------------------------------
 
 class Api_Token_Table(models.Model):
@@ -101,3 +110,7 @@ class Api_Token_Table(models.Model):
 
     def __str__(self):
         return f'{self.user_name} | {self.user_email}'
+
+# Api_Token_Table.objects = Api_Token_Table.objects.using('authDB')
+
+# ---------------------------------------------------------------------------------------------------------------------------------------

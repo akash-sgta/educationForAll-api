@@ -87,9 +87,7 @@ WSGI_APPLICATION = 'djangorestapi.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-DATABASES = {
-    'default': DB_SETTINGS['DEFAULT'],
-}
+DATABASES = DB_SETTINGS
 
 
 # Password validation

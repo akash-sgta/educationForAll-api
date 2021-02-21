@@ -105,7 +105,7 @@ def user_credential_API(request):
                                 if(len(user_credential_ref) > 0):
                                     data_returned['return'] = False
                                     data_returned['code'] = 104
-                                    data_returned['message'] = "Wrong Credentials provided."
+                                    data_returned['message'] = "Email Already registered."
                                     
                                 else:
 
@@ -333,17 +333,16 @@ def user_credential_API(request):
                             user_ids = incoming_data['user_id']
                             
                             if(0 in user_ids): # 0 -> delete all
-                                user_credential_ref = User_Credential.objects.all().exclude(user_credential_id = int(data[1]))
+                                user_credential_ref_all = User_Credential.objects.all().exclude(user_credential_id = int(data[1]))
 
-                                if(len(user_credential_ref) < 1):
+                                if(len(user_credential_ref_all) < 1):
                                     data_returned['return'] = False
                                     data_returned['code'] = 404
                                     data_returned['message'] = "Already empty tray of USER CREDENTIALS."
                                     return JsonResponse(data_returned, safe=True)
                                 
                                 else:
-                                    for individual in user_credential_ref:
-                                        individual.delete()
+                                    user_credential_ref_all.delete()
 
                                     data_returned['return'] = True
                                     data_returned['code'] = 100
@@ -621,9 +620,9 @@ def user_credential_API(request):
                                         
                                         data_returned['data'].append({key : user})
 
-                                        del(data_returned['data'][-1][id]['user_password'])
-                                        del(data_returned['data'][-1][id]["user_security_question"])
-                                        del(data_returned['data'][-1][id]["user_security_answer"])
+                                        del(data_returned['data'][-1][key]['user_password'])
+                                        del(data_returned['data'][-1][key]["user_security_question"])
+                                        del(data_returned['data'][-1][key]["user_security_answer"])
                             
                             else: # fetch using using ids
                                 data_returned['return'] = list()
@@ -864,19 +863,18 @@ def user_profile_API(request):
                                     if(0 in user_ids): # all at once
 
                                         if(self_user_profile_ref == None):
-                                            user_profile_ref = User_Profile.objects.all()
+                                            user_profile_ref_all = User_Profile.objects.all()
                                         
                                         else:
-                                            user_profile_ref = User_Profile.objects.all().exclude(user_profile_id = int(self_user_profile_ref.user_profile_id))
+                                            user_profile_ref_all = User_Profile.objects.all().exclude(user_profile_id = int(self_user_profile_ref.user_profile_id))
                                         
-                                        if(len(user_profile_ref) < 1):
+                                        if(len(user_profile_ref_all) < 1):
                                             data_returned['return'] = False
                                             data_returned['code'] = 404
                                             data_returned['message'] = "Already empty tray of USER PROFILES."
                                         
                                         else:
-                                            for user in user_profile_ref:
-                                                user.delete()
+                                            user_profile_ref_all.delete()
                                             
                                             data_returned['return'] = True
                                             data_returned['code'] = 100
@@ -1199,370 +1197,596 @@ def admin_credential_API(request):
     global auth
     data_returned = dict()
 
-    if(request.method == 'POST'):
+    if(request.method == 'GET'):
+        data_returned['return'] = False
+        data_returned['code'] = 403
+        data_returned['message'] = 'Method not supported : GET.'
+        return JsonResponse(data_returned, safe=True)
+
+    elif(request.method == 'POST'):
         data_returned['action'] = request.method.upper()
+        auth.clear()
 
         try:
             user_data = JSONParser().parse(request)
+
         except Exception as ex:
             data_returned['return'] = False
             data_returned['code'] = 401
             data_returned['message'] = str(ex)
-
             return JsonResponse(data_returned, safe=True)
         
-        try:
-            incoming_data = user_data["data"]
-            incoming_hash = incoming_data["hash"]
-            incoming_data = incoming_data["data"]
-            incoming_api_version = user_data["api_v"]
-        except Exception as ex:
-            data_returned['return'] = False
-            data_returned['code'] = 402
-            data_returned['message'] = str(ex)
-
-            return JsonResponse(data_returned, safe=True)
-        
-        if(incoming_api_version == API_VERSION):
-            pass
         else:
-            data_returned['return'] = False
-            data_returned['code'] = 406
 
-            return JsonResponse(data_returned, safe=True)
-
-        try:
-            auth.token = incoming_hash
-        except Exception as ex:
-            data_returned['return'] = False
-            data_returned['code'] = 404
-            data_returned['message'] = str(ex)
-
-            return JsonResponse(data_returned, safe=True)
-
-        data = auth.check_authorization("admin", "prime") #only prime admins can grant admin access
-        
-        if(data[0] == False):
-            data_returned['return'] = False
-            data_returned['code'] = 110
-        else:
             try:
-                user_credential_ref = User_Credential.objects.filter(user_credential_id = int(incoming_data["user_credential_id"]))
+                incoming_api = user_data["api"]
+                incoming_data = user_data["data"]
+
             except Exception as ex:
                 data_returned['return'] = False
-                data_returned['code'] = 404
+                data_returned['code'] = 402
                 data_returned['message'] = str(ex)
-
                 return JsonResponse(data_returned, safe=True)
-
-            if(len(user_credential_ref) < 1):
-                data_returned['return'] = False
-                data_returned['code'] = 114
-            else:
-                try:
-                    admin_credential_ref = Admin_Credential.objects.filter(user_credential_id = int(incoming_data["user_credential_id"]))
-                except Exception as ex:
-                    data_returned['return'] = False
-                    data_returned['code'] = 404
-                    data_returned['message'] = str(ex)
-
-                    return JsonResponse(data_returned, safe=True)
             
-                if(len(admin_credential_ref) > 0):
-                    data_returned['return'] = False
-                    data_returned['code'] = 112
-                else:
-                    user_credential_ref = user_credential_ref[0]
-                    admin_credential_ref_new = Admin_Credential(user_credential_id = user_credential_ref)
-                    admin_credential_ref_new.save()
+            else:
+                auth.api = incoming_api
+                data = auth.check_authorization(api_check=True)
 
-                    data_returned['return'] = True
-                    data_returned['code'] = 100
-    
-        return JsonResponse(data_returned, safe=True)
+                if(data[0] == False):
+                    data_returned['return'] = False
+                    data_returned['code'] = 150
+                    data_returned['message'] = data[1]
+                    return JsonResponse(data_returned, safe=True)
+
+                else:
+                    try:
+                        incoming_data = incoming_data['data']
+                        auth.token = incoming_data['hash']
+
+                    except Exception as ex:
+                        data_returned['return'] = False
+                        data_returned['code'] = 404
+                        data_returned['message'] = str(ex)
+                        return JsonResponse(data_returned, safe=True)
+                    
+                    else:
+                        data = auth.check_authorization("admin", "prime") #only prime admins can grant admin access
+        
+                        if(data[0] == False):
+                            data_returned['return'] = False
+                            data_returned['code'] = 110
+                            data_returned['message'] = "USER might not have ADMIN PRIME privileges."
+                            return JsonResponse(data_returned, safe=True)
+                        else:
+                            if('user_id' in incoming_data.keys()): # only this method of admin inclusion accepted
+                                data_returned['return'] = list()
+                                data_returned['code'] = list()
+                                data_returned['message'] = list()
+                                data_returned['data'] = list()
+
+                                for id in incoming_data['user_id']:
+                                    try:
+                                        if(int(data[1]) == int(id)):
+                                            data_returned['return'].append(False)
+                                            data_returned['code'].append(112)
+                                            data_returned['message'].append("USER already ADMIN")
+                                            data_returned['data'].append("self")
+                                        
+                                        else:
+                                            user_credential_ref = User_Credential.objects.filter(user_credential_id = int(id))
+
+                                            if(len(user_credential_ref) < 1):
+                                                data_returned['return'].append(False)
+                                                data_returned['code'].append(114)
+                                                data_returned['message'].append("USER ID not exist")
+                                                data_returned['data'].append(None)
+                                
+                                            else:
+                                                try:
+                                                    user_credential_ref = user_credential_ref[0]
+                                                    admin_credential_ref = Admin_Credential.objects.filter(user_credential_id = int(user_credential_ref.user_credential_id))
+                
+                                                except Exception as ex:
+                                                    data_returned['return'].append(False)
+                                                    data_returned['code'].append(404)
+                                                    data_returned['message'].append(str(ex))
+                                                    data_returned['data'].append(None)
+                                    
+                                                else:
+                                                    if(len(admin_credential_ref) > 0):
+                                                        data_returned['return'].append(False)
+                                                        data_returned['code'].append(112)
+                                                        data_returned['message'].append("USER already ADMIN")
+                                                        data_returned['data'].append(id)
+                                        
+                                                    else:
+                                                        admin_credential_ref_new = Admin_Credential(user_credential_id = user_credential_ref)
+                                                        admin_credential_ref_new.save()
+
+                                                        data_returned['return'].append(True)
+                                                        data_returned['code'].append(100)
+                                                        data_returned['message'].append("Admin Privileges Granted.")
+                                                        data_returned['data'].append(id)
+
+                                    except Exception as ex:
+                                        data_returned['return'].append(False)
+                                        data_returned['code'].append(404)
+                                        data_returned['message'].append(str(ex))
+                                        data_returned['data'].append(None)
+                            
+                            else:
+                                data_returned['return'] = False
+                                data_returned['code'] = 402
+                                data_returned['message'] = "user_id field required."
+                                return JsonResponse(data_returned, safe=True)
+
+                        return JsonResponse(data_returned, safe=True)
 
     elif(request.method == 'DELETE'):
         data_returned['action'] = request.method.upper()
+        auth.clear()
 
         try:
             user_data = JSONParser().parse(request)
+
         except Exception as ex:
             data_returned['return'] = False
             data_returned['code'] = 401
             data_returned['message'] = str(ex)
-
             return JsonResponse(data_returned, safe=True)
         
-        try:
-            incoming_data = user_data["data"]
-            incoming_hash = incoming_data["hash"]
-            incoming_api_version = user_data["api_v"]
-        except Exception as ex:
-            data_returned['return'] = False
-            data_returned['code'] = 402
-            data_returned['message'] = str(ex)
-
-            return JsonResponse(data_returned, safe=True)
-        
-        if(incoming_api_version == API_VERSION):
-            pass
         else:
-            data_returned['return'] = False
-            data_returned['code'] = 406
 
-            return JsonResponse(data_returned, safe=True)
+            try:
+                incoming_api = user_data["api"]
+                incoming_data = user_data["data"]
 
-        try:
-            auth.token = incoming_hash
-        except Exception as ex:
-            data_returned['return'] = False
-            data_returned['code'] = 404
-            data_returned['message'] = str(ex)
-
-            return JsonResponse(data_returned, safe=True)
-
-        data = auth.check_authorization("admin") #prime admins can remove other admins and self removal is permitted
-        
-        if(data[0] == False):
-            data_returned['return'] = False
-            data_returned['code'] = 111
-        else:
-            if("data" in incoming_data.keys()): # admin prime revoking others
-                incoming_data = incoming_data['data']
-                
-                if("user_credential_id" in incoming_data.keys()): # admin prime revoking others
-                    data = auth.check_authorization("admin", "prime")
-                    
-                    if(data[0] == False):
-                        data_returned['return'] = False
-                        data_returned['code'] = 110
-                        flag = False,0
-
-                    else:
-                        temp = int(incoming_data["user_credential_id"])
-                        flag = True,113
-            else: # self revoke
-                temp = int(data[1])
-                flag = True,111
+            except Exception as ex:
+                data_returned['return'] = False
+                data_returned['code'] = 402
+                data_returned['message'] = str(ex)
+                return JsonResponse(data_returned, safe=True)
             
-            if(flag[0] == True):
-                admin_credential_ref = Admin_Credential.objects.filter(user_credential_id = temp)
-                if(len(admin_credential_ref) < 1):
-                    data_returned['return'] = False
-                    data_returned['code'] = flag[1]
-                else:
-                    admin_credential_ref = admin_credential_ref[0]
-                    admin_credential_ref.delete()
+            else:
+                auth.api = incoming_api
+                data = auth.check_authorization(api_check=True)
 
-                    data_returned['return'] = True
-                    data_returned['code'] = 100
-    
-        return JsonResponse(data_returned, safe=True)
+                if(data[0] == False):
+                    data_returned['return'] = False
+                    data_returned['code'] = 150
+                    data_returned['message'] = data[1]
+                    return JsonResponse(data_returned, safe=True)
+
+                else:
+                    try:
+                        incoming_data = incoming_data['data']
+                        auth.token = incoming_data['hash']
+
+                    except Exception as ex:
+                        data_returned['return'] = False
+                        data_returned['code'] = 404
+                        data_returned['message'] = str(ex)
+                        return JsonResponse(data_returned, safe=True)
+                    
+                    else:
+                        
+                        if('user_id' in incoming_data.keys()): # admin prime revoking others access
+                            data = auth.check_authorization("admin", "prime") #only prime admins can revoke admin access from others
+        
+                            if(data[0] == False):
+                                data_returned['return'] = False
+                                data_returned['code'] = 110
+                                data_returned['message'] = "USER might not have ADMIN PRIME privileges."
+                                return JsonResponse(data_returned, safe=True)
+                            
+                            else:
+                                data_returned['return'] = list()
+                                data_returned['code'] = list()
+                                data_returned['message'] = list()
+                                data_returned['data'] = list()
+
+                                if(0 in incoming_data['user_id']):
+                                    admin_credential_ref_all = Admin_Credential.objects.all().exclude(user_credential_id = int(data[1]))
+
+                                    if(len(admin_credential_ref_all) < 1):
+                                        data_returned['return'] = False
+                                        data_returned['code'] = 404
+                                        data_returned['message'] = "Already ADMIN Tray is empty."
+                                        return JsonResponse(data_returned, safe=True)
+                                    
+                                    else:
+                                        admin_credential_ref_all.delete()
+
+                                        data_returned['return'] = True
+                                        data_returned['code'] = 100
+                                        data_returned['message'] = "ADMIN Tray cleared."
+                                
+                                else:
+                                    for id in incoming_data['user_id']: # self delete not allowed this way SECURITY CHECK
+                                        try:
+                                            if(int(data[1]) == int(id)):
+                                                data_returned['return'].append(False)
+                                                data_returned['code'].append(404)
+                                                data_returned['message'].append("self")
+                                                data_returned['data'].append("self")
+                                            
+                                            else:
+                                                user_credential_ref = User_Credential.objects.filter(user_credential_id = int(id))
+
+                                                if(len(user_credential_ref) < 1):
+                                                    data_returned['return'].append(False)
+                                                    data_returned['code'].append(114)
+                                                    data_returned['message'].append("USER ID not exist")
+                                                    data_returned['data'].append(None)
+                                    
+                                                else:
+                                                    try:
+                                                        user_credential_ref = user_credential_ref[0]
+                                                        admin_credential_ref = Admin_Credential.objects.filter(user_credential_id = int(user_credential_ref.user_credential_id))
+                    
+                                                    except Exception as ex:
+                                                        data_returned['return'].append(False)
+                                                        data_returned['code'].append(404)
+                                                        data_returned['message'].append(str(ex))
+                                                        data_returned['data'].append(None)
+                                        
+                                                    else:
+                                                        if(len(admin_credential_ref) < 1):
+                                                            data_returned['return'].append(False)
+                                                            data_returned['code'].append(113)
+                                                            data_returned['message'].append("USER not ADMIN")
+                                                            data_returned['data'].append(id)
+                                            
+                                                        else:
+                                                            admin_credential_ref = admin_credential_ref[0]
+                                                            admin_credential_ref.delete()
+
+                                                            data_returned['return'].append(True)
+                                                            data_returned['code'].append(100)
+                                                            data_returned['message'].append("Admin Privileged Revoked.")
+                                                            data_returned['data'].append(id)
+
+                                        except Exception as ex:
+                                            data_returned['return'].append(False)
+                                            data_returned['code'].append(404)
+                                            data_returned['message'].append(str(ex))
+                                            data_returned['data'].append(None)
+                            
+                        else: # self delete
+                            data = auth.check_authorization("admin")
+                            
+                            if(data[0] == False):
+                                data_returned['return'] = False
+                                data_returned['code'] = 114
+                                data_returned['message'] = "USER NOT ADMIN."
+                                return JsonResponse(data_returned, safe=True)
+                            
+                            else:
+                                admin_credential_ref = Admin_Credential.objects.get(user_credential_id = int(data[1]))
+                                admin_credential_ref.delete()
+
+                                data_returned['return'] = True
+                                data_returned['code'] = 100
+
+                        return JsonResponse(data_returned, safe=True)
     
     elif(request.method == 'PUT'):
         data_returned['action'] = request.method.upper()
+        auth.clear()
 
         try:
             user_data = JSONParser().parse(request)
+
         except Exception as ex:
             data_returned['return'] = False
             data_returned['code'] = 401
             data_returned['message'] = str(ex)
-
             return JsonResponse(data_returned, safe=True)
         
-        try:
-            incoming_data = user_data["data"]
-            incoming_hash = incoming_data["hash"]
-            incoming_data = incoming_data["data"]
-            privileges = incoming_data["privileges"]
-            incoming_api_version = user_data["api_v"]
-        except Exception as ex:
-            data_returned['return'] = False
-            data_returned['code'] = 402
-            data_returned['message'] = str(ex)
-
-            return JsonResponse(data_returned, safe=True)
-        
-        if(incoming_api_version == API_VERSION):
-            pass
         else:
-            data_returned['return'] = False
-            data_returned['code'] = 406
 
-            return JsonResponse(data_returned, safe=True)
+            try:
+                incoming_api = user_data["api"]
+                incoming_data = user_data["data"]
 
-        try:
-            auth.token = incoming_hash
-        except Exception as ex:
-            data_returned['return'] = False
-            data_returned['code'] = 404
-            data_returned['message'] = str(ex)
+            except Exception as ex:
+                data_returned['return'] = False
+                data_returned['code'] = 402
+                data_returned['message'] = str(ex)
+                return JsonResponse(data_returned, safe=True)
+            
+            else:
+                auth.api = incoming_api
+                data = auth.check_authorization(api_check=True)
 
-            return JsonResponse(data_returned, safe=True)
-
-        data = auth.check_authorization("admin") #prime admins can change other admins and self change is permitted
-        if(data[0] == False):
-            data_returned['return'] = False
-            data_returned['code'] = 111
-        else:
-            if("user_credential_id" in incoming_data.keys()): # admin prime change others
-                data = auth.check_authorization("admin", "prime")
-                    
                 if(data[0] == False):
                     data_returned['return'] = False
-                    data_returned['code'] = 110
-                    flag = False,0
+                    data_returned['code'] = 150
+                    data_returned['message'] = data[1]
+                    return JsonResponse(data_returned, safe=True)
+
                 else:
-                    temp = int(incoming_data["user_credential_id"])
-                    flag = True,113
-            
-            else: # admin change self
-                temp = int(data[1])
-                flag = True,111
-            
-            if(flag[0] == True):
-                admin_credential_ref = Admin_Credential.objects.filter(user_credential_id = temp)
-                if(len(admin_credential_ref) < 1):
-                    data_returned['return'] = False
-                    data_returned['code'] = flag[1]
-                else:
-                    admin_credential_ref = admin_credential_ref[0]
-                    
                     try:
-                        data_returned['return'] = list()
-                        data_returned['code'] = list()
-
-                        for prev_id in privileges:
-                            if(int(prev_id) < 0):
-                                flag = False
-                                prev_id *= -1
-                            else:
-                                flag = True
-                            
-                            many_to_many_ref = Admin_Cred_Admin_Prev_Int.objects.filter(admin_credential_id = admin_credential_ref.admin_credential_id,
-                                                                                        admin_privilege_id = int(prev_id))
-                            if(len(many_to_many_ref) > 0):
-                                if(flag == True):
-                                    data_returned['return'].append(False)
-                                    data_returned['code'].append(115)
-                                else:
-                                    many_to_many_ref = many_to_many_ref[0]
-                                    many_to_many_ref.delete()
-
-                                    data_returned['return'].append(True)
-                                    data_returned['code'].append(100)
-                            else:
-                                admin_privilege_ref = Admin_Privilege.objects.filter(admin_privilege_id = int(prev_id))
-                                if(len(admin_privilege_ref) < 1):
-                                    data_returned['return'].append(False)
-                                    data_returned['code'].append(116)
-                                else:
-                                    admin_privilege_ref = admin_privilege_ref[0]
-                                    many_to_many_ref_new = Admin_Cred_Admin_Prev_Int(admin_credential_id = admin_credential_ref,
-                                                                                     admin_privilege_id = admin_privilege_ref)
-                                    many_to_many_ref_new.save()
-
-                                    data_returned['return'].append(True)
-                                    data_returned['code'].append(100)
+                        incoming_data = incoming_data['data']
+                        auth.token = incoming_data['hash']
 
                     except Exception as ex:
-                        data_returned['return'].append(False)
-                        data_returned['code'].append(404)
-                        data_returned['return'] = tuple(data_returned['return'])
-                        data_returned['code'] = tuple(data_returned['code'])
+                        data_returned['return'] = False
+                        data_returned['code'] = 404
                         data_returned['message'] = str(ex)
-
                         return JsonResponse(data_returned, safe=True)
+                    
                     else:
-                        data_returned['return'] = tuple(data_returned['return'])
-                        data_returned['code'] = tuple(data_returned['code'])
+                        data = auth.check_authorization("admin", "prime") #admins can change other admins and self change is permitted
+                        
+                        if(data[0] == False):
+                            data_returned['return'] = False
+                            data_returned['code'] = 110
+                            data_returned['message'] = "USER not ADMIN PRIME."
+                            return JsonResponse(data_returned, safe=True)
 
-        return JsonResponse(data_returned, safe=True)
+                        else:
+                            if("updates" in incoming_data.keys()): # admin prime change others, ONLY THIS METHOD ALLOWED
+
+                                if(len(incoming_data['updates']) < 1):
+                                    data_returned['return'] = False
+                                    data_returned['code'] = 404
+                                    data_returned['message'] = "No updates provided."
+                                    return JsonResponse(data_returned, safe=True)
+                                
+                                else:
+                                    self_admin_credential_ref = Admin_Credential.objects.get(user_credential_id = int(data[1]))
+                                    data_returned['return'] = list()
+                                    data_returned['code'] = list()
+                                    data_returned['message'] = list()
+                                    
+                                    for update in incoming_data['updates']:
+                                        try:
+                                            admin_credential_ref = Admin_Credential.objects.filter(admin_credential_id = int(update['admin_id']))
+
+                                        except Exception as ex:
+                                            data_returned['return'].append(False)
+                                            data_returned['code'].append(404)
+                                            data_returned['message'].append(str(ex))
+                                        
+                                        else:
+                                            if(len(admin_credential_ref) < 1):
+                                                data_returned['return'].append(False)
+                                                data_returned['code'].append(111)
+                                                data_returned['message'].append("Invalid ADMIN CRED id.")
+                                            
+                                            else:
+                                                admin_credential_ref = admin_credential_ref[0]
+                                                if(int(admin_credential_ref.admin_credential_id) == int(self_admin_credential_ref.admin_credential_id)):
+                                                    key = "self"
+                                                else:
+                                                    key = int(admin_credential_ref.admin_credential_id)
+                                        
+                                                try:
+                                                    admin_privilege_ref = Admin_Privilege.objects.filter(admin_privilege_id = int(update['privilege_id']))
+                                            
+                                                except Exception as ex:
+                                                    data_returned['return'].append(False)
+                                                    data_returned['code'].append(404)
+                                                    data_returned['message'].append(str(ex))
+                                            
+                                                else:
+                                                    if(len(admin_privilege_ref) < 1):
+                                                        data_returned['return'].append(False)
+                                                        data_returned['code'].append(116)
+                                                        data_returned['message'].append("Invalid ADMIN PRIV id.")
+                                            
+                                                    else:
+                                                        admin_privilege_ref = admin_privilege_ref[0]
+                                                        many_to_many_ref = Admin_Cred_Admin_Prev_Int.objects.filter(admin_credential_id = admin_credential_ref.admin_credential_id, 
+                                                                                                                    admin_privilege_id = admin_privilege_ref.admin_privilege_id)
+
+                                                        if(len(many_to_many_ref) > 0):
+                                                            data_returned['return'].append(False)
+                                                            data_returned['code'].append(115)
+                                                            data_returned['message'].append("ADMIN has the PRIV.")
+                                                    
+                                                        else:
+                                                            many_to_many_new = Admin_Cred_Admin_Prev_Int(admin_credential_id = admin_credential_ref,
+                                                                                                         admin_privilege_id = admin_privilege_ref)
+                                                            many_to_many_new.save()
+
+                                                            data_returned['return'].append(True)
+                                                            data_returned['code'].append(100)
+                                                            data_returned['message'].append("ADMIN CRED <-> ADMIN PRIV pair generated.")
+                            else:
+                                data_returned['return'] = False
+                                data_returned['code'] = 402
+                                data_returned['message'] = "key error : [updates]"
+
+                return JsonResponse(data_returned, safe=True)
 
     elif(request.method == 'FETCH'):
         data_returned['action'] = request.method.upper()
+        auth.clear()
 
         try:
             user_data = JSONParser().parse(request)
+
         except Exception as ex:
             data_returned['return'] = False
             data_returned['code'] = 401
             data_returned['message'] = str(ex)
-
             return JsonResponse(data_returned, safe=True)
         
-        try:
-            incoming_data = user_data["data"]
-            incoming_hash = incoming_data["hash"]
-            incoming_data = incoming_data["data"]
-            incoming_api_version = user_data["api_v"]
-        except Exception as ex:
-            data_returned['return'] = False
-            data_returned['code'] = 402
-            data_returned['message'] = str(ex)
-
-            return JsonResponse(data_returned, safe=True)
-        
-        if(incoming_api_version == API_VERSION):
-            pass
         else:
-            data_returned['return'] = False
-            data_returned['code'] = 406
 
-            return JsonResponse(data_returned, safe=True)
+            try:
+                incoming_api = user_data["api"]
+                incoming_data = user_data["data"]
 
-        try:
-            auth.token = incoming_hash
-        except Exception as ex:
-            data_returned['return'] = False
-            data_returned['code'] = 404
-            data_returned['message'] = str(ex)
+            except Exception as ex:
+                data_returned['return'] = False
+                data_returned['code'] = 402
+                data_returned['message'] = str(ex)
+                return JsonResponse(data_returned, safe=True)
+            
+            else:
+                auth.api = incoming_api
+                data = auth.check_authorization(api_check=True)
 
-            return JsonResponse(data_returned, safe=True)
-
-        data = auth.check_authorization("admin")
-        if(data[0] == False):
-            data_returned['return'] = False
-            data_returned['code'] = 111
-        else:
-            if("user_credential_id" in incoming_data.keys()): # admin prime fetch others
-                data = auth.check_authorization("admin", "prime")
-                    
                 if(data[0] == False):
                     data_returned['return'] = False
-                    data_returned['code'] = 110
-                    flag = False,0
+                    data_returned['code'] = 150
+                    data_returned['message'] = data[1]
+                    return JsonResponse(data_returned, safe=True)
+
                 else:
-                    temp = int(incoming_data["user_credential_id"])
-                    flag = True,113
-            
-            else: # admin fetch self
-                temp = int(data[1])
-                flag = True,111
-                
-            if(flag[0] == True):
-                admin_credential_ref = Admin_Credential.objects.filter(user_credential_id = int(temp))
-                if(len(admin_credential_ref) < 1):
-                    data_returned['return'] = False
-                    data_returned['code'] = flag[1]
-                else:
-                    admin_credential_ref = admin_credential_ref[0]
-                    many_to_many_ref = Admin_Cred_Admin_Prev_Int.objects.filter(admin_credential_id = admin_credential_ref.admin_credential_id)
+                    try:
+                        incoming_data = incoming_data['data']
+                        auth.token = incoming_data['hash']
 
-                    data_returned['return'] = True
-                    data_returned['code'] = 100
-                    data_returned['data'] = dict()
+                    except Exception as ex:
+                        data_returned['return'] = False
+                        data_returned['code'] = 404
+                        data_returned['message'] = str(ex)
+                        return JsonResponse(data_returned, safe=True)
+                    
+                    else:
+                        
+                        if('user_id' in incoming_data.keys()): # admin prime fetching others admin details
+                            data = auth.check_authorization("admin", "prime") #only prime admins can fetch admin access from others
+        
+                            if(data[0] == False):
+                                data_returned['return'] = False
+                                data_returned['code'] = 110
+                                data_returned['message'] = "USER might not have ADMIN PRIME privileges."
+                                return JsonResponse(data_returned, safe=True)
+                            
+                            else:
+                                data_returned['return'] = list()
+                                data_returned['code'] = list()
+                                data_returned['message'] = list()
+                                data_returned['data'] = list()
 
-                    for query in many_to_many_ref:
-                        admin_privilege_ref = Admin_Privilege.objects.get(admin_privilege_id = query.admin_privilege_id.admin_privilege_id)
-                        admin_privilege_serialized = Admin_Privilege_Serializer(admin_privilege_ref, many=False)
-                        if(temp == data[1]):
-                            data_returned['data']["self"] = admin_privilege_serialized.data
-                        else:
-                            data_returned['data'][int(temp)] = admin_privilege_serialized.data
+                                if(0 in incoming_data['user_id']):
+                                    admin_credential_ref_all = Admin_Credential.objects.all()
 
-        return JsonResponse(data_returned, safe=True)
+                                    if(len(admin_credential_ref_all) < 1):
+                                        data_returned['return'] = False
+                                        data_returned['code'] = 404
+                                        data_returned['message'] = "ADMIN Tray is empty."
+                                        return JsonResponse(data_returned, safe=True)
+                                    
+                                    else:
+                                        admin_credential_all_serialized = Admin_Credential_Serializer(admin_credential_ref_all, many=True).data
+
+                                        for admin in admin_credential_all_serialized:
+                                            if(admin['user_credential_id'] == int(data[1])):
+                                                key = "self"
+                                            else:
+                                                key = admin['user_credential_id']                                            
+
+                                            temp = {key : admin}
+                                            many_to_many_ref = Admin_Cred_Admin_Prev_Int.objects.filter(admin_credential_id = temp[key]['admin_credential_id'])
+                                            if(len(many_to_many_ref) < 1):
+                                                privileges = None
+                                            else:
+                                                privileges = list()
+                                                for mtmr in many_to_many_ref:
+                                                    privileges.append(mtmr.admin_privilege_id.admin_privilege_id)
+                                            temp['privilege_id'] = privileges
+
+                                            data_returned['return'].append(True)
+                                            data_returned['code'].append(100)
+                                            data_returned['message'].append(None)
+                                            data_returned['data'].append(temp)
+                                
+                                else:
+                                    for id in incoming_data['user_id']: # self fetch allowed this way SECURITY CHECK
+                                        try:
+                                            user_credential_ref = User_Credential.objects.filter(user_credential_id = int(id))
+
+                                            if(len(user_credential_ref) < 1):
+                                                data_returned['return'].append(False)
+                                                data_returned['code'].append(114)
+                                                data_returned['message'].append("USER ID not exist")
+                                                data_returned['data'].append(None)
+                                    
+                                            else:
+                                                try:
+                                                    user_credential_ref = user_credential_ref[0]
+                                                    admin_credential_ref = Admin_Credential.objects.filter(user_credential_id = int(user_credential_ref.user_credential_id))
+                    
+                                                except Exception as ex:
+                                                    data_returned['return'].append(False)
+                                                    data_returned['code'].append(404)
+                                                    data_returned['message'].append(str(ex))
+                                                    data_returned['data'].append(None)
+                                        
+                                                else:
+                                                    if(len(admin_credential_ref) < 1):
+                                                        data_returned['return'].append(False)
+                                                        data_returned['code'].append(113)
+                                                        data_returned['message'].append("USER not ADMIN")
+                                                        data_returned['data'].append(id)
+                                            
+                                                    else:
+                                                        admin_credential_ref = admin_credential_ref[0]
+                                                        admin_credential_serialized = Admin_Credential_Serializer(admin_credential_ref, many=False).data
+
+                                                        if(admin_credential_serialized['user_credential_id'] == int(data[1])):
+                                                            key = "self"
+                                                        else:
+                                                            key = admin_credential_serialized['user_credential_id']
+
+                                                        temp = {key : admin_credential_serialized}
+                                                        many_to_many_ref = Admin_Cred_Admin_Prev_Int.objects.filter(admin_credential_id = temp[key]['admin_credential_id'])
+                                                        if(len(many_to_many_ref) < 1):
+                                                            privileges = None
+                                                        else:
+                                                            privileges = list()
+                                                            for mtmr in many_to_many_ref:
+                                                                privileges.append(mtmr.admin_privilege_id.admin_privilege_id)
+                                                        temp['privilege_id'] = privileges                                          
+
+                                                        data_returned['return'].append(True)
+                                                        data_returned['code'].append(100)
+                                                        data_returned['message'].append(None)
+                                                        data_returned['data'].append(temp)
+
+                                        except Exception as ex:
+                                            data_returned['return'].append(False)
+                                            data_returned['code'].append(404)
+                                            data_returned['message'].append(str(ex))
+                                            data_returned['data'].append(None)
+                            
+                        else: # self fetch
+                            data = auth.check_authorization("admin")
+                            
+                            if(data[0] == False):
+                                data_returned['return'] = False
+                                data_returned['code'] = 114
+                                data_returned['message'] = "USER NOT ADMIN."
+                                return JsonResponse(data_returned, safe=True)
+                            
+                            else:
+                                admin_credential_ref = Admin_Credential.objects.get(user_credential_id = int(data[1]))
+                                admin_credential_serialized = Admin_Credential_Serializer(admin_credential_ref, many=False).data
+                                
+                                key = "self"
+                                temp = {key : admin_credential_serialized}
+
+                                many_to_many_ref = Admin_Cred_Admin_Prev_Int.objects.filter(admin_credential_id = temp[key]['admin_credential_id'])
+                                if(len(many_to_many_ref) < 1):
+                                    privileges = None
+                                else:
+                                    privileges = list()
+                                for mtmr in many_to_many_ref:
+                                    privileges.append(mtmr.admin_privilege_id.admin_privilege_id)
+                                
+                                temp['privilege_id'] = privileges
+
+                                data_returned['return'] = True
+                                data_returned['code'] = 100
+                                data_returned['data'] = temp
+
+                        return JsonResponse(data_returned, safe=True)
 
     else:
         data_returned['return'] = False
@@ -1576,7 +1800,13 @@ def admin_privilege_API(request):
     global auth
     data_returned = dict()
 
-    if(request.method == 'POST'):
+    if(request.method == 'GET'):
+        data_returned['return'] = False
+        data_returned['code'] = 403
+        data_returned['message'] = 'Method not supported : GET.'
+        return JsonResponse(data_returned, safe=True)
+
+    elif(request.method == 'POST'):
         data_returned['action'] = request.method.upper()
 
         try:
