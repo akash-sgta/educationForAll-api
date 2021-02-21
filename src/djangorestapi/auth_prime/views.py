@@ -513,7 +513,7 @@ def user_credential_API(request):
 
                     return JsonResponse(data_returned, safe=True)
 
-    elif(request.method == 'FETCH'):
+    elif(request.method == 'REQUEST'):
         data_returned['action'] = request.method.upper()
         auth.clear()
 
@@ -1037,7 +1037,7 @@ def user_profile_API(request):
 
                         return JsonResponse(data_returned, safe=True)
 
-    elif(request.method == 'FETCH'):
+    elif(request.method == 'REQUEST'):
         data_returned['action'] = request.method.upper()
         auth.clear()
 
@@ -1601,7 +1601,7 @@ def admin_credential_API(request):
 
                 return JsonResponse(data_returned, safe=True)
 
-    elif(request.method == 'FETCH'):
+    elif(request.method == 'REQUEST'):
         data_returned['action'] = request.method.upper()
         auth.clear()
 
@@ -1939,7 +1939,7 @@ def admin_privilege_API(request):
         
         return JsonResponse(data_returned, safe=True)
 
-    elif(request.method == 'FETCH'):
+    elif(request.method == 'REQUEST'):
         data_returned['action'] = request.method.upper()
 
         try:
