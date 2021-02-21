@@ -1,0 +1,17 @@
+{% load static %}
+<!-- purple x moss 2020 -->
+<html>
+    <head>
+        <link href="{% static 'css/404.css' %}" rel="stylesheet">
+        <script src="{% static 'js/404.js' %}"></script>
+        <title>JASS | ERROR</title>
+    </head>
+    <body>
+        <div class="mainbox">
+            <div class="err">5</div>
+            <i class="far fa-question-circle fa-spin"></i>
+            <i class="far fa-question-circle fa-spin"></i>
+            <div class="msg">Maybe this page moved? Got deleted? Is hiding out in quarantine? Never existed in the first place?<p>Let's go <a href="{% url 'API_TOKEN' %}">home</a> and try from there.</p></div>
+        </div>
+    </body>
+</html>

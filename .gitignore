@@ -133,3 +133,5 @@ development.py
 *.sqlite3
 *.sqlite3-journal
 .vscode
+staticfiles/
+root/
