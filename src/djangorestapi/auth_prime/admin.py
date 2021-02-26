@@ -9,6 +9,7 @@ from auth_prime.models import Admin_Credential
 from auth_prime.models import Admin_Cred_Admin_Prev_Int
 from auth_prime.models import User_Token_Table
 from auth_prime.models import  Api_Token_Table
+from auth_prime.models import  Image
 
 # -----------------------------------------------
 
@@ -21,3 +22,4 @@ admin.site.register(Admin_Cred_Admin_Prev_Int)
 
 admin.site.register(User_Token_Table)
 admin.site.register(Api_Token_Table)
+admin.site.register(Image)

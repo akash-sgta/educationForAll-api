@@ -37,11 +37,11 @@ class Authorize_Prime(object):
     @user_password.setter
     def user_password(self, data):
         import re
-        PATTERN = r'^[a-zA-Z0-9_~!@#$%^&*()_+]{8,}$'
+        PATTERN = r'^[a-zA-Z0-9_]{8,}$'
         if(re.search(PATTERN, data)):
             self._user_password = data
         else:
-            raise Exception("Password must be more than 8 characters. [a-zA-Z0-9_~!@#$%^&*()_+]")
+            raise Exception("Password must be more than 8 characters. [a-zA-Z0-9_]")
     
     @property
     def token(self):
@@ -85,9 +85,7 @@ class Authorize_Prime(object):
                     now = now.strftime("%d-%m-%Y %H:%M:%S")
                     then = then.strftime("%d-%m-%Y %H:%M:%S")
                     
-                    sha256_ref = sha256()
-                    sha256_ref.update(f"{now}{self.user_email}{self.user_password}{then}".encode('utf-8'))
-                    token_hash = str(sha256_ref.digest())
+                    token_hash = self.random_generator()
                     
                     try:
                         user_credential_id = User_Credential.objects.get(user_credential_id=user_credential_id)
@@ -144,13 +142,13 @@ class Authorize_Prime(object):
             sha256_ref.update(f"ooga{self.user_password}booga".encode('utf-8'))
             return True,str(sha256_ref.digest())
 
-    def random_generator(self):
+    def random_generator(self, l=64):
         import string
         import random
 
         password_characters = string.ascii_letters + string.digits
         password = []
-        for x in range(64):
+        for x in range(l):
             password.append(random.choice(password_characters))
         
         return "".join(password)

@@ -19,7 +19,7 @@ class User_Profile_Serializer(serializers.ModelSerializer):
             'user_english_efficiency',
             'user_git_profile',
             'user_linkedin_profile',
-            'user_profile_pic_url',
+            'user_profile_pic',
             'user_roll_number',
             'prime'
         )
