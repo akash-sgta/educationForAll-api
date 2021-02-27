@@ -1868,6 +1868,7 @@ def admin_privilege_API(request):
                 
                                     return JsonResponse(data_returned, safe=True)
 
+
                         elif(incoming_data["action"].upper() == "DELETE"):
                             data_returned['action'] += "-"+incoming_data["action"].upper()
                         
