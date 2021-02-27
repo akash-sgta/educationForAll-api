@@ -87,7 +87,7 @@ class Assignment(models.Model):
     assignment_name = models.CharField(max_length=512)
     assignment_body_1 = models.TextField(null=False, blank=False)
     assignment_body_2 = models.TextField(null=True, blank=True)
-    assignment_external_url = models.URLField()
+    assignment_external_url = models.URLField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.assignment_id} | {self.asignment_name}"

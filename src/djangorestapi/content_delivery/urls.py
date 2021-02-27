@@ -9,5 +9,6 @@ urlpatterns = [
     url(r'api/content/forum/$', views.forum_API),
     url(r'api/content/reply/$', views.reply_API),
     url(r'api/content/lecture/$', views.lecture_API),
+    url(r'api/content/assignment/$', views.assignment_API),
     
 ]

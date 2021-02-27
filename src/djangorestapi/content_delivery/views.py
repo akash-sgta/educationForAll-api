@@ -10,12 +10,14 @@ from content_delivery.models import Subject_Coordinator_Int
 from content_delivery.models import Forum
 from content_delivery.models import Reply
 from content_delivery.models import Lecture
+from content_delivery.models import Assignment
 
 from content_delivery.serializer import Coordinator_Serializer
 from content_delivery.serializer import Subject_Serializer
 from content_delivery.serializer import Forum_Serializer
 from content_delivery.serializer import Reply_Serializer
 from content_delivery.serializer import Lecture_Serializer
+from content_delivery.serializer import Assignment_Serializer
 
 from auth_prime.authorize import Authorize
 
@@ -1760,4 +1762,186 @@ def lecture_API(request):
         data_returned['message'] = "Parent action invalid"
         return JsonResponse(data_returned, safe=True)
 
+
+@csrf_exempt
+def assignment_API(request):
+    global auth
+    data_returned = dict()
+
+    if(request.method == 'GET'):
+        data_returned['return'] = False
+        data_returned['code'] = 403
+        data_returned['message'] = 'Method not supported : GET.'
+        return JsonResponse(data_returned, safe=True)
+
+    elif(request.method == 'POST'):
+        data_returned['action'] = request.method.upper()
+        auth.clear()
+
+        try:
+            user_data = JSONParser().parse(request)
+
+        except Exception as ex:
+            data_returned['return'] = False
+            data_returned['code'] = 401
+            data_returned['message'] = str(ex)
+            return JsonResponse(data_returned, safe=True)
+        
+        else:
+
+            try:
+                incoming_api = user_data["api"]
+                incoming_data = user_data["data"]
+
+            except Exception as ex:
+                data_returned['return'] = False
+                data_returned['code'] = 402
+                data_returned['message'] = str(ex)
+                return JsonResponse(data_returned, safe=True)
+            
+            else:
+                auth.api = incoming_api
+                data = auth.check_authorization(api_check=True)
+
+                if(data[0] == False):
+                    data_returned['return'] = False
+                    data_returned['code'] = 150
+                    data_returned['message'] = data[1]
+                    return JsonResponse(data_returned, safe=True)
+
+                else:
+                    try:
+
+                        if(incoming_data["action"].upper() == "CREATE"):
+                            data_returned['action'] += "-"+incoming_data["action"].upper()
+                        
+                            try:
+                                incoming_data = incoming_data['data']
+                                auth.token = incoming_data['hash']
+                                incoming_data = incoming_data['data']
+
+                            except Exception as ex:
+                                data_returned['return'] = False
+                                data_returned['code'] = 404
+                                data_returned['message'] = str(ex)
+                                return JsonResponse(data_returned, safe=True)
+                    
+                            else:
+                                data = auth.check_authorization("user")
+
+                                if(data[0] == False):
+                                    data_returned['return'] = False
+                                    data_returned['code'] = 102
+                                    data_returned['message'] = 'HASH not USER.'
+                                    return JsonResponse(data_returned, safe=True)
+                                
+                                else:
+                                    coordinator_ref = Coordinator.objects.filter(user_credential_id = int(data[1]))
+                                    if(len(coordinator_ref) < 1):
+                                        data_returned['return'] = False
+                                        data_returned['code'] = 404
+                                        data_returned['message'] = 'USER not Coordinator.'
+                                        return JsonResponse(data_returned, safe=True)
+                                    
+                                    else:
+                                        # coordinator_ref = coordinator_ref[0]
+                                        assignment_de_serialized = Assignment_Serializer(data = incoming_data)
+
+                                        if(assignment_de_serialized.is_valid()):
+                                            assignment_de_serialized.save()
+
+                                            data_returned['return'] = True
+                                            data_returned['code'] = 100
+                                            data_returned['message'] = 'Created : Assignment'
+                                            data_returned['data'] = {"assignment_id" : assignment_de_serialized.data['assignment_id']}
+                                        
+                                        else:
+                                            data_returned['return'] = False
+                                            data_returned['code'] = 404
+                                            data_returned['message'] = assignment_de_serialized.errors
+                                            return JsonResponse(data_returned, safe=True)
+                                
+                                return JsonResponse(data_returned, safe=True)
+
+                        elif(incoming_data["action"].upper() == "READ"):
+                            data_returned['action'] += "-"+incoming_data["action"].upper()
+                        
+                            try:
+                                incoming_data = incoming_data['data']
+                                auth.token = incoming_data['hash']
+                                lecture_ids = tuple(incoming_data['assignment_id'])
+
+                            except Exception as ex:
+                                data_returned['return'] = False
+                                data_returned['code'] = 404
+                                data_returned['message'] = str(ex)
+                                return JsonResponse(data_returned, safe=True)
+                    
+                            else:
+                                data = auth.check_authorization("user")
+
+                                if(data[0] == False):
+                                    data_returned['return'] = False
+                                    data_returned['code'] = 102
+                                    data_returned['message'] = 'HASH not USER.'
+                                    return JsonResponse(data_returned, safe=True)
+                                
+                                else:
+                                    if(len(lecture_ids) < 1):
+                                        data_returned['return'] = False
+                                        data_returned['code'] = 404
+                                        data_returned['message'] = 'Value Error : Atleast one assignment id required.'
+                                        return JsonResponse(data_returned, safe=True)
+                                    
+                                    else:
+                                        data_returned['return'] = list()
+                                        data_returned['code'] = list()
+                                        data_returned['message'] = list()
+                                        data_returned['data'] = list()
+
+                                        for id in lecture_ids:
+                                            try:
+                                                assignment_ref = Assignment.objects.filter(assignment_id = int(id))
+                                            
+                                            except Exception as ex:
+                                                data_returned['return'].append(False)
+                                                data_returned['code'].append(404)
+                                                data_returned['message'].append(str(ex))
+                                                data_returned['data'].append(None)
+                                            
+                                            else:
+                                                if(len(assignment_ref) < 1):
+                                                    data_returned['return'].append(False)
+                                                    data_returned['code'].append(404)
+                                                    data_returned['message'].append("INVALID : Assignment ID")
+                                                    data_returned['data'].append(None)
+                                                
+                                                else:
+                                                    assignment_ref = assignment_ref[0]
+                                                    assignment_serialized = Assignment_Serializer(assignment_ref, many=False).data
+
+                                                    data_returned['return'].append(True)
+                                                    data_returned['code'].append(100)
+                                                    data_returned['message'].append(None)
+                                                    data_returned['data'].append(assignment_serialized)
+
+                                return JsonResponse(data_returned, safe=True)
+
+                        else:
+                            data_returned['return'] = False
+                            data_returned['code'] = 403
+                            data_returned['message'] = "Child action invalid"
+                            return JsonResponse(data_returned, safe=True)
+
+                    except Exception as ex:
+                        data_returned['return'] = False
+                        data_returned['code'] = 404
+                        data_returned['message'] = str(ex)
+                        return JsonResponse(data_returned, safe=True)
+
+    else:
+        data_returned['return'] = False
+        data_returned['code'] = 403
+        data_returned['message'] = "Parent action invalid"
+        return JsonResponse(data_returned, safe=True)       
 # ---------------------------------------------VIEW SPACE-------------------------------------------------------
