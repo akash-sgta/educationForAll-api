@@ -2,9 +2,22 @@ from django.db import models
 
 from django.core.validators import RegexValidator
 
+
 import datetime
 
 # Create your models here.
+
+# ---------------------------------------------------------------------------------------------------------------------------------------
+
+class Image(models.Model):
+    image_id = models.AutoField(primary_key=True, null=False, blank=False, unique=True)
+
+    image_name = models.CharField(max_length=256, null=False, blank=False)
+    image_url = models.CharField(max_length=512, null=False, blank=False)
+
+    def __str__(self):
+        return f"{self.image_id} | {self.image_name}"
+
 
 # ---------------------------------------------------------------------------------------------------------------------------------------
 
@@ -16,7 +29,6 @@ class User_Profile(models.Model):
     user_english_efficiency = models.PositiveSmallIntegerField(choices=((1,"BEGINNER"), (2,"INTERMEDIATE"), (3,"ADVANCED")), default=1)
     user_git_profile = models.URLField(max_length=256, null=True, blank=True)
     user_linkedin_profile = models.URLField(max_length=256, null=True, blank=True)
-    user_profile_pic_url = models.CharField(max_length=1024, null=True, blank=True)
     user_roll_number = models.CharField(max_length=14, validators=[
             RegexValidator(
                 regex=r'^[0-9]{12}$',
@@ -26,6 +38,8 @@ class User_Profile(models.Model):
         ], null=True, blank=True)
     
     prime = models.BooleanField(default=True) # is student ?
+
+    user_profile_pic = models.ForeignKey(Image, blank=True, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return f"{self.user_profile_id} | {self.prime} | {self.user_roll_number}"

@@ -6,6 +6,7 @@ urlpatterns = [
     
     url(r'api/user/user/$', views.user_credential_API, name="API_USER_CRED"),
     url(r'api/user/profile/$', views.user_profile_API, name="API_USER_PROF"),
+    url(r'api/user/profile/image/$', views.upload_image, name="API_USER_PROF_PIC"),
     url(r'api/admin/admin/$', views.admin_credential_API, name="API_ADMIN_CRED"),
     url(r'api/admin/privilege/$', views.admin_privilege_API, name="API_ADMIN_PRIV"),
 

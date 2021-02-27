@@ -22,7 +22,7 @@ class Subject(models.Model):
     subject_name = models.CharField(max_length=512, null=False, blank=False)
     subject_description = models.TextField(null=False, blank=False)
 
-    prime = models.BooleanField(default=False)
+    prime = models.BooleanField(default=False) # prime only to be shown to logged in users
 
     def __str__(self):
         return f"{self.subject_id} | {self.subject_name}"
@@ -49,7 +49,7 @@ class Video(models.Model):
 class Forum(models.Model):
     forum_id = models.AutoField(primary_key=True, null=False, blank=False, unique=True)
 
-    forum_name = models.CharField(max_length=512)
+    forum_name = models.CharField(max_length=512, null=False, blank=False)
 
     def __str__(self):
         return f"{self.forum_id} | {self.forum_name}"
@@ -61,8 +61,8 @@ class Reply(models.Model):
     user_credential_id = models.ForeignKey(User_Credential, null=True, blank=True, on_delete=models.SET_NULL)
 
     reply_body = models.TextField()
-    reply_upvote = models.IntegerField()
-    reply_downvote = models.IntegerField()
+    reply_upvote = models.IntegerField(null=True, blank=True)
+    reply_downvote = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
         if(self.user_credential_id == None):
@@ -74,9 +74,9 @@ class Lecture(models.Model):
     lecture_id = models.AutoField(primary_key=True, null=False, blank=False, unique=True)
 
     lecture_name = models.CharField(max_length=512, null=False, blank=False)
-    lecture_body_1 = models.TextField(null=True, blank=True)
+    lecture_body_1 = models.TextField(default="", null=False, blank=False)
     lecture_body_2 = models.TextField(null=True, blank=True)
-    lecture_external_url = models.URLField()
+    lecture_external_url = models.URLField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.lecture_id} | {self.lecture_name}"
@@ -87,7 +87,7 @@ class Assignment(models.Model):
     assignment_name = models.CharField(max_length=512)
     assignment_body_1 = models.TextField(null=False, blank=False)
     assignment_body_2 = models.TextField(null=True, blank=True)
-    assignment_external_url = models.URLField()
+    assignment_external_url = models.URLField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.assignment_id} | {self.asignment_name}"

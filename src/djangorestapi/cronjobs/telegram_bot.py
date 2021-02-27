@@ -105,96 +105,104 @@ def telegram_bot():
 
         if len(all_updates) > 0:
             for current_update in all_updates:
-                first_update_id = current_update['update_id']
+                try:
 
-                if('edited_message' in current_update.keys()):
-                    name = 'edited_message'
-                elif('message' in current_update.keys()):
-                    name = 'message'
-                
-                first_chat_text = current_update[f'{name}']['text']
-                first_chat_id = current_update[f'{name}']['from']['id']
-                first_chat_name = current_update[f'{name}']['from']['first_name']
+                    first_update_id = current_update['update_id']
 
-                if(first_chat_text in ('/hello', '/start')):
-                    text = 'Hi, {}.'.format(first_chat_name)
-                    text += '\n\nCommand List :\n/hello - Simple greeting\n/login - To initiate login\n/logout - To initiate logout.'
-                    JASS_EDUCATION.send_message(first_chat_id, text)
-                    new_offset = first_update_id + 1
-                    print(f'[.] HELLO | ID : {first_chat_id} | NAME : {first_chat_name}')
-                
-                elif(first_chat_text == '/logout'):
-                    try:
-                        query = r'''SELECT user_credential_id, user_profile_id_id FROM auth_prime_user_credential WHERE user_tg_id LIKE "{}";'''.format(first_chat_id)
-                        DB.connect()
-                        data = DB.operation(query)
-                        data = data.fetchall()
-                        if(len(data) < 1):
-                            text = 'User Not Logged In !'
-                        else:
-                            query = r'''UPDATE auth_prime_user_credential SET user_tg_id = NULL WHERE user_credential_id = {};'''.format(int(data[0][0]))
+                    if('edited_message' in current_update.keys()):
+                        name = 'edited_message'
+                    elif('message' in current_update.keys()):
+                        name = 'message'
+                    
+                    first_chat_text = current_update[f'{name}']['text']
+                    first_chat_id = current_update[f'{name}']['from']['id']
+                    first_chat_name = current_update[f'{name}']['from']['first_name']
+
+                    if(first_chat_text in ('/hello', '/start')):
+                        text = 'Hi, {}.'.format(first_chat_name)
+                        text += '\n\nCommand List :\n/hello - Simple greeting\n/login - To initiate login\n/logout - To initiate logout.'
+                        JASS_EDUCATION.send_message(first_chat_id, text)
+                        new_offset = first_update_id + 1
+                        print(f'[.] HELLO | ID : {first_chat_id} | NAME : {first_chat_name}')
+                    
+                    elif(first_chat_text == '/logout'):
+                        try:
+                            query = r'''SELECT user_credential_id, user_profile_id_id FROM auth_prime_user_credential WHERE user_tg_id LIKE "{}";'''.format(first_chat_id)
+                            DB.connect()
                             data = DB.operation(query)
-                            text = 'Successful.\nTelegram Account removed from profile.\nThank You, {} for using our Telegram Services.'.format(first_chat_name)
-                        DB.commit()
-                        DB.disconnect()
-                    except Exception as ex:
-                        code = 'tg002'
-                        if(DEBUG == True):
-                            message = str(ex)
-                        else:
-                            message = "Contact Admin : @akash_sengupta_bsnl"
-                        text = f'Unsuccessful.\nError Code : {code}\n{message}'
-
-                    JASS_EDUCATION.send_message(first_chat_id, text)
-                    new_offset = first_update_id + 1
-                    print(f'[.] LOGOUT | ID : {first_chat_id} | NAME : {first_chat_name}')
-                
-                elif(first_chat_text == '/login'):
-                    if(first_chat_id not in IN_TRANSIT):
-                        IN_TRANSIT.append(first_chat_id)
-                    text = 'Try : your_email:your_password'
-                        
-                    JASS_EDUCATION.send_message(first_chat_id, text)
-                    new_offset = first_update_id + 1
-                    print(f'[.] LOGIN_1 | ID : {first_chat_id} | NAME : {first_chat_name}')
-
-                else:
-                    if(first_chat_id not in IN_TRANSIT):
-                        text = 'Invalid Command.\nTry : /hello'
-                        print(f'[.] OTHERS | ID : {first_chat_id} | NAME : {first_chat_name}')
-                    else:
-                        PATTERN = r'^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}:[a-zA-Z0-9~!@#$%^&*()_+]+$'
-                        if(re.search(PATTERN, first_chat_text)):
-                            email, password = first_chat_text.split(":")
-                            try:
-                                query = r'''SELECT user_credential_id, user_profile_id_id FROM auth_prime_user_credential WHERE user_email LIKE "{}" AND user_password LIKE "{}";'''.format(email.lower(), create_hash(password))
-                                DB.connect()
-                                data = DB.operation(query)
-                                data = data.fetchall()
-                                if(len(data) < 1):
-                                    text = 'Invalid Credentials !'
-                                else:
-                                    query = r'''UPDATE auth_prime_user_credential SET user_tg_id = "{}" WHERE user_credential_id = {};'''.format(first_chat_id, int(data[0][0]))
-                                    data = DB.operation(query)
-                                    text = 'Successful.\nTelegram Account added to profile. 😀'
-                                DB.commit()
-                                DB.disconnect()
-                            except Exception as ex:
-                                code = 'tg001'
-                                if(DEBUG == True):
-                                    message = str(ex)
-                                else:
-                                    message = "Contact Admin : @akash_sengupta_bsnl"
-                                text = f'Unsuccessful.\nError Code : {code}\nMessage : {message}'
+                            data = data.fetchall()
+                            if(len(data) < 1):
+                                text = 'User Not Logged In !'
                             else:
-                                IN_TRANSIT.remove(first_chat_id)
-                        else:
-                            text = 'Invalid Formating.\nTry : your_email:your_password 😬'
-                        
-                        print(f'[.] LOGIN_2 | ID : {first_chat_id} | NAME : {first_chat_name}')
+                                query = r'''UPDATE auth_prime_user_credential SET user_tg_id = NULL WHERE user_credential_id = {};'''.format(int(data[0][0]))
+                                data = DB.operation(query)
+                                text = 'Successful.\nTelegram Account removed from profile.\nThank You, {} for using our Telegram Services.'.format(first_chat_name)
+                            DB.commit()
+                            DB.disconnect()
+                        except Exception as ex:
+                            code = 'tg002'
+                            if(DEBUG == True):
+                                message = str(ex)
+                            else:
+                                message = "Contact Admin : @akash_sengupta_bsnl"
+                            text = f'Unsuccessful.\nError Code : {code}\n{message}'
 
-                    JASS_EDUCATION.send_message(first_chat_id, text)
+                        JASS_EDUCATION.send_message(first_chat_id, text)
+                        new_offset = first_update_id + 1
+                        print(f'[.] LOGOUT | ID : {first_chat_id} | NAME : {first_chat_name}')
+                    
+                    elif(first_chat_text == '/login'):
+                        if(first_chat_id not in IN_TRANSIT):
+                            IN_TRANSIT.append(first_chat_id)
+                        text = 'Try : your_email:your_password'
+                            
+                        JASS_EDUCATION.send_message(first_chat_id, text)
+                        new_offset = first_update_id + 1
+                        print(f'[.] LOGIN_1 | ID : {first_chat_id} | NAME : {first_chat_name}')
+
+                    else:
+                        if(first_chat_id not in IN_TRANSIT):
+                            text = 'Invalid Command.\nTry : /hello'
+                            print(f'[.] OTHERS | ID : {first_chat_id} | NAME : {first_chat_name}')
+                        else:
+                            PATTERN = r'^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}:[a-zA-Z0-9~!@#$%^&*()_+]+$'
+                            if(re.search(PATTERN, first_chat_text)):
+                                email, password = first_chat_text.split(":")
+                                try:
+                                    query = r'''SELECT user_credential_id, user_profile_id_id FROM auth_prime_user_credential WHERE user_email LIKE "{}" AND user_password LIKE "{}";'''.format(email.lower(), create_hash(password))
+                                    DB.connect()
+                                    data = DB.operation(query)
+                                    data = data.fetchall()
+                                    if(len(data) < 1):
+                                        text = 'Invalid Credentials !'
+                                    else:
+                                        query = r'''UPDATE auth_prime_user_credential SET user_tg_id = "{}" WHERE user_credential_id = {};'''.format(first_chat_id, int(data[0][0]))
+                                        data = DB.operation(query)
+                                        text = 'Successful.\nTelegram Account added to profile. 😀'
+                                    DB.commit()
+                                    DB.disconnect()
+                                except Exception as ex:
+                                    code = 'tg001'
+                                    if(DEBUG == True):
+                                        message = str(ex)
+                                    else:
+                                        message = "Contact Admin : @akash_sengupta_bsnl"
+                                    text = f'Unsuccessful.\nError Code : {code}\nMessage : {message}'
+                                else:
+                                    IN_TRANSIT.remove(first_chat_id)
+                            else:
+                                text = 'Invalid Formating.\nTry : your_email:your_password 😬'
+                            
+                            print(f'[.] LOGIN_2 | ID : {first_chat_id} | NAME : {first_chat_name}')
+
+                        JASS_EDUCATION.send_message(first_chat_id, text)
+                        new_offset = first_update_id + 1
+                
+                except Exception as ex:
+                    print(f'[x] Exception Occured : {str(ex)}')
                     new_offset = first_update_id + 1
+                else:
+                    pass
 
 # ------------------------------------------------------------------------
 if __name__ == "__main__":
