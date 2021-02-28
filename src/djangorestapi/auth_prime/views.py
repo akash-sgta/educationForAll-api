@@ -5,7 +5,6 @@ from django.http.response import JsonResponse
 from django.contrib import messages
 from django.core.files.storage import FileSystemStorage
 
-import logging
 import re
 # --------------------------------------------------------------------------
 
@@ -31,9 +30,10 @@ auth = Authorize()
 cookie = Cookie()
 
 # -------------------------------API_SPACE-------------------------------------
-logging.basicConfig(filename='app.log', filemode='w', format='%(asctime)s | %(message)s')
 def logger(api_key, message):
-    logging.info(f"{api_key} -> {message}")
+    import logging
+    logging.basicConfig(format='%(asctime)s | %(message)s')
+    logging.warning(f"{api_key} -> {message}")
 # -----------------------------------------------------------------------------
 
 @csrf_exempt
@@ -45,17 +45,17 @@ def upload_image(request):
     # @csrf_protect
     def post_it(request):
         if('auth' not in request.POST.keys()):
-            return False, "No api auth token found."
+            return False, "Value-No api auth token found"
         
         else:
             auth = request.POST.get('auth')
             api_token_ref = Api_Token_Table.objects.filter(user_key_private = auth)
             if(len(api_token_ref) < 1):
-                return False, "INVALID : API token."
+                return False, "INVALID-API token"
             
             else:
                 if(len(request.FILES) < 1):
-                    return False, "No files found"
+                    return False, "Value-No files found"
                 else:
                     image_file = request.FILES['image']
                     if(str(image_file.content_type).startswith("image")):
@@ -71,16 +71,15 @@ def upload_image(request):
                             return True, image_ref.image_id
 
                         else:
-                            return False, "Size Error : Image size should be less than 5mb"
+                            return False, "Size-Image size should be less than 5mb"
                     else:
-                        return False, "Format Error : POST file should be Image"
+                        return False, "Format-POST file should be Image"
 
     if(request.method == 'GET'):
         data_returned['return'] = False
         data_returned['code'] = 403
-        data_returned['message'] = 'Method not supported : GET.'
+        data_returned['message'] = 'ERROR-Invalid-GET Not supported'
         return JsonResponse(data_returned, safe=True)
-
 
     elif(request.method == 'POST'):
         data_returned['action'] = request.method.upper()
@@ -92,14 +91,14 @@ def upload_image(request):
         
         else:
             data_returned['code'] = 404
-            data_returned['message'] = message
+            data_returned['message'] = f"ERROR-{message}"
 
         return JsonResponse(data_returned, safe=True)
     
     else:
         data_returned['return'] = False
         data_returned['code'] = 403
-        data_returned['message'] = "Parent action invalid"
+        data_returned['message'] = "ERROR-Action-Parent action invalid"
         return JsonResponse(data_returned, safe=True)
   
 @csrf_exempt
@@ -107,10 +106,10 @@ def user_credential_API(request):
     global auth
     data_returned = dict()
 
-    if(request.method.upper() == 'GET'):
+    if(request.method.upper() == 'GET'): 
         data_returned['return'] = False
         data_returned['code'] = 403
-        data_returned['message'] = 'Method not supported : GET.'
+        data_returned['message'] = 'ERROR-Invalid-GET Not supported'
         return JsonResponse(data_returned, safe=True)
 
     elif(request.method.upper() == 'POST'):
@@ -123,7 +122,7 @@ def user_credential_API(request):
         except Exception as ex:
             data_returned['return'] = False
             data_returned['code'] = 401
-            data_returned['message'] = str(ex)
+            data_returned['message'] = f"ERROR-Parsing-{str(ex)}"
             return JsonResponse(data_returned, safe=True)
         
         else:
@@ -135,7 +134,7 @@ def user_credential_API(request):
             except Exception as ex:
                 data_returned['return'] = False
                 data_returned['code'] = 402
-                data_returned['message'] = str(ex)
+                data_returned['message'] = f"ERROR-Key-{str(ex)}"
                 return JsonResponse(data_returned, safe=True)
             
             else:
@@ -145,7 +144,7 @@ def user_credential_API(request):
                 if(data[0] == False):
                     data_returned['return'] = False
                     data_returned['code'] = 150
-                    data_returned['message'] = data[1]
+                    data_returned['message'] = f"ERROR-Api-{data[1]}"
                     return JsonResponse(data_returned, safe=True)
 
                 else:
@@ -160,8 +159,8 @@ def user_credential_API(request):
                             
                             except Exception as ex:
                                 data_returned['return'] = False
-                                data_returned['code'] = 404
-                                data_returned['message'] = str(ex)
+                                data_returned['code'] = 402
+                                data_returned['message'] = f"ERROR-Key-{str(ex)}"
                                 return JsonResponse(data_returned, safe=True)
                             
                             else:
@@ -171,7 +170,8 @@ def user_credential_API(request):
                                 if(len(user_credential_ref) > 0):
                                     data_returned['return'] = False
                                     data_returned['code'] = 104
-                                    data_returned['message'] = "Email Already registered."
+                                    data_returned['message'] = "ERROR-Non Reusable Value-Email already registered"
+                                    return JsonResponse(data_returned, safe=True)
                                     
                                 else:
 
@@ -181,8 +181,8 @@ def user_credential_API(request):
 
                                     except Exception as ex:
                                         data_returned['return'] = False
-                                        data_returned['code'] = 404
-                                        data_returned['message'] = str(ex)
+                                        data_returned['code'] = 407
+                                        data_returned['message'] = f"ERROR-Formatting-{str(ex)}"
                                         return JsonResponse(data_returned, safe=True)
                                     
                                     else:
@@ -191,11 +191,12 @@ def user_credential_API(request):
                                         if(data[0] == False):
                                             data_returned['return'] = False
                                             data_returned['code'] = 404
-                                            data_returned['message'] = data[1]
+                                            data_returned['message'] = f"ERROR-Ambiguous-{data[1]}"
                                             return JsonResponse(data_returned, safe=True)
 
                                         else:
                                             user_credential_de_serialized.initial_data['user_password'] = data[1] # successfully hashed password
+
                                             if(user_credential_de_serialized.is_valid()):
                                                 user_credential_de_serialized.save()
                                                 
@@ -204,7 +205,7 @@ def user_credential_API(request):
                                                 if(data[0] == False):
                                                     data_returned['return'] = False
                                                     data_returned['code'] = 404
-                                                    data_returned['message'] = data[1]
+                                                    data_returned['message'] = f"ERROR-Ambiguous-{data[1]}"
                                                     return JsonResponse(data_returned, safe=True)
                                                     
                                                 else:
@@ -215,7 +216,7 @@ def user_credential_API(request):
                                             else:
                                                 data_returned['return'] = False
                                                 data_returned['code'] = 405
-                                                data_returned['message'] = user_credential_de_serialized.errors
+                                                data_returned['message'] = f"ERROR-Serializing-{user_credential_de_serialized.errors}"
                                                 return JsonResponse(data_returned, safe=True)
                             
                             return JsonResponse(data_returned, safe=True)
@@ -230,8 +231,8 @@ def user_credential_API(request):
 
                             except Exception as ex:
                                 data_returned['return'] = False
-                                data_returned['code'] = 404
-                                data_returned['message'] = str(ex)
+                                data_returned['code'] = 407
+                                data_returned['message'] = f"ERROR-Formatting-{str(ex)}"
                                 return JsonResponse(data_returned, safe=True)
                             
                             else:
@@ -240,7 +241,7 @@ def user_credential_API(request):
                                 if(data[0] == False):
                                     data_returned['return'] = False
                                     data_returned['code'] = 404
-                                    data_returned['message'] = data[1]
+                                    data_returned['message'] = f"ERROR-Ambiguous-{data[1]}"
                                     return JsonResponse(data_returned, safe=True)
 
                                 else:
@@ -259,8 +260,8 @@ def user_credential_API(request):
                             
                             except Exception as ex:
                                 data_returned['return'] = False
-                                data_returned['code'] = 404
-                                data_returned['message'] = str(ex)
+                                data_returned['code'] = 402
+                                data_returned['message'] = f"ERROR-Key-{str(ex)}"
                                 return JsonResponse(data_returned, safe=True)
                             
                             else:
@@ -282,52 +283,249 @@ def user_credential_API(request):
                                         data_returned['code'] = 100
                     
                                 else: # admin_prime deleting all or selected logins
-                                    data = auth.check_authorization("admin", "prime")
+                                    data = auth.check_authorization("admin")
 
                                     if(data[0] == False):
                                         data_returned['return'] = False
-                                        data_returned['code'] = 110
-                                        data_returned['message'] = data[1]
+                                        data_returned['code'] = 111
+                                        data_returned['message'] = f"ERROR-Hash-{data[1]}"
                                         return JsonResponse(data_returned, safe=True)
                                     
                                     else:
-                                        user_ids = incoming_data['user_id']
-                                        if(0 in user_ids):
-                                            User_Token_Table.objects.all().delete() # closest command to truncate
+                                        admin_credential_ref = Admin_Credential.objects.get(user_credential_id = int(data[1]))
+                                        admin_privilege_ref = Admin_Privilege.objects.filter(admin_privilege_name__icontains = 'ALPHA')
 
-                                            data_returned['return'] = True
-                                            data_returned['code'] = 100
-                                
+                                        if(len(admin_privilege_ref) < 1):
+                                            data_returned['return'] = False
+                                            data_returned['code'] = 152
+                                            data_returned['message'] = "ERROR-AdminPriv-ALPHA not found"
+                                            return JsonResponse(data_returned, safe=True)
+                                        
                                         else:
-                                            data_returned['return'] = list()
-                                            data_returned['code'] = list()
-                                            data_returned['message'] = list()
-                                
-                                            for id in user_ids:
+                                            admin_privilege_ref = admin_privilege_ref[0]
+                                            many_to_many = Admin_Cred_Admin_Prev_Int.objects.filter(admin_privilege_id = admin_privilege_ref.admin_privilege_id,
+                                                                                                    admin_credential_id = admin_credential_ref.admin_credential_id)
+                                            
+                                            if(len(many_to_many) < 1):
+                                                data_returned['return'] = False
+                                                data_returned['code'] = 118
+                                                data_returned['message'] = "ERROR-Pair-Admin Credential<->Admin Privilege not found"
+                                                return JsonResponse(data_returned, safe=True)
+                                            
+                                            else:
                                                 try:
-                                                    token_table_ref = User_Token_Table.objects.filter(user_credential_id = int(id))
+                                                    user_ids = tuple(set(incoming_data['user_id']))
                                                 
                                                 except Exception as ex:
-                                                    data_returned['return'].append(False)
-                                                    data_returned['code'].append(404)
-                                                    data_returned['message'].append(str(ex))
+                                                    data_returned['return'] = False
+                                                    data_returned['code'] = 402
+                                                    data_returned['message'] = f"ERROR-Key-{str(ex)}"
                                                     return JsonResponse(data_returned, safe=True)
                                                 
                                                 else:
-                                                    if(len(token_table_ref) < 1):
-                                                        data_returned['return'].append(False)
-                                                        data_returned['code'].append(121)
-                                                        data_returned['message'].append("USER id not logged in.")
+                                                    data_returned['data'] = dict()
+                                                    temp = dict()
 
-                                                    else:
-                                                        token_table_ref = token_table_ref[0]
-                                                        token_table_ref.delete()
+                                                    if(0 in user_ids):
+                                                        user_token_ref_all = User_Token_Table.objects.all().exclude(user_credential_id = int(data[1])) # force logout everyone except self
 
-                                                        data_returned['return'].append(True)
-                                                        data_returned['code'].append(100)
-                                                        data_returned['message'].append(None)
+                                                        if(len(user_token_ref_all) < 1):
+                                                            temp['return'] = False
+                                                            temp['code'] = 151
+                                                            temp['message'] = f"ERROR-Empty-User Token tray empty"
+                                                            data_returned['data'][0] = temp.copy()
+                                                            temp.clear()
+                                                        
+                                                        else:
+                                                            temp['return'] = True
+                                                            temp['code'] = 100
+                                                            data_returned['data'][0] = temp.copy()
+                                                            temp.clear()
+                                            
+                                                    else:                                            
+                                                        for id in user_ids:
+                                                            try:
+                                                                token_table_ref = User_Token_Table.objects.filter(user_credential_id = int(id))
+                                                            
+                                                            except Exception as ex:
+                                                                temp['return'] = False
+                                                                temp['code'] = 408
+                                                                temp['message'] = f"ERROR-Data Type-{str(ex)}"
+                                                                data_returned['data'][0] = temp.copy()
+                                                                temp.clear()
+                                                            
+                                                            else:
+                                                                if(len(token_table_ref) < 1):
+                                                                    temp['return'] = False
+                                                                    temp['code'] = 114
+                                                                    temp['message'] = f"ERROR-Invalid-User id"
+                                                                    data_returned['data'][0] = temp.copy()
+                                                                    temp.clear()
+
+                                                                else:
+                                                                    token_table_ref = token_table_ref[0]
+                                                                    token_table_ref.delete()
+
+                                                                    temp['return'] = True
+                                                                    temp['code'] = 100
+                                                                    data_returned['data'][0] = temp.copy()
+                                                                    temp.clear()
                     
-                            return JsonResponse(data_returned, safe=True)
+                                return JsonResponse(data_returned, safe=True)
+
+                        elif(incoming_data['action'].upper()  == "READ"):
+                            data_returned['action'] += "-"+incoming_data["action"].upper()
+
+                            try:
+                                incoming_data = incoming_data['data']
+                                auth.token = incoming_data['hash']
+                            
+                            except Exception as ex:
+                                data_returned['return'] = False
+                                data_returned['code'] = 402
+                                data_returned['message'] = f"ERROR-Parsing-{str(ex)}"
+                                return JsonResponse(data_returned, safe=True)
+                            
+                            else:
+                                if('user_id' not in incoming_data.keys()): # self fetch
+                                    data = auth.check_authorization("user")
+
+                                    if(data[0] == False):
+                                        data_returned['return'] = False
+                                        data_returned['code'] = 102
+                                        data_returned['message'] = "ERROR-Hash-Not USER"
+                                        return JsonResponse(data_returned, safe=True)
+
+                                    else:
+                                        user_credential_ref = User_Credential.objects.get(user_credential_id = int(data[1]))
+                    
+                                        data_returned['return'] = True
+                                        data_returned['code'] = 100
+                                        data_returned['data'] = User_Credential_Serializer(user_credential_ref, many=False).data
+                    
+                                        # initially not handed to user for security purposes
+                                        del(data_returned['data']['user_password'])
+                                        del(data_returned['data']["user_security_question"])
+                                        del(data_returned['data']["user_security_answer"])
+                    
+                                else: # fetching as an prime admin
+                                    data_returned['data'] = dict()
+                                    temp = dict()
+                                    
+                                    data = auth.check_authorization("admin")
+
+                                    if(data[0] == False):
+                                        data_returned['return'] = False
+                                        data_returned['code'] = 113
+                                        data_returned['message'] = "ERROR-Hash-Not ADMIN"
+                                        return JsonResponse(data_returned, safe=True)
+
+                                    else:
+                                        admin_credential_ref = Admin_Credential.objects.get(user_credential_id = int(data[1]))
+                                        admin_privilege_ref = Admin_Privilege.objects.filter(admin_privilege_name__icontains = 'ALPHA')
+
+                                        if(len(admin_privilege_ref) < 1):
+                                            data_returned['return'] = False
+                                            data_returned['code'] = 152
+                                            data_returned['message'] = "ERROR-AdminPriv-ALPHA not found"
+                                            return JsonResponse(data_returned, safe=True)
+                                        
+                                        else:
+                                            admin_privilege_ref = admin_privilege_ref[0]
+                                            many_to_many = Admin_Cred_Admin_Prev_Int.objects.filter(admin_privilege_id = admin_privilege_ref.admin_privilege_id,
+                                                                                                    admin_credential_id = admin_credential_ref.admin_credential_id)
+                                            
+                                            if(len(many_to_many) < 1):
+                                                data_returned['return'] = False
+                                                data_returned['code'] = 118
+                                                data_returned['message'] = "ERROR-Pair-Admin Credential<->Admin Privilege not found"
+                                                return JsonResponse(data_returned, safe=True)
+                                            
+                                            else:
+                                                user_ids = tuple(set(incoming_data['user_id']))
+
+                                                if(len(user_ids) < 1):
+                                                    data_returned['return'] = False
+                                                    data_returned['code'] = 151
+                                                    data_returned['message'] = "ERROR-Empty-At least one id required"
+                                                    return JsonResponse(data_returned, safe=True)
+                                                
+                                                else:
+                                                    if(0 in user_ids): # 0 -> fetch all
+                                                        user_credential_ref = User_Credential.objects.all()
+
+                                                        if(len(user_credential_ref) < 1):
+                                                            temp['return'] = False
+                                                            temp['code'] = 151
+                                                            temp['message'] = "ERROR-Empty-User Credential tray empty"
+                                                            data_returned['data'][0] = temp.copy()
+                                                            temp.clear()
+                                                            return JsonResponse(data_returned, safe=True)
+                                            
+                                                        else:
+                                                            user_credential_serialized = User_Credential_Serializer(user_credential_ref, many=True).data
+
+                                                            temp['return'] = True
+                                                            temp['code'] = 100
+                                                            temp['data'] = list()
+
+                                                            for user in user_credential_serialized:
+                                                                if(int(user['user_credential_id']) == int(data[1])):
+                                                                    key = "self"
+                                                                else:
+                                                                    key = int(user['user_credential_id'])
+
+                                                                temp['data'].append({key : user})
+
+                                                                del(temp['data'][-1][key]['user_password'])
+                                                                del(temp['data'][-1][key]["user_security_question"])
+                                                                del(temp['data'][-1][key]["user_security_answer"])
+
+                                                            data_returned['data'][0] = temp.copy()
+                                                            temp.clear()
+                                        
+                                                    else: # fetch using using ids
+                                                        for id in user_ids:
+                                                            try:
+                                                                user_credential_ref = User_Credential.objects.filter(user_credential_id = int(id))
+                                                            
+                                                            except Exception as ex:
+                                                                temp['return'] = False
+                                                                temp['code'] = 408
+                                                                temp['message'] = f"ERROR-Formatting-{str(ex)}"
+                                                                data_returned['data'][id] = temp.copy()
+                                                                temp.clear()
+                                                            
+                                                            else:
+                                                                if(len(user_credential_ref) < 1):
+                                                                    temp['return'] = False
+                                                                    temp['code'] = 114
+                                                                    temp['message'] = "ERROR-Invalid-USER id."
+                                                                    data_returned['data'][id] = temp.copy()
+                                                                    temp.clear()
+
+                                                                else:
+                                                                    user_credential_ref = user_credential_ref[0]
+                                                                    user_credential_serialized = User_Credential_Serializer(user_credential_ref, many=False).data
+                                                                
+                                                                    temp['return'] = True
+                                                                    temp['code'] = 100
+
+                                                                    # if(int(user_credential_serialized['user_credential_id']) == int(data[1])):
+                                                                    #     id = "self"
+                                                                    # else:
+                                                                    #     id = int(user_credential_serialized['user_credential_id'])
+                                                                    
+                                                                    temp['data'] = user_credential_serialized
+
+                                                                    del(temp['data']['user_password'])
+                                                                    del(temp['data']["user_security_question"])
+                                                                    del(temp['data']["user_security_answer"])
+
+                                                                    data_returned['data'][id] = temp.copy()
+                                                                    temp.clear()
+
+                                        return JsonResponse(data_returned, safe=True)
 
                         elif(incoming_data['action'].upper()  == "DELETE"):
                             data_returned['action'] += "-"+incoming_data["action"].upper()
@@ -338,8 +536,8 @@ def user_credential_API(request):
                             
                             except Exception as ex:
                                 data_returned['return'] = False
-                                data_returned['code'] = 404
-                                data_returned['message'] = str(ex)
+                                data_returned['code'] = 402
+                                data_returned['message'] = f"ERROR-Key-{str(ex)}"
                                 return JsonResponse(data_returned, safe=True)
                             
                             else:
@@ -347,86 +545,105 @@ def user_credential_API(request):
                                     data_returned['data'] = dict()
                                     temp = dict()
 
-                                    data = auth.check_authorization("admin", "prime")
+                                    data = auth.check_authorization("admin")
 
                                     if(data[0] == False):
                                         data_returned['return'] = False
-                                        data_returned['code'] = 110
-                                        data_returned['message'] = data[1]
+                                        data_returned['code'] = 111
+                                        data_returned['message'] = f"ERROR-Hash-{data[1]}"
                                         return JsonResponse(data_returned, safe=True)
-                        
+                                    
                                     else:
-                                        user_ids = tuple(set(incoming_data['user_id']))
-                            
-                                        if(0 in user_ids): # 0 -> delete all
-                                            user_credential_ref_all = User_Credential.objects.all().exclude(user_credential_id = int(data[1]))
+                                        admin_credential_ref = Admin_Credential.objects.get(user_credential_id = int(data[1]))
+                                        admin_privilege_ref = Admin_Privilege.objects.filter(admin_privilege_name__icontains = 'ALPHA')
 
-                                            if(len(user_credential_ref_all) < 1):
-                                                temp['return'] = False
-                                                temp['code'] = 404
-                                                temp['message'] = "Already empty tray of USER CREDENTIALS."
-                                                data_returned['data'][0] = temp.copy()
-                                                temp.clear()
+                                        if(len(admin_privilege_ref) < 1):
+                                            data_returned['return'] = False
+                                            data_returned['code'] = 152
+                                            data_returned['message'] = "ERROR-AdminPriv-ALPHA not found"
+                                            return JsonResponse(data_returned, safe=True)
+                                        
+                                        else:
+                                            admin_privilege_ref = admin_privilege_ref[0]
+                                            many_to_many = Admin_Cred_Admin_Prev_Int.objects.filter(admin_privilege_id = admin_privilege_ref.admin_privilege_id,
+                                                                                                    admin_credential_id = admin_credential_ref.admin_credential_id)
+                                            
+                                            if(len(many_to_many) < 1):
+                                                data_returned['return'] = False
+                                                data_returned['code'] = 118
+                                                data_returned['message'] = "ERROR-Pair-Admin Credential<->Admin Privilege not found"
                                                 return JsonResponse(data_returned, safe=True)
-                                
+                                            
                                             else:
-                                                user_credential_ref_all.delete()
+                                                user_ids = tuple(set(incoming_data['user_id']))
+                                    
+                                                if(0 in user_ids): # 0 -> delete all
+                                                    user_credential_ref_all = User_Credential.objects.all().exclude(user_credential_id = int(data[1]))
 
-                                                temp['return'] = True
-                                                temp['code'] = 100
-                                                temp['message'] = "All users(-1) deleted."
-                                                data_returned['data'][0] = temp.copy()
-                                                temp.clear()
-                            
-                                        else: # individual id deletes
-
-                                            for id in user_ids:
-                                                try:
-                                                    if(int(id) == int(data[1])):
+                                                    if(len(user_credential_ref_all) < 1):
                                                         temp['return'] = False
-                                                        temp['code'] = 404
-                                                        temp['message'] = "Self Delete not applicable in this mode." #SECURITY check
-                                                        data_returned['data'][id] = temp.copy()
+                                                        temp['code'] = 151
+                                                        temp['message'] = "ERROR-Empty-USER CREDENTIAL not found"
+                                                        data_returned['data'][0] = temp.copy()
                                                         temp.clear()
-
+                                                        return JsonResponse(data_returned, safe=True)
+                                        
                                                     else:
+                                                        user_credential_ref_all.delete()
+
+                                                        temp['return'] = True
+                                                        temp['code'] = 100
+                                                        data_returned['data'][0] = temp.copy()
+                                                        temp.clear()
+                                    
+                                                else: # individual id deletes
+
+                                                    for id in user_ids:
                                                         try:
-                                                            user_credential_ref = User_Credential.objects.filter(user_credential_id = int(id))
+                                                            if(int(id) == int(data[1])):
+                                                                temp['return'] = False
+                                                                temp['code'] = 404
+                                                                temp['message'] = "ERROR-Ambiguous-Self Delete not applicable" #SECURITY check
+                                                                data_returned['data'][id] = temp.copy()
+                                                                temp.clear()
+
+                                                            else:
+                                                                try:
+                                                                    user_credential_ref = User_Credential.objects.filter(user_credential_id = int(id))
+                                                    
+                                                                except Exception as ex:
+                                                                    temp['return'] = False
+                                                                    temp['code'] = 408
+                                                                    temp['message'] = f"ERROR-Data Type-{str(ex)}"
+                                                                    data_returned['data'][id] = temp.copy()
+                                                                    temp.clear()
+                                                    
+                                                                else:
+                                                                    if(len(user_credential_ref) < 1):
+                                                                        temp['return'] = False
+                                                                        temp['code'] = 114
+                                                                        temp['message'] = "ERROR-Invalid-USER id"
+                                                                        data_returned['data'][id] = temp.copy()
+                                                                        temp.clear()
+                                                        
+                                                                    else:
+                                                                        user_credential_ref = user_credential_ref[0]
+                                                                        user_credential_ref.delete()
+
+                                                                        temp['return'] = True
+                                                                        temp['code'] = 100
+                                                                        data_returned['data'][id] = temp.copy()
+                                                                        temp.clear()
                                             
                                                         except Exception as ex:
                                                             temp['return'] = False
                                                             temp['code'] = 404
-                                                            temp['message'] = str(ex)
+                                                            temp['message'] = f"ERROR-Ambiguous-{str(ex)}"
                                                             data_returned['data'][id] = temp.copy()
                                                             temp.clear()
-                                            
-                                                        else:
-                                                            if(len(user_credential_ref) < 1):
-                                                                temp['return'] = False
-                                                                temp['code'] = 114
-                                                                temp['message'] = "USER id invalid"
-                                                                data_returned['data'][id] = temp.copy()
-                                                                temp.clear()
-                                                
-                                                            else:
-                                                                user_credential_ref = user_credential_ref[0]
-                                                                user_credential_ref.delete()
-
-                                                                temp['return'] = True
-                                                                temp['code'] = 100
-                                                                temp['message'] = "SUCCESS : USER Credential Deleted."
-                                                                data_returned['data'][id] = temp.copy()
-                                                                temp.clear()
-                                    
-                                                except Exception as ex:
-                                                    temp['return'] = False
-                                                    temp['code'] = 404
-                                                    temp['message'] = str(ex)
-                                                    data_returned['data'][id] = temp.copy()
-                                                    temp.clear()
-                                                
-                                                finally:
-                                                    continue
+                                                        
+                                                        finally:
+                                                            continue
 
                                 else: # user self delete
                                     data = auth.check_authorization("user")
@@ -434,7 +651,7 @@ def user_credential_API(request):
                                     if(data[0] == False):
                                         data_returned['return'] = False
                                         data_returned['code'] = 102
-                                        data_returned['message'] = data[1]
+                                        data_returned['message'] = f"ERROR-Hash-{data[1]}"
                                         return JsonResponse(data_returned, safe=True)
                         
                                     else:
@@ -459,8 +676,8 @@ def user_credential_API(request):
                             
                             except Exception as ex:
                                 data_returned['return'] = False
-                                data_returned['code'] = 404
-                                data_returned['message'] = str(ex)
+                                data_returned['code'] = 402
+                                data_returned['message'] = f"ERROR-Key-{str(ex)}"
                                 return JsonResponse(data_returned, safe=True)
                             
                             else:
@@ -469,7 +686,7 @@ def user_credential_API(request):
                                 if(data[0] == False):
                                     data_returned['return'] = False
                                     data_returned['code'] = 102
-                                    data_returned['message'] = "User hash unauthorized."
+                                    data_returned['message'] = f"ERROR-Hash-{data[1]}"
                                     return JsonResponse(data_returned, safe=True)
 
                                 else:
@@ -487,7 +704,7 @@ def user_credential_API(request):
                                             if(user_credential_ref_temp.user_credential_id != user_credential_ref.user_credential_id):
                                                 data_returned['return'] = False
                                                 data_returned['code'] = 104
-                                                data_returned['message'] = "User Email exists, can not be used."
+                                                data_returned['message'] = "ERROR-Non Reusable-Email reused"
                                                 return JsonResponse(data_returned, safe=True)
                                 
                                             else:
@@ -512,159 +729,27 @@ def user_credential_API(request):
                                     else:
                                         data_returned['return'] = False
                                         data_returned['code'] = 405
-                                        data_returned['message'] = user_credential_de_serialized.errors
-
-                                return JsonResponse(data_returned, safe=True)
-
-                        elif(incoming_data['action'].upper()  == "READ"):
-                            data_returned['action'] += "-"+incoming_data["action"].upper()
-
-                            try:
-                                incoming_data = incoming_data['data']
-                                auth.token = incoming_data['hash']
-                            
-                            except Exception as ex:
-                                data_returned['return'] = False
-                                data_returned['code'] = 404
-                                data_returned['message'] = str(ex)
-                                return JsonResponse(data_returned, safe=True)
-                            
-                            else:
-                                if('user_id' not in incoming_data.keys()): # self fetch
-                                    data = auth.check_authorization("user")
-
-                                    if(data[0] == False):
-                                        data_returned['return'] = False
-                                        data_returned['code'] = 102
-                                        data_returned['message'] = "USER hash not authorized."
+                                        data_returned['message'] = f"ERROR-Serializer-{user_credential_de_serialized.errors}"
                                         return JsonResponse(data_returned, safe=True)
 
-                                    else:
-                                        user_credential_ref = User_Credential.objects.get(user_credential_id = int(data[1]))
-                    
-                                        data_returned['return'] = True
-                                        data_returned['code'] = 100
-                                        data_returned['data'] = User_Credential_Serializer(user_credential_ref, many=False).data
-                    
-                                        # initially not handed to user for security purposes
-                                        del(data_returned['data']['user_password'])
-                                        del(data_returned['data']["user_security_question"])
-                                        del(data_returned['data']["user_security_answer"])
-                    
-                                else: # fetching as an prime admin
-                                    data_returned['data'] = dict()
-                                    temp = dict()
-                                    
-                                    data = auth.check_authorization("admin", "prime")
-
-                                    if(data[0] == False):
-                                        data_returned['return'] = False
-                                        data_returned['code'] = 110
-                                        data_returned['message'] = "ADMIN hash not authorized."
-                                        return JsonResponse(data_returned, safe=True)
-
-                                    else:
-                                        user_ids = tuple(set(incoming_data['user_id']))
-
-                                        if(len(user_ids) < 1):
-                                            data_returned['return'] = False
-                                            data_returned['code'] = 404
-                                            data_returned['message'] = "Atleast one USER ID required."
-                                            return JsonResponse(data_returned, safe=True)
-                                        
-                                        else:
-                                            if(0 in user_ids): # 0 -> fetch all
-                                                user_credential_ref = User_Credential.objects.all()
-
-                                                if(len(user_credential_ref) < 1):
-                                                    temp['return'] = False
-                                                    temp['code'] = 404
-                                                    temp['message'] = "Already empty tray of USER CREDENTIALS."
-                                                    data_returned['data'][0] = temp.copy()
-                                                    temp.clear()
-                                                    return JsonResponse(data_returned, safe=True)
-                                    
-                                                else:
-                                                    user_credential_serialized = User_Credential_Serializer(user_credential_ref, many=True).data
-
-                                                    temp['return'] = True
-                                                    temp['code'] = 100
-                                                    temp['data'] = list()
-
-                                                    for user in user_credential_serialized:
-                                                        if(int(user['user_credential_id']) == int(data[1])):
-                                                            key = "self"
-                                                        else:
-                                                            key = int(user['user_credential_id'])
-
-                                                        temp['data'].append({key : user})
-
-                                                        del(temp['data'][-1][key]['user_password'])
-                                                        del(temp['data'][-1][key]["user_security_question"])
-                                                        del(temp['data'][-1][key]["user_security_answer"])
-
-                                                    data_returned['data'][0] = temp.copy()
-                                                    temp.clear()
-                                
-                                            else: # fetch using using ids
-                                                for id in user_ids:
-                                                    try:
-                                                        user_credential_ref = User_Credential.objects.filter(user_credential_id = int(id))
-                                                    
-                                                    except Exception as ex:
-                                                        temp['return'] = False
-                                                        temp['code'] = 404
-                                                        temp['message'] = str(ex)
-                                                        data_returned['data'][id] = temp.copy()
-                                                        temp.clear()
-                                                    
-                                                    else:
-                                                        if(len(user_credential_ref) < 1):
-                                                            temp['return'] = False
-                                                            temp['code'] = 114
-                                                            temp['message'] = "Wrong USER ID."
-                                                            data_returned['data'][id] = temp.copy()
-                                                            temp.clear()
-
-                                                        else:
-                                                            user_credential_ref = user_credential_ref[0]
-                                                            user_credential_serialized = User_Credential_Serializer(user_credential_ref, many=False).data
-                                                        
-                                                            temp['return'] = True
-                                                            temp['code'] = 100
-
-                                                            # if(int(user_credential_serialized['user_credential_id']) == int(data[1])):
-                                                            #     id = "self"
-                                                            # else:
-                                                            #     id = int(user_credential_serialized['user_credential_id'])
-                                                            
-                                                            temp['data'] = user_credential_serialized
-
-                                                            del(temp['data']['user_password'])
-                                                            del(temp['data']["user_security_question"])
-                                                            del(temp['data']["user_security_answer"])
-
-                                                            data_returned['data'][id] = temp.copy()
-                                                            temp.clear()
-
                                 return JsonResponse(data_returned, safe=True)
-
+                        
                         else:
                             data_returned['return'] = False
                             data_returned['code'] = 403
-                            data_returned['message'] = "Child action invalid"
+                            data_returned['message'] = f"ERROR-Invalid-Child action"
                             return JsonResponse(data_returned, safe=True)
 
                     except Exception as ex:
                         data_returned['return'] = False
                         data_returned['code'] = 404
-                        data_returned['message'] = str(ex)
+                        data_returned['message'] = f"ERROR-Ambiguous-{str(ex)}"
                         return JsonResponse(data_returned, safe=True)
 
     else:
         data_returned['return'] = False
         data_returned['code'] = 403
-        data_returned['message'] = "Parent action invalid"
+        data_returned['message'] = f"ERROR-Invalid-Child action"
         return JsonResponse(data_returned, safe=True)
 
 @csrf_exempt
@@ -675,7 +760,7 @@ def user_profile_API(request):
     if(request.method == 'GET'):
         data_returned['return'] = False
         data_returned['code'] = 403
-        data_returned['message'] = 'Method not supported : GET.'
+        data_returned['message'] = 'ERROR-Invalid-GET Not supported'
         return JsonResponse(data_returned, safe=True)
 
     elif(request.method == 'POST'):
@@ -688,7 +773,7 @@ def user_profile_API(request):
         except Exception as ex:
             data_returned['return'] = False
             data_returned['code'] = 401
-            data_returned['message'] = str(ex)
+            data_returned['message'] = f"ERROR-Parsing-{str(ex)}"
             return JsonResponse(data_returned, safe=True)
         
         else:
@@ -700,7 +785,7 @@ def user_profile_API(request):
             except Exception as ex:
                 data_returned['return'] = False
                 data_returned['code'] = 402
-                data_returned['message'] = str(ex)
+                data_returned['message'] = f"ERROR-Key-{str(ex)}"
                 return JsonResponse(data_returned, safe=True)
             
             else:
@@ -710,7 +795,7 @@ def user_profile_API(request):
                 if(data[0] == False):
                     data_returned['return'] = False
                     data_returned['code'] = 150
-                    data_returned['message'] = data[1]
+                    data_returned['message'] = f"ERROR-Api-{data[1]}"
                     return JsonResponse(data_returned, safe=True)
 
                 else:
@@ -725,8 +810,8 @@ def user_profile_API(request):
 
                             except Exception as ex:
                                 data_returned['return'] = False
-                                data_returned['code'] = 404
-                                data_returned['message'] = str(ex)
+                                data_returned['code'] = 402
+                                data_returned['message'] = f"ERROR-Parsing-{str(ex)}"
                                 return JsonResponse(data_returned, safe=True)
                     
                             else:
@@ -735,7 +820,7 @@ def user_profile_API(request):
                                 if(data[0] == False):
                                     data_returned['return'] = False
                                     data_returned['code'] = 102
-                                    data_returned['message'] = "Invalid HASH."
+                                    data_returned['message'] = "ERROR-Hash-Not USER"
                                     return JsonResponse(data_returned, safe=True)
 
                                 else:
@@ -748,8 +833,8 @@ def user_profile_API(request):
 
                                         except Exception as ex:
                                             data_returned['return'] = False
-                                            data_returned['code'] = 404
-                                            data_returned['message'] = str(ex)
+                                            data_returned['code'] = 405
+                                            data_returned['message'] = f"ERROR-Parsing-{str(ex)}"
                                             return JsonResponse(data_returned, safe=True)
                                         
                                         else:
@@ -758,8 +843,8 @@ def user_profile_API(request):
                                                 if(("user_roll_number" in user_profile_de_serialized.initial_data.keys())
                                                 and (user_profile_de_serialized.initial_data["user_roll_number"] in (None, ""))):
                                                     data_returned['return'] = False
-                                                    data_returned['code'] = 404
-                                                    data_returned['message'] = "User profile of students need roll number to be filled."
+                                                    data_returned['code'] = 402
+                                                    data_returned['message'] = "ERROR-Key-Student profile required roll number"
                                                     return JsonResponse(data_returned, safe=True)
                         
                                             if(user_profile_de_serialized.is_valid()):
@@ -771,18 +856,18 @@ def user_profile_API(request):
 
                                                 data_returned['return'] = True
                                                 data_returned['code'] = 100
-                                                data_returned['message'] = "CREATE without IMAGE."
+                                                data_returned['message'] = "SUCCESS-Create-Profile without IMAGE"
 
                                             else:
                                                 data_returned['return'] = False
                                                 data_returned['code'] = 405
-                                                data_returned['message'] = user_profile_de_serialized.errors
+                                                data_returned['message'] = f"ERROR-Serialize-{user_profile_de_serialized.errors}"
                                                 return JsonResponse(data_returned, safe=True)
                     
                                     else:
                                         data_returned['return'] = False
                                         data_returned['code'] = 105
-                                        data_returned['message'] = "User already has a profile."
+                                        data_returned['message'] = "ERROR-Create-Profile exists."
                                         return JsonResponse(data_returned, safe=True)
 
                                 return JsonResponse(data_returned, safe=True)
@@ -796,137 +881,157 @@ def user_profile_API(request):
 
                                 except Exception as ex:
                                     data_returned['return'] = False
-                                    data_returned['code'] = 404
-                                    data_returned['message'] = str(ex)
+                                    data_returned['code'] = 402
+                                    data_returned['message'] = f"ERROR-Parsing-{str(ex)}"
                                     return JsonResponse(data_returned, safe=True)
                         
                                 else:
-                                    data = auth.check_authorization("user")
+                                    data = auth.check_authorization("user") # redundant, but code already became large, will see to it later
 
                                     if(data[0] == False):
                                         data_returned['return'] = False
                                         data_returned['code'] = 102
-                                        data_returned['message'] = "Invalid HASH."
+                                        data_returned['message'] = "ERROR-Hash-Not USER"
                                         return JsonResponse(data_returned, safe=True)
                                     
                                     else:
                                         self_user_profile_ref = User_Credential.objects.get(user_credential_id = int(data[1])).user_profile_id
 
-                                        if('user_id' in incoming_data.keys()): # admin prime deleting other users(-1) profile
+                                        if('user_id' in incoming_data.keys()): # admin deleting other users(-1) profile
 
-                                            data = auth.check_authorization("admin", "prime")
+                                            data = auth.check_authorization("admin")
 
                                             if(data[0] == False):
                                                 data_returned['return'] = False
-                                                data_returned['code'] = 102
-                                                data_returned['message'] = "USER not PRIME ADMIN."
+                                                data_returned['code'] = 113
+                                                data_returned['message'] = "ERROR-Hash-Not ADMIN"
                                                 return JsonResponse(data_returned, safe=True)
-                                            
-                                            else:
-                                                user_ids = tuple(set(incoming_data['user_id']))
 
-                                                if(len(user_ids) < 1):
+                                            else:
+                                                admin_credential_ref = Admin_Credential.objects.get(user_credential_id = int(data[1]))
+                                                admin_privilege_ref = Admin_Privilege.objects.filter(admin_privilege_name__icontains = 'ALPHA')
+
+                                                if(len(admin_privilege_ref) < 1):
                                                     data_returned['return'] = False
-                                                    data_returned['code'] = 404
-                                                    data_returned['message'] = "User ID empty."
+                                                    data_returned['code'] = 152
+                                                    data_returned['message'] = "ERROR-AdminPriv-ALPHA not found"
                                                     return JsonResponse(data_returned, safe=True)
                                                 
                                                 else:
-                                                    data_returned['data'] = dict()
-                                                    temp = dict()
+                                                    admin_privilege_ref = admin_privilege_ref[0]
+                                                    many_to_many = Admin_Cred_Admin_Prev_Int.objects.filter(admin_privilege_id = admin_privilege_ref.admin_privilege_id,
+                                                                                                            admin_credential_id = admin_credential_ref.admin_credential_id)
+                                                    
+                                                    if(len(many_to_many) < 1):
+                                                        data_returned['return'] = False
+                                                        data_returned['code'] = 118
+                                                        data_returned['message'] = "ERROR-Pair-Admin Credential<->Admin Privilege not found"
+                                                        return JsonResponse(data_returned, safe=True)
+                                                    
+                                                    else:
+                                                        user_ids = tuple(set(incoming_data['user_id']))
 
-                                                    if(0 in user_ids): # all at once
-
-                                                        if(self_user_profile_ref == None):
-                                                            user_profile_ref_all = User_Profile.objects.all()
-                                                        
-                                                        else:
-                                                            user_profile_ref_all = User_Profile.objects.all().exclude(user_profile_id = int(self_user_profile_ref.user_profile_id))
-                                                        
-                                                        if(len(user_profile_ref_all) < 1):
-                                                            temp['return'] = False
-                                                            temp['code'] = 404
-                                                            temp['message'] = "Already empty tray of USER PROFILES."
-                                                            data_returned['data'][0] = temp.copy()
-                                                            temp.clear()
+                                                        if(len(user_ids) < 1):
+                                                            data_returned['return'] = False
+                                                            data_returned['code'] = 151
+                                                            data_returned['message'] = "ERROR-Empty-Atleast one id required"
                                                             return JsonResponse(data_returned, safe=True)
                                                         
                                                         else:
-                                                            for user in user_profile_ref_all:
-                                                                if(user.user_pofile_pic in (None, "")):
-                                                                    pass
-                                                                else:
-                                                                    fs = FileSystemStorage()
-                                                                    fs.delete(user.user_pofile_pic.image_name)
-                                                                    user.user_pofile_pic.delete()
-                                                                
-                                                                user.delete()
-                                                            
-                                                            temp['return'] = True
-                                                            temp['code'] = 100
-                                                            temp['message'] = "All(-1) PROFILES deleted."
-                                                            data_returned['data'][0] = temp.copy()
-                                                            temp.clear()
+                                                            data_returned['data'] = dict()
+                                                            temp = dict()
 
-                                                    else: # individual id_profile delete
-                                                        for id in user_ids:
-                                                            try:
-                                                                user_credential_ref = User_Credential.objects.filter(user_credential_id = int(id))
-                                                            
-                                                            except Exception as ex:
-                                                                temp['return'] = False
-                                                                temp['code'] = 404
-                                                                temp['message'] = str(ex)
-                                                                data_returned['data'][id] = temp.copy()
-                                                                temp.clear()
-                                                            
-                                                            else:
-                                                                if(len(user_credential_ref) < 1):
+                                                            if(0 in user_ids): # all at once
+
+                                                                if(self_user_profile_ref == None):
+                                                                    user_profile_ref_all = User_Profile.objects.all()
+                                                                
+                                                                else:
+                                                                    user_profile_ref_all = User_Profile.objects.all().exclude(user_profile_id = int(self_user_profile_ref.user_profile_id))
+                                                                
+                                                                if(len(user_profile_ref_all) < 1):
                                                                     temp['return'] = False
-                                                                    temp['code'] = 114
-                                                                    temp['message'] = "Invalid USER id."
-                                                                    data_returned['data'][id] = temp.copy()
+                                                                    temp['code'] = 151
+                                                                    temp['message'] = "ERROR-Empty-Profile Tray"
+                                                                    data_returned['data'][0] = temp.copy()
                                                                     temp.clear()
+                                                                    return JsonResponse(data_returned, safe=True)
                                                                 
                                                                 else:
-                                                                    user_credential_ref = user_credential_ref[0]
+                                                                    for user in user_profile_ref_all:
+                                                                        if(user.user_pofile_pic in (None, "")):
+                                                                            pass
+                                                                        else:
+                                                                            fs = FileSystemStorage()
+                                                                            fs.delete(user.user_pofile_pic.image_name)
+                                                                            user.user_pofile_pic.delete()
+                                                                        
+                                                                        user.delete()
+                                                                    
+                                                                    temp['return'] = True
+                                                                    temp['code'] = 100
+                                                                    temp['message'] = "SUCCESS-Delete-All(-1) PROFILES deleted"
+                                                                    data_returned['data'][0] = temp.copy()
+                                                                    temp.clear()
 
-                                                                    if(user_credential_ref.user_profile_id in (None, "")):
+                                                            else: # individual id_profile delete
+                                                                for id in user_ids:
+                                                                    try:
+                                                                        user_credential_ref = User_Credential.objects.filter(user_credential_id = int(id))
+                                                                    
+                                                                    except Exception as ex:
                                                                         temp['return'] = False
-                                                                        temp['code'] = 106
-                                                                        temp['message'] = "USER PROFILE does not exist."
+                                                                        temp['code'] = 408
+                                                                        temp['message'] = f"ERROR-DataType-{str(ex)}"
                                                                         data_returned['data'][id] = temp.copy()
                                                                         temp.clear()
                                                                     
                                                                     else:
-
-                                                                        if(self_user_profile_ref.user_profile_id == user_credential_ref.user_profile_id.user_profile_id):
-                                                                            temp['message'] = "self profile delete"
-
+                                                                        if(len(user_credential_ref) < 1):
+                                                                            temp['return'] = False
+                                                                            temp['code'] = 114
+                                                                            temp['message'] = "ERROR-Invalid-USER id"
+                                                                            data_returned['data'][id] = temp.copy()
+                                                                            temp.clear()
+                                                                        
                                                                         else:
-                                                                            pass
-                                                                        
-                                                                        if(user_credential_ref.user_profile_id.user_profile_pic in (None, "")):
-                                                                            pass
-                                                                        else:
-                                                                            fs = FileSystemStorage()
-                                                                            fs.delete(user_credential_ref.user_profile_id.user_profile_pic.image_name)
-                                                                            user_credential_ref.user_profile_id.user_profile_pic.delete()
-                                                                        
-                                                                        user_credential_ref.user_profile_id.delete()
-                                                                        
-                                                                        temp['return'] = True
-                                                                        temp['code'] = 100
-                                                                        data_returned['data'][id] = temp.copy()
-                                                                        temp.clear()
+                                                                            user_credential_ref = user_credential_ref[0]
+
+                                                                            if(user_credential_ref.user_profile_id in (None, "")):
+                                                                                temp['return'] = False
+                                                                                temp['code'] = 106
+                                                                                temp['message'] = "ERROR-NotFound-PROFILE does not exist"
+                                                                                data_returned['data'][id] = temp.copy()
+                                                                                temp.clear()
+                                                                            
+                                                                            else:
+
+                                                                                if(self_user_profile_ref.user_profile_id == user_credential_ref.user_profile_id.user_profile_id):
+                                                                                    temp['message'] = "SUCCESS-Delete-self profile"
+
+                                                                                else:
+                                                                                    pass
+                                                                                
+                                                                                if(user_credential_ref.user_profile_id.user_profile_pic in (None, "")):
+                                                                                    pass
+                                                                                else:
+                                                                                    fs = FileSystemStorage()
+                                                                                    fs.delete(user_credential_ref.user_profile_id.user_profile_pic.image_name)
+                                                                                    user_credential_ref.user_profile_id.user_profile_pic.delete()
+                                                                                
+                                                                                user_credential_ref.user_profile_id.delete()
+                                                                                
+                                                                                temp['return'] = True
+                                                                                temp['code'] = 100
+                                                                                data_returned['data'][id] = temp.copy()
+                                                                                temp.clear()
                                                                     
-
                                         else: # self deleting profile
 
                                             if(self_user_profile_ref == None):
                                                 data_returned['return'] = False
                                                 data_returned['code'] = 106
-                                                data_returned['message'] = "USER does not have PROFILE."
+                                                data_returned['message'] = "ERROR-NotFound-PROFILE does not exist"
                                                 return JsonResponse(data_returned, safe=True)
                                             
                                             else:
@@ -945,8 +1050,8 @@ def user_profile_API(request):
 
                                 except Exception as ex:
                                     data_returned['return'] = False
-                                    data_returned['code'] = 404
-                                    data_returned['message'] = str(ex)
+                                    data_returned['code'] = 402
+                                    data_returned['message'] = f"ERROR-Parsing-{str(ex)}"
                                     return JsonResponse(data_returned, safe=True)
                         
                                 else:
@@ -955,7 +1060,7 @@ def user_profile_API(request):
                                     if(data[0] == False):
                                         data_returned['return'] = False
                                         data_returned['code'] = 102
-                                        data_returned['message'] = "Invalid HASH."
+                                        data_returned['message'] = "ERROR-Hash-not USER"
                                         return JsonResponse(data_returned, safe=True)
                                     
                                     else:
@@ -964,7 +1069,7 @@ def user_profile_API(request):
                                         if(self_user_profile_ref == None):
                                             data_returned['return'] = False
                                             data_returned['code'] = 106
-                                            data_returned['message'] = "USER PROFILE not found."
+                                            data_returned['message'] = "ERROR-NotFound-USER PROFILE"
                                             return JsonResponse(data_returned, safe=True)
                                         
                                         else:
@@ -974,8 +1079,8 @@ def user_profile_API(request):
                                             
                                             except Exception as ex:
                                                 data_returned['return'] = False
-                                                data_returned['code'] = 404
-                                                data_returned['message'] = str(ex)
+                                                data_returned['code'] = 405
+                                                data_returned['message'] = f"ERROR-Serialize-{str(ex)}"
                                                 return JsonResponse(data_returned, safe=True)
 
                                             else:
@@ -984,8 +1089,8 @@ def user_profile_API(request):
                                                     if(("user_roll_number" in user_profile_de_serialized.initial_data.keys())
                                                     and (user_profile_de_serialized.initial_data["user_roll_number"] in (None, ""))):
                                                         data_returned['return'] = False
-                                                        data_returned['code'] = 404
-                                                        data_returned['message'] = "student profile requires university roll number."
+                                                        data_returned['code'] = 402
+                                                        data_returned['message'] = "ERROR-Key-Student profile required roll number"
                                                         return JsonResponse(data_returned, safe=True)
                             
                                                 user_profile_de_serialized.initial_data["user_profile_id"] = self_user_profile_ref.user_profile_id
@@ -995,12 +1100,12 @@ def user_profile_API(request):
 
                                                     data_returned['return'] = True
                                                     data_returned['code'] = 100
-                                                    data_returned['message'] = "EDIT without IMAGE."
+                                                    data_returned['message'] = "SUCCESS-Edit-PROFILE without IMAGE"
 
                                                 else:
                                                     data_returned['return'] = False
                                                     data_returned['code'] = 405
-                                                    data_returned['message'] = user_profile_de_serialized.errors
+                                                    data_returned['message'] = f"ERROR-Serialize-{user_profile_de_serialized.errors}"
                                                     return JsonResponse(data_returned, safe=True)
 
                                     return JsonResponse(data_returned, safe=True)
@@ -1014,8 +1119,8 @@ def user_profile_API(request):
 
                                 except Exception as ex:
                                     data_returned['return'] = False
-                                    data_returned['code'] = 404
-                                    data_returned['message'] = str(ex)
+                                    data_returned['code'] = 402
+                                    data_returned['message'] = f"ERROR-Parsing-{str(ex)}"
                                     return JsonResponse(data_returned, safe=True)
                         
                                 else:
@@ -1024,7 +1129,7 @@ def user_profile_API(request):
                                     if(data[0] == False):
                                         data_returned['return'] = False
                                         data_returned['code'] = 102
-                                        data_returned['message'] = "Invalid HASH."
+                                        data_returned['message'] = "ERROR-Hash-not USER"
                                         return JsonResponse(data_returned, safe=True)
                                     
                                     else:
@@ -1037,8 +1142,8 @@ def user_profile_API(request):
                                             user_ids = tuple(set(incoming_data['user_id']))
                                             if(len(user_ids) < 1):
                                                 data_returned['return'] = False
-                                                data_returned['code'] = 404
-                                                data_returned['message'] = "Value Error : Atleast one user id required."
+                                                data_returned['code'] = 151
+                                                data_returned['message'] = "ERROR-Empty-Atleast one id required"
                                                 return JsonResponse(data_returned, safe=True)
                                             
                                             else:
@@ -1047,8 +1152,8 @@ def user_profile_API(request):
                                                         
                                                     if(len(user_profile_ref) < 1):
                                                         temp['return'] = False
-                                                        temp['code'] = 404
-                                                        temp['message'] = "Already empty tray of USER PROFILES."
+                                                        temp['code'] = 151
+                                                        temp['message'] = "ERROR-Empty-Already empty tray of USER PROFILES"
                                                         data_returned['data'][0] = temp.copy()
                                                         temp.clear()
                                                         return JsonResponse(data_returned, safe=True)
@@ -1061,10 +1166,7 @@ def user_profile_API(request):
                                                         temp['data'] = list()
                                                         
                                                         for user in user_profile_serialized:
-                                                            if(user['user_profile_id'] == self_user_profile_ref.user_profile_id):
-                                                                key = "self"
-                                                            else:
-                                                                key = int(user['user_profile_id'])
+                                                            key = int(user['user_profile_id'])
 
                                                             if(user['user_profile_pic'] in (None, "")):
                                                                 user['user_profile_pic'] = None
@@ -1083,8 +1185,8 @@ def user_profile_API(request):
                                                             
                                                         except Exception as ex:
                                                             temp['return'] = False
-                                                            temp['code'] = 404
-                                                            temp['message'] = str(ex)
+                                                            temp['code'] = 408
+                                                            temp['message'] = f"ERROR-DataType-{str(ex)}"
                                                             data_returned['data'][id] = temp.copy()
                                                             temp.clear()
 
@@ -1092,7 +1194,7 @@ def user_profile_API(request):
                                                             if(len(user_credential_ref) < 1):
                                                                 temp['return'] = False
                                                                 temp['code'] = 114
-                                                                temp['message'] = "Invalid USER id."
+                                                                temp['message'] = "ERROR-Invalid-USER id"
                                                                 data_returned['data'][id] = temp.copy()
                                                                 temp.clear()
                                                                 
@@ -1102,7 +1204,7 @@ def user_profile_API(request):
                                                                 if(user_credential_ref.user_profile_id in (None, "")):
                                                                     temp['return'] = False
                                                                     temp['code'] = 106
-                                                                    temp['message'] = "USER PROFILE does not exist."
+                                                                    temp['message'] = "ERROR-NotFound-USER PROFILE"
                                                                     data_returned['data'][id] = temp.copy()
                                                                     temp.clear()
 
@@ -1131,7 +1233,7 @@ def user_profile_API(request):
                                             if(self_user_profile_ref == None):
                                                 data_returned['return'] = False
                                                 data_returned['code'] = 106
-                                                data_returned['message'] = "USER does not have PROFILE."
+                                                data_returned['message'] = "ERROR-NotFound-USER PROFILE"
                                                 return JsonResponse(data_returned, safe=True)
                                             
                                             else:
@@ -1151,19 +1253,19 @@ def user_profile_API(request):
                         else:
                             data_returned['return'] = False
                             data_returned['code'] = 403
-                            data_returned['message'] = "Child action invalid"
+                            data_returned['message'] = "ERROR-Action-Child action invalid"
                             return JsonResponse(data_returned, safe=True)
 
                     except Exception as ex:
                         data_returned['return'] = False
                         data_returned['code'] = 404
-                        data_returned['message'] = str(ex)
+                        data_returned['message'] = f"ERROR-Ambiguous-{str(ex)}"
                         return JsonResponse(data_returned, safe=True)
 
     else:
         data_returned['return'] = False
         data_returned['code'] = 403
-        data_returned['message'] = "Parent action invalid"
+        data_returned['message'] = "ERROR-Action-Parent action invalid"
         return JsonResponse(data_returned, safe=True)
 
 @csrf_exempt
@@ -1174,7 +1276,7 @@ def admin_credential_API(request):
     if(request.method == 'GET'):
         data_returned['return'] = False
         data_returned['code'] = 403
-        data_returned['message'] = 'Method not supported : GET.'
+        data_returned['message'] = 'ERROR-Invalid-GET Not supported'
         return JsonResponse(data_returned, safe=True)
 
     elif(request.method == 'POST'):
@@ -1187,7 +1289,7 @@ def admin_credential_API(request):
         except Exception as ex:
             data_returned['return'] = False
             data_returned['code'] = 401
-            data_returned['message'] = str(ex)
+            data_returned['message'] = f"ERROR-Parsing-{str(ex)}"
             return JsonResponse(data_returned, safe=True)
         
         else:
@@ -1199,7 +1301,7 @@ def admin_credential_API(request):
             except Exception as ex:
                 data_returned['return'] = False
                 data_returned['code'] = 402
-                data_returned['message'] = str(ex)
+                data_returned['message'] = f"ERROR-Key-{str(ex)}"
                 return JsonResponse(data_returned, safe=True)
             
             else:
@@ -1209,7 +1311,7 @@ def admin_credential_API(request):
                 if(data[0] == False):
                     data_returned['return'] = False
                     data_returned['code'] = 150
-                    data_returned['message'] = data[1]
+                    data_returned['message'] = f"ERROR-Api-{data[1]}"
                     return JsonResponse(data_returned, safe=True)
 
                 else:
@@ -1223,8 +1325,8 @@ def admin_credential_API(request):
 
                             except Exception as ex:
                                 data_returned['return'] = False
-                                data_returned['code'] = 404
-                                data_returned['message'] = str(ex)
+                                data_returned['code'] = 402
+                                data_returned['message'] = f"ERROR-Key-{str(ex)}"
                                 return JsonResponse(data_returned, safe=True)
                     
                             else:
@@ -1233,32 +1335,33 @@ def admin_credential_API(request):
                                 if(data[0] == False):
                                     data_returned['return'] = False
                                     data_returned['code'] = 110
-                                    data_returned['message'] = "USER might not have ADMIN PRIME privileges."
+                                    data_returned['message'] = "ERROR-Hash-not have ADMIN PRIME"
                                     return JsonResponse(data_returned, safe=True)
                                 
                                 else:
                                     if('user_id' in incoming_data.keys()): # only this method of admin inclusion accepted
-                                        data_returned['return'] = list()
-                                        data_returned['code'] = list()
-                                        data_returned['message'] = list()
-                                        data_returned['data'] = list()
+                                        data_returned['data'] = dict()
+                                        temp = dict()
 
                                         for id in incoming_data['user_id']:
                                             try:
                                                 if(int(data[1]) == int(id)):
-                                                    data_returned['return'].append(False)
-                                                    data_returned['code'].append(112)
-                                                    data_returned['message'].append("USER already ADMIN")
-                                                    data_returned['data'].append("self")
+                                                    temp['return'] = False
+                                                    temp['code'] = 112
+                                                    temp['message'] = "ERROR-Operation-USER already ADMIN"
+                                                    data_returned['data'][id] = temp.copy()
+                                                    temp.clear()
                                         
                                                 else:
                                                     user_credential_ref = User_Credential.objects.filter(user_credential_id = int(id))
 
                                                     if(len(user_credential_ref) < 1):
-                                                        data_returned['return'].append(False)
-                                                        data_returned['code'].append(114)
-                                                        data_returned['message'].append("USER ID not exist")
-                                                        data_returned['data'].append(None)
+                                                        temp['return'] = False
+                                                        temp['code'] = 114
+                                                        temp['message'] = "ERROR-Invalid-USER id"
+                                                        temp['data'] = None
+                                                        data_returned['data'][id] = temp.copy()
+                                                        temp.clear()
 
                                                     else:
                                                         try:
@@ -1266,37 +1369,41 @@ def admin_credential_API(request):
                                                             admin_credential_ref = Admin_Credential.objects.filter(user_credential_id = int(user_credential_ref.user_credential_id))
 
                                                         except Exception as ex:
-                                                            data_returned['return'].append(False)
-                                                            data_returned['code'].append(404)
-                                                            data_returned['message'].append(str(ex))
-                                                            data_returned['data'].append(None)
+                                                            temp['return'] = False
+                                                            temp['code'] = 404
+                                                            temp['message'] = f"ERROR-Ambiguous-{str(ex)}"
+                                                            data_returned['data'][id] = temp.copy()
+                                                            temp.clear()
                                     
                                                         else:
                                                             if(len(admin_credential_ref) > 0):
-                                                                data_returned['return'].append(False)
-                                                                data_returned['code'].append(112)
-                                                                data_returned['message'].append("USER already ADMIN")
-                                                                data_returned['data'].append(id)
+                                                                temp['return'] = False
+                                                                temp['code'] = 112
+                                                                temp['message'] = "ERROR-Operation-USER already ADMIN"
+                                                                data_returned['data'][id] = temp.copy()
+                                                                temp.clear()
                                         
                                                             else:
                                                                 admin_credential_ref_new = Admin_Credential(user_credential_id = user_credential_ref)
                                                                 admin_credential_ref_new.save()
 
-                                                                data_returned['return'].append(True)
-                                                                data_returned['code'].append(100)
-                                                                data_returned['message'].append("Admin Privileges Granted.")
-                                                                data_returned['data'].append(id)
+                                                                temp['return'] = True
+                                                                temp['code'] = 100
+                                                                temp['data'] = {"admin" : admin_credential_ref_new.validated_data['admin_credential_id']}
+                                                                data_returned['data'][id] = temp.copy()
+                                                                temp.clear()
 
                                             except Exception as ex:
-                                                data_returned['return'].append(False)
-                                                data_returned['code'].append(404)
-                                                data_returned['message'].append(str(ex))
-                                                data_returned['data'].append(None)
+                                                temp['return'] = False
+                                                temp['code'] = 404
+                                                temp['message'] = f"ERROR-Ambiguous-{str(ex)}"
+                                                data_returned['data'][id] = temp.copy()
+                                                temp.clear()
                             
                                     else:
                                         data_returned['return'] = False
                                         data_returned['code'] = 402
-                                        data_returned['message'] = "user_id field required."
+                                        data_returned['message'] = "ERROR-Key-user_id field required"
                                         return JsonResponse(data_returned, safe=True)
 
                                 return JsonResponse(data_returned, safe=True)
@@ -1310,8 +1417,8 @@ def admin_credential_API(request):
 
                             except Exception as ex:
                                 data_returned['return'] = False
-                                data_returned['code'] = 404
-                                data_returned['message'] = str(ex)
+                                data_returned['code'] = 402
+                                data_returned['message'] = f"ERROR-Key-{str(ex)}"
                                 return JsonResponse(data_returned, safe=True)
                     
                             else:
@@ -1321,7 +1428,7 @@ def admin_credential_API(request):
                                     if(data[0] == False):
                                         data_returned['return'] = False
                                         data_returned['code'] = 110
-                                        data_returned['message'] = "USER might not have ADMIN PRIME privileges."
+                                        data_returned['message'] = "ERROR-Hash-not ADMIN PRIME"
                                         return JsonResponse(data_returned, safe=True)
                                     
                                     else:
@@ -1329,8 +1436,8 @@ def admin_credential_API(request):
 
                                         if(len(user_ids) < 1):
                                             data_returned['return'] = False
-                                            data_returned['code'] = 404
-                                            data_returned['message'] = "Value Error : Atleast one user id required."
+                                            data_returned['code'] = 151
+                                            data_returned['message'] = "ERROR-Empty-Atleast one id required"
                                             return JsonResponse(data_returned, safe=True)
                                         
                                         else:
@@ -1342,8 +1449,8 @@ def admin_credential_API(request):
 
                                                 if(len(admin_credential_ref_all) < 1):
                                                     temp['return'] = False
-                                                    temp['code'] = 404
-                                                    temp['message'] = "Already ADMIN Tray is empty."
+                                                    temp['code'] = 151
+                                                    temp['message'] = "ERROR-Empty-ADMIN Tray is empty"
                                                     data_returned['data'][0] = temp.copy()
                                                     temp.clear()
                                                     return JsonResponse(data_returned, safe=True)
@@ -1353,7 +1460,7 @@ def admin_credential_API(request):
 
                                                     temp['return'] = True
                                                     temp['code'] = 100
-                                                    temp['message'] = "ADMIN(-1) Tray cleared."
+                                                    temp['message'] = "SUCCESS-Empty-ADMIN(-1) Tray cleared"
                                                     temp['data'][0] = temp.copy()
                                                     temp.clear()
                                             
@@ -1366,7 +1473,7 @@ def admin_credential_API(request):
                                                         if(int(data[1]) == int(id)):
                                                             temp['return'] = False
                                                             temp['code'] = 404
-                                                            temp['message'] = "Operation Error : Self delete not allowed."
+                                                            temp['message'] = "ERROR-Operation-Self delete not allowed"
                                                             data_returned['data'][id] = temp.copy()
                                                             temp.clear()
                                                         
@@ -1376,7 +1483,7 @@ def admin_credential_API(request):
                                                             if(len(user_credential_ref) < 1):
                                                                 temp['return'] = False
                                                                 temp['code'] = 114
-                                                                temp['message'] = "INVALID : USER ID."
+                                                                temp['message'] = "ERROR-INVALID-USER ID"
                                                                 data_returned['data'][id] = temp.copy()
                                                                 temp.clear()
                                                 
@@ -1388,7 +1495,7 @@ def admin_credential_API(request):
                                                                 except Exception as ex:
                                                                     temp['return'] = False
                                                                     temp['code'] = 404
-                                                                    temp['message'] = str(ex)
+                                                                    temp['message'] = f"ERROR-Ambiguous-{str(ex)}"
                                                                     data_returned['data'][id] = temp.copy()
                                                                     temp.clear()
                                                     
@@ -1396,7 +1503,7 @@ def admin_credential_API(request):
                                                                     if(len(admin_credential_ref) < 1):
                                                                         temp['return'] = False
                                                                         temp['code'] = 113
-                                                                        temp['message'] = "USER not ADMIN"
+                                                                        temp['message'] = "ERROR-Hash-not ADMIN"
                                                                         data_returned['data'][id] = temp.copy()
                                                                         temp.clear()
                                                         
@@ -1406,14 +1513,13 @@ def admin_credential_API(request):
 
                                                                         temp['return'] = True
                                                                         temp['code'] = 100
-                                                                        temp['message'] = "Admin Privileged Revoked."
                                                                         data_returned['data'][id] = temp.copy()
                                                                         temp.clear()
 
                                                     except Exception as ex:
                                                         temp['return'] = False
                                                         temp['code'] = 404
-                                                        temp['message'] = str(ex)
+                                                        temp['message'] = f"ERROR-Ambiguous-{str(ex)}"
                                                         data_returned['data'][id] = temp.copy()
                                                         temp.clear()
                                     
@@ -1423,7 +1529,7 @@ def admin_credential_API(request):
                                     if(data[0] == False):
                                         data_returned['return'] = False
                                         data_returned['code'] = 114
-                                        data_returned['message'] = "USER NOT ADMIN."
+                                        data_returned['message'] = "ERROR-Hash-not ADMIN"
                                         return JsonResponse(data_returned, safe=True)
                                     
                                     else:
@@ -1444,8 +1550,8 @@ def admin_credential_API(request):
 
                             except Exception as ex:
                                 data_returned['return'] = False
-                                data_returned['code'] = 404
-                                data_returned['message'] = str(ex)
+                                data_returned['code'] = 402
+                                data_returned['message'] = f"ERROR-Key-{str(ex)}"
                                 return JsonResponse(data_returned, safe=True)
                     
                             else:
@@ -1454,7 +1560,7 @@ def admin_credential_API(request):
                                 if(data[0] == False):
                                     data_returned['return'] = False
                                     data_returned['code'] = 110
-                                    data_returned['message'] = "USER not ADMIN PRIME."
+                                    data_returned['message'] = "ERROR-Hash-not ADMIN PRIME"
                                     return JsonResponse(data_returned, safe=True)
 
                                 else:
@@ -1462,8 +1568,8 @@ def admin_credential_API(request):
 
                                         if(len(incoming_data['updates']) < 1):
                                             data_returned['return'] = False
-                                            data_returned['code'] = 404
-                                            data_returned['message'] = "No updates provided."
+                                            data_returned['code'] = 151
+                                            data_returned['message'] = "ERROR-Empty-Atleast one update required"
                                             return JsonResponse(data_returned, safe=True)
                                         
                                         else:
@@ -1481,7 +1587,7 @@ def admin_credential_API(request):
                                                 except Exception as ex:
                                                     temp['return'] = False
                                                     temp['code'] = 404
-                                                    temp['message'] = str(ex)
+                                                    temp['message'] = f"ERROR-Ambiguous-{str(ex)}"
                                                     data_returned['data'][key] = temp.copy()
                                                     temp.clear()
                                                 
@@ -1489,7 +1595,7 @@ def admin_credential_API(request):
                                                     if(len(admin_credential_ref) < 1):
                                                         temp['return'] = False
                                                         temp['code'] = 111
-                                                        temp['message'] = "Invalid ADMIN CRED id."
+                                                        temp['message'] = "ERROR-Invalid-ADMIN CRED id"
                                                         data_returned['data'][key] = temp.copy()
                                                         temp.clear()
                                                     
@@ -1501,7 +1607,7 @@ def admin_credential_API(request):
                                                         #     key = int(admin_credential_ref.admin_credential_id)
                                                 
                                                         try:
-                                                            if(int(update['privilege_id']) < 0):
+                                                            if(int(update['privilege_id']) < 0): # [2,-2]
                                                                 flag = False # delete pair
                                                                 update['privilege_id'] = int(update['privilege_id'])*(-1)
                                                             else:
@@ -1519,7 +1625,7 @@ def admin_credential_API(request):
                                                             if(len(admin_privilege_ref) < 1):
                                                                 temp['return'] = False
                                                                 temp['code'] = 116
-                                                                temp['message'] = "Invalid ADMIN PRIV id."
+                                                                temp['message'] = "ERROR-Invalid-ADMIN PRIV id"
                                                                 data_returned['data'][key] = temp.copy()
                                                                 temp.clear()
                                                     
@@ -1532,7 +1638,7 @@ def admin_credential_API(request):
                                                                     if(len(many_to_many_ref) > 0):
                                                                         temp['return'] = False
                                                                         temp['code'] = 115
-                                                                        temp['message'] = "ADMIN CRED <-> ADMIN PRIV pair exists."
+                                                                        temp['message'] = "ERROR-Pair-Exists ADMIN CRED <-> ADMIN PRIV pair"
                                                                         data_returned['data'][key] = temp.copy()
                                                                         temp.clear()
                                                                 
@@ -1543,7 +1649,7 @@ def admin_credential_API(request):
 
                                                                         temp['return'] = True
                                                                         temp['code'] = 100
-                                                                        temp['message'] = "ADMIN CRED <-> ADMIN PRIV pair generated."
+                                                                        temp['message'] = "SUCCESS-Pair-Generated ADMIN CRED <-> ADMIN PRIV pair"
                                                                         data_returned['data'][key] = temp.copy()
                                                                         temp.clear()
                                                                 
@@ -1551,7 +1657,7 @@ def admin_credential_API(request):
                                                                     if(len(many_to_many_ref) < 1):
                                                                         temp['return'] = False
                                                                         temp['code'] = 115
-                                                                        temp['message'] = "ADMIN CRED <-> ADMIN PRIV does not exist."
+                                                                        temp['message'] = "ERROR-Pair-Not Exists ADMIN CRED <-> ADMIN PRIV pair"
                                                                         data_returned['data'][key] = temp.copy()
                                                                         temp.clear()
                                                                 
@@ -1561,14 +1667,14 @@ def admin_credential_API(request):
 
                                                                         temp['return'] = True
                                                                         temp['code'] = 100
-                                                                        temp['message'] = "ADMIN CRED <-> ADMIN PRIV pair removed."
+                                                                        temp['message'] = "SUCCESS-Pair-Removed ADMIN CRED <-> ADMIN PRIV pair"
                                                                         data_returned['data'][f"{update['admin_id']}_{update['privilege_id']}"] = temp.copy()
                                                                         temp.clear()
 
                                     else:
                                         data_returned['return'] = False
                                         data_returned['code'] = 402
-                                        data_returned['message'] = "key error : [updates]"
+                                        data_returned['message'] = "ERROR-Key-updates required"
 
                                 return JsonResponse(data_returned, safe=True)
 
@@ -1582,7 +1688,7 @@ def admin_credential_API(request):
                             except Exception as ex:
                                 data_returned['return'] = False
                                 data_returned['code'] = 404
-                                data_returned['message'] = str(ex)
+                                data_returned['message'] = f"ERROR-Key-{str(ex)}"
                                 return JsonResponse(data_returned, safe=True)
                     
                             else:
@@ -1592,7 +1698,7 @@ def admin_credential_API(request):
                                     if(data[0] == False):
                                         data_returned['return'] = False
                                         data_returned['code'] = 110
-                                        data_returned['message'] = "USER might not have ADMIN PRIME privileges."
+                                        data_returned['message'] = "ERROR-Hash-not ADMIN PRIME"
                                         return JsonResponse(data_returned, safe=True)
                                     
                                     else:
@@ -1600,8 +1706,8 @@ def admin_credential_API(request):
 
                                         if(len(user_ids) < 1):
                                             data_returned['return'] = False
-                                            data_returned['code'] = 404
-                                            data_returned['message'] = "Value Error : Atleast one user id required."
+                                            data_returned['code'] = 151
+                                            data_returned['message'] = "ERROR-Empty-Atleast one id required"
                                             return JsonResponse(data_returned, safe=True)
                                         
                                         else:
@@ -1613,8 +1719,8 @@ def admin_credential_API(request):
 
                                                 if(len(admin_credential_ref_all) < 1):
                                                     temp['return'] = False
-                                                    temp['code'] = 404
-                                                    temp['message'] = "ADMIN Tray is empty."
+                                                    temp['code'] = 151
+                                                    temp['message'] = "ERROR-Empty-ADMIN Tray is empty"
                                                     data_returned['data'][0] = temp.copy()
                                                     temp.clear()
                                                     return JsonResponse(data_returned, safe=True)
@@ -1658,7 +1764,7 @@ def admin_credential_API(request):
                                                         if(len(user_credential_ref) < 1):
                                                             temp['return'] = False
                                                             temp['code'] = 114
-                                                            temp['message'] = "USER ID not exist"
+                                                            temp['message'] = "ERROR-Invalid-USER id"
                                                             data_returned['data'][id] = temp.copy()
                                                             temp.clear()
                                                 
@@ -1670,7 +1776,7 @@ def admin_credential_API(request):
                                                             except Exception as ex:
                                                                 temp['return'] = False
                                                                 temp['code'] = 404
-                                                                temp['message'] = str(ex)
+                                                                temp['message'] = f"ERROR-Ambiguous-{str(ex)}"
                                                                 data_returned['data'][id] = temp.copy()
                                                                 temp.clear()
                                                     
@@ -1678,7 +1784,7 @@ def admin_credential_API(request):
                                                                 if(len(admin_credential_ref) < 1):
                                                                     temp['return'] = False
                                                                     temp['code'] = 113
-                                                                    temp['message'] = "USER not ADMIN"
+                                                                    temp['message'] = "ERROR-Invalid-USER not ADMIN"
                                                                     data_returned['data'][id] = temp.copy()
                                                                     temp.clear()
                                                         
@@ -1710,8 +1816,8 @@ def admin_credential_API(request):
 
                                                     except Exception as ex:
                                                         temp['return'] = False
-                                                        temp['code'] = 404
-                                                        temp['message'] = str(ex)
+                                                        temp['code'] = 408
+                                                        temp['message'] = f"ERROR-DataType-{str(ex)}"
                                                         data_returned['data'][id] = temp.copy()
                                                         temp.clear()
                                     
@@ -1721,15 +1827,15 @@ def admin_credential_API(request):
                                     if(data[0] == False):
                                         data_returned['return'] = False
                                         data_returned['code'] = 114
-                                        data_returned['message'] = "USER NOT ADMIN."
+                                        data_returned['message'] = "ERROR-Hash-not ADMIN"
                                         return JsonResponse(data_returned, safe=True)
                                     
                                     else:
                                         admin_credential_ref = Admin_Credential.objects.get(user_credential_id = int(data[1]))
                                         admin_credential_serialized = Admin_Credential_Serializer(admin_credential_ref, many=False).data
                                         
-                                        key = "self"
-                                        temp = {key : admin_credential_serialized}
+                                        # key = "self"
+                                        temp['admin'] = admin_credential_serialized
 
                                         many_to_many_ref = Admin_Cred_Admin_Prev_Int.objects.filter(admin_credential_id = temp[key]['admin_credential_id'])
                                         if(len(many_to_many_ref) < 1):
@@ -1739,30 +1845,31 @@ def admin_credential_API(request):
                                         for mtmr in many_to_many_ref:
                                             privileges.append(mtmr.admin_privilege_id.admin_privilege_id)
                                         
-                                        temp['privilege_id'] = privileges
+                                        temp['privilege'] = privileges
 
                                         data_returned['return'] = True
                                         data_returned['code'] = 100
-                                        data_returned['data'] = temp
+                                        data_returned['data'] = temp.copy()
+                                        temp.clear()
 
                                 return JsonResponse(data_returned, safe=True)
                         
                         else:
                             data_returned['return'] = False
                             data_returned['code'] = 403
-                            data_returned['message'] = "Child action invalid"
+                            data_returned['message'] = "ERROR-Action-Child action invalid"
                             return JsonResponse(data_returned, safe=True)
 
                     except Exception as ex:
                         data_returned['return'] = False
                         data_returned['code'] = 404
-                        data_returned['message'] = str(ex)
+                        data_returned['message'] = f"ERROR-Ambiguous-{str(ex)}"
                         return JsonResponse(data_returned, safe=True)
 
     else:
         data_returned['return'] = False
         data_returned['code'] = 403
-        data_returned['message'] = "Parent action invalid"
+        data_returned['message'] = "ERROR-Action-Parent action invalid"
         return JsonResponse(data_returned, safe=True)
 
 @csrf_exempt
@@ -1773,7 +1880,7 @@ def admin_privilege_API(request):
     if(request.method == 'GET'):
         data_returned['return'] = False
         data_returned['code'] = 403
-        data_returned['message'] = 'Method not supported : GET.'
+        data_returned['message'] = 'ERROR-Invalid-GET Not supported'
         return JsonResponse(data_returned, safe=True)
 
     elif(request.method == 'POST'):
@@ -1786,7 +1893,7 @@ def admin_privilege_API(request):
         except Exception as ex:
             data_returned['return'] = False
             data_returned['code'] = 401
-            data_returned['message'] = str(ex)
+            data_returned['message'] = f"ERROR-Parsing-{str(ex)}"
             return JsonResponse(data_returned, safe=True)
         
         else:
@@ -1798,7 +1905,7 @@ def admin_privilege_API(request):
             except Exception as ex:
                 data_returned['return'] = False
                 data_returned['code'] = 402
-                data_returned['message'] = str(ex)
+                data_returned['message'] = f"ERROR-Key-{str(ex)}"
                 return JsonResponse(data_returned, safe=True)
             
             else:
@@ -1808,7 +1915,7 @@ def admin_privilege_API(request):
                 if(data[0] == False):
                     data_returned['return'] = False
                     data_returned['code'] = 150
-                    data_returned['message'] = data[1]
+                    data_returned['message'] = f"ERROR-Api-{data[1]}"
                     return JsonResponse(data_returned, safe=True)
 
                 else:
@@ -1819,11 +1926,12 @@ def admin_privilege_API(request):
                             try:
                                 incoming_data = incoming_data['data']
                                 auth.token = incoming_data['hash']
+                                incoming_data = incoming_data['data']
 
                             except Exception as ex:
                                 data_returned['return'] = False
-                                data_returned['code'] = 404
-                                data_returned['message'] = str(ex)
+                                data_returned['code'] = 402
+                                data_returned['message'] = f"ERROR-Key-{str(ex)}"
                                 return JsonResponse(data_returned, safe=True)
                     
                             else:
@@ -1832,24 +1940,23 @@ def admin_privilege_API(request):
                                 if(data[0] == False):
                                     data_returned['return'] = False
                                     data_returned['code'] = 110
-                                    data_returned['message'] = "USER might not have ADMIN PRIME privileges."
+                                    data_returned['message'] = "ERROR-Hash-not ADMIN PRIME"
                                     return JsonResponse(data_returned, safe=True)
                                 else:
                                     try:
-                                        incoming_data = incoming_data['data']
                                         admin_privilege_ref = Admin_Privilege.objects.filter(admin_privilege_name__contains = incoming_data["admin_privilege_name"].upper())
                                     
                                     except Exception as ex:
                                         data_returned['return'] = False
                                         data_returned['code'] = 404
-                                        data_returned['message'] = str(ex)
+                                        data_returned['message'] = f"ERROR-Ambiguous-{str(ex)}"
                                         return JsonResponse(data_returned, safe=True)
 
                                     else:
                                         if(len(admin_privilege_ref) > 0):
                                             data_returned['return'] = False
                                             data_returned['code'] = 117
-                                            data_returned['message'] = 'Admin Privilege Exists.'
+                                            data_returned['message'] = 'ERROR-Create-Admin Privilege exists'
                                             return JsonResponse(data_returned, safe=True)
 
                                         else:
@@ -1863,11 +1970,10 @@ def admin_privilege_API(request):
                                             else:
                                                 data_returned['return'] = False
                                                 data_returned['code'] = 405
-                                                data_returned['message'] = admin_privilege_de_serialized.errors
+                                                data_returned['message'] = f"ERROR-Serialize-{admin_privilege_de_serialized.errors}"
                                                 return JsonResponse(data_returned, safe=True)
                 
                                     return JsonResponse(data_returned, safe=True)
-
 
                         elif(incoming_data["action"].upper() == "DELETE"):
                             data_returned['action'] += "-"+incoming_data["action"].upper()
@@ -1879,8 +1985,8 @@ def admin_privilege_API(request):
 
                             except Exception as ex:
                                 data_returned['return'] = False
-                                data_returned['code'] = 404
-                                data_returned['message'] = str(ex)
+                                data_returned['code'] = 402
+                                data_returned['message'] = f"ERROR-Key-{str(ex)}"
                                 return JsonResponse(data_returned, safe=True)
                     
                             else:
@@ -1889,15 +1995,15 @@ def admin_privilege_API(request):
                                 if(data[0] == False):
                                     data_returned['return'] = False
                                     data_returned['code'] = 110
-                                    data_returned['message'] = "USER might not have ADMIN PRIME privileges."
+                                    data_returned['message'] = "ERROR-Hash-not ADMIN PRIME"
                                     return JsonResponse(data_returned, safe=True)
                                 
                                 else:
                                     try:
                                         if(len(privilege_ids) < 1):
                                             data_returned['return'] = False
-                                            data_returned['code'] = 403
-                                            data_returned['message'] = "At least one id required to operate."
+                                            data_returned['code'] = 151
+                                            data_returned['message'] = "ERROR-Empty-At least one id required"
                                             return JsonResponse(data_returned, safe=True)
                                         
                                         else:
@@ -1907,7 +2013,7 @@ def admin_privilege_API(request):
                                             if(0 in privilege_ids):
                                                 temp['return'] = False
                                                 temp['code'] = 404
-                                                temp['message'] = "0 -> universal deletion not applicable."
+                                                temp['message'] = "ERROR-Ambiguous-[0] > universal deletion not applicable"
                                                 data_returned['data'][0] = temp.copy()
                                                 temp.clear()
                                                 return JsonResponse(data_returned, safe=True)
@@ -1919,16 +2025,16 @@ def admin_privilege_API(request):
                                                     
                                                     except Exception as ex:
                                                         temp['return'] = False
-                                                        temp['code'] = 404
-                                                        temp['message'] = str(ex)
+                                                        temp['code'] = 408
+                                                        temp['message'] = f"ERROR-DataType-{str(ex)}"
                                                         data_returned['data'][id] = temp.copy()
                                                         temp.clear()
                                                     
                                                     else:
                                                         if(len(admin_privilege_ref) < 1):
                                                             temp['return'] = False
-                                                            temp['code'] = 116
-                                                            temp['message'] = "Privilege does not exist."
+                                                            temp['code'] = 114
+                                                            temp['message'] = "ERROR-INVALID-Admin Privilege id"
                                                             data_returned['data'][id] = temp.copy()
                                                             temp.clear()
                                                         
@@ -1945,7 +2051,7 @@ def admin_privilege_API(request):
                                     except Exception as ex:
                                         data_returned['return'] = False
                                         data_returned['code'] = 404
-                                        data_returned['message'] = str(ex)
+                                        data_returned['message'] = f"ERROR-Ambiguous-{str(ex)}"
                                         return JsonResponse(data_returned, safe=True)
                                     
                                     else:
@@ -1961,24 +2067,24 @@ def admin_privilege_API(request):
 
                             except Exception as ex:
                                 data_returned['return'] = False
-                                data_returned['code'] = 404
-                                data_returned['message'] = str(ex)
+                                data_returned['code'] = 402
+                                data_returned['message'] = f"ERROR-Key-{str(ex)}"
                                 return JsonResponse(data_returned, safe=True)
                     
                             else:
-                                data = auth.check_authorization("admin") #only prime admins can grant admin access
+                                data = auth.check_authorization("admin") #only prime admins can see privileges
                 
                                 if(data[0] == False):
                                     data_returned['return'] = False
                                     data_returned['code'] = 111
-                                    data_returned['message'] = "USER might not have ADMIN privileges."
+                                    data_returned['message'] = "ERROR-Hash-not ADMIN"
                                     return JsonResponse(data_returned, safe=True)
                                 
                                 else:
                                     if(len(privilege_ids) < 1):
                                         data_returned['return'] = False
-                                        data_returned['code'] = 403
-                                        data_returned['message'] = "Atleast one Privilege ID required."
+                                        data_returned['code'] = 151
+                                        data_returned['message'] = "ERROR-Empty-Atleast one id required"
                                         return JsonResponse(data_returned, safe=True)
                                     
                                     else:
@@ -1990,8 +2096,8 @@ def admin_privilege_API(request):
 
                                             if(len(admin_privilege_ref) < 1):
                                                 temp['return'] = False
-                                                temp['code'] = 404
-                                                temp['message'] = "Admin Privilege Tray empty."
+                                                temp['code'] = 151
+                                                temp['message'] = "ERROR-Empty-Admin Privilege Tray empty"
                                                 data_returned['data'][0] = temp.copy()
                                                 temp.clear()
                                                 return JsonResponse(data_returned, safe=True)
@@ -2012,16 +2118,16 @@ def admin_privilege_API(request):
                                                 
                                                 except Exception as ex:
                                                     temp['return'] = False
-                                                    temp['code'] = 404
-                                                    temp['message'] = str(ex)
+                                                    temp['code'] = 408
+                                                    temp['message'] = f"ERROR-DataType-{str(ex)}"
                                                     data_returned['data'][id] = temp.copy()
                                                     temp.clear()
                                                 
                                                 else:
                                                     if(len(admin_privilege_ref) < 1):
                                                         temp['return'] = False
-                                                        temp['code'] = 116
-                                                        temp['message'] = "Invalid PRIVILEGE ID."
+                                                        temp['code'] = 114
+                                                        temp['message'] = "ERROR-Invalid-PRIVILEGE id"
                                                         data_returned['data'][id] = temp.copy()
                                                         temp.clear()
                             
@@ -2040,26 +2146,28 @@ def admin_privilege_API(request):
                         else:
                             data_returned['return'] = False
                             data_returned['code'] = 403
-                            data_returned['message'] = "Child action invalid"
+                            data_returned['message'] = "ERROR-Action-Child action invalid"
                             return JsonResponse(data_returned, safe=True)
 
                     except Exception as ex:
                         data_returned['return'] = False
                         data_returned['code'] = 404
-                        data_returned['message'] = str(ex)
+                        data_returned['message'] = f"ERROR-Ambiguous-{str(ex)}"
                         return JsonResponse(data_returned, safe=True)
 
     else:
         data_returned['return'] = False
         data_returned['code'] = 403
-        data_returned['message'] = "Parent action invalid"
+        data_returned['message'] = "ERROR-Aciton-Parent action invalid"
         return JsonResponse(data_returned, safe=True)
 
 # ------------------------------VIEW_SPACE-------------------------------------
 
 pinned = [
+
     '<span style="color: yellow;">[25-02-2021]</span> All methods migrated to POST -> check postman export for clarity',
     '<span style="color: yellow;">[23-02-2021]</span> FETCH method have been changed to REQUEST method',
+
 ]
 
 def api_token_web(request, word=None):

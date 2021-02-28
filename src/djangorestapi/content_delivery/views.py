@@ -205,62 +205,73 @@ def coordinator_API(request):
                                         return JsonResponse(data_returned, safe=True)
                                     
                                     else:
-                                        data = auth.check_authorization("admin") # Coordinators can be removed by admins
-                                        
-                                        if(data[0] == False):
+                                        if(len(user_ids) < 1):
                                             data_returned['return'] = False
-                                            data_returned['code'] = 102
-                                            data_returned['message'] = "USER not ADMIN."
+                                            data_returned['code'] = 404
+                                            data_returned['message'] = "Value Error : Atleast one user id reqired."
                                             return JsonResponse(data_returned, safe=True)
                                         
                                         else:
-                                            admin_credential_ref = Admin_Credential.objects.get(user_credential_id = int(data[1])) # for user is admin
-                                            admin_privilege_ref = Admin_Privilege.objects.filter(admin_privilege_name__contains = 'CAGP') # for CAPG privilege exists
+                                            data = auth.check_authorization("admin") # Coordinators can be removed by admins
                                             
-                                            if(len(admin_privilege_ref) < 1):
+                                            if(data[0] == False):
                                                 data_returned['return'] = False
-                                                data_returned['code'] = 116
-                                                data_returned['message'] = 'ASK admin to create CAGP privilege.'
+                                                data_returned['code'] = 102
+                                                data_returned['message'] = "USER not ADMIN."
                                                 return JsonResponse(data_returned, safe=True)
-                            
+                                            
                                             else:
-                                                admin_privilege_ref = admin_privilege_ref[0]
-                                                many_to_many_ref = Admin_Cred_Admin_Prev_Int.objects.filter(admin_credential_id = admin_credential_ref.admin_credential_id,
-                                                                                                            admin_privilege_id = admin_privilege_ref.admin_privilege_id) # for the hash admin has the privilege
+                                                admin_credential_ref = Admin_Credential.objects.get(user_credential_id = int(data[1])) # for user is admin
+                                                admin_privilege_ref = Admin_Privilege.objects.filter(admin_privilege_name__contains = 'CAGP') # for CAPG privilege exists
                                                 
-                                                if(len(many_to_many_ref) < 1):
+                                                if(len(admin_privilege_ref) < 1):
                                                     data_returned['return'] = False
-                                                    data_returned['code'] = 118
-                                                    data_returned['message'] = 'Admin <-> Privilege pair not found.'
+                                                    data_returned['code'] = 116
+                                                    data_returned['message'] = 'ASK admin to create CAGP privilege.'
                                                     return JsonResponse(data_returned, safe=True)
-                                                
+                                
                                                 else:
-                                                    data_returned['return'] = list()
-                                                    data_returned['code'] = list()
-                                                    data_returned['message'] = list()
+                                                    admin_privilege_ref = admin_privilege_ref[0]
+                                                    many_to_many_ref = Admin_Cred_Admin_Prev_Int.objects.filter(admin_credential_id = admin_credential_ref.admin_credential_id,
+                                                                                                                admin_privilege_id = admin_privilege_ref.admin_privilege_id) # for the hash admin has the privilege
+                                                    
+                                                    if(len(many_to_many_ref) < 1):
+                                                        data_returned['return'] = False
+                                                        data_returned['code'] = 118
+                                                        data_returned['message'] = 'Admin <-> Privilege pair not found.'
+                                                        return JsonResponse(data_returned, safe=True)
+                                                    
+                                                    else:
+                                                        data_returned['data'] = dict()
+                                                        temp = dict()
 
-                                                    for id in user_ids:
-                                                        try:
-                                                            coordinator_ref = Coordinator.objects.filter(user_credential_id = int(id))
-                                        
-                                                        except Exception as ex:
-                                                            data_returned['return'].append(False)
-                                                            data_returned['code'].append(404)
-                                                            data_returned['message'].append(str(ex))
-                                                        
-                                                        else:
-                                                            if(len(coordinator_ref) < 1):
-                                                                data_returned['return'].append(False)
-                                                                data_returned['code'].append(103)
-                                                                data_returned['message'].append("Coordinate id invalid.")
+                                                        for id in user_ids:
+                                                            try:
+                                                                coordinator_ref = Coordinator.objects.filter(user_credential_id = int(id))
+                                            
+                                                            except Exception as ex:
+                                                                temp['return'] = False
+                                                                temp['code'] = 404
+                                                                temp['message'] = str(ex)
+                                                                data_returned['data'][id] = temp.copy()
+                                                                temp.clear()
                                                             
                                                             else:
-                                                                coordinator_ref = coordinator_ref[0]
-                                                                coordinator_ref.delete()
+                                                                if(len(coordinator_ref) < 1):
+                                                                    temp['return'] = False
+                                                                    temp['code'] = 103
+                                                                    temp['message'] = "INVALID : Coordinate id"
+                                                                    data_returned['data'][id] = temp.copy()
+                                                                    temp.clear()
+                                                                
+                                                                else:
+                                                                    coordinator_ref = coordinator_ref[0]
+                                                                    coordinator_ref.delete()
 
-                                                                data_returned['return'].append(True)
-                                                                data_returned['code'].append(100)
-                                                                data_returned['message'].append(None)
+                                                                    temp['return'] = True
+                                                                    temp['code'] = 100
+                                                                    data_returned['data'][id] = temp.copy()
+                                                                    temp.clear()
                                 
                                 else: # self delete
                                     data = auth.check_authorization("user")
@@ -277,7 +288,7 @@ def coordinator_API(request):
                                         if(len(coordinator_ref) < 1):
                                             data_returned['return'] = False
                                             data_returned['code'] = 103
-                                            data_returned['message'] = 'USER not a COOrdinator.'
+                                            data_returned['message'] = 'USER not a Coordinator.'
                                             return JsonResponse(data_returned, safe=True)
                                         
                                         else:
@@ -305,7 +316,7 @@ def coordinator_API(request):
                             else:
                                 data = auth.check_authorization("user")
 
-                                if('user_id' in incoming_data.keys()): # force fetcg
+                                if('user_id' in incoming_data.keys()): # force fetch
                                     try:
                                         user_ids = tuple(incoming_data["user_id"])
                                     
@@ -316,55 +327,78 @@ def coordinator_API(request):
                                         return JsonResponse(data_returned, safe=True)
                                     
                                     else:
-                                        # from parent
-                                        if(data[0] == False):
-                                            data_returned['return'] = False
-                                            data_returned['code'] = 102
-                                            data_returned['message'] = "USER not valid."
-                                            return JsonResponse(data_returned, safe=True)
+
+                                        if(len(user_ids) < 1):
+                                            temp['return'] = False
+                                            temp['code'] = 404
+                                            temp['message'] = "Value Error : Atleast one User Id required"
+                                            data_returned['data'][id] = temp.copy()
+                                            temp.clear()
                                         
                                         else:
-                                            data_returned['return'] = list()
-                                            data_returned['code'] = list()
-                                            data_returned['message'] = list()
-                                            data_returned['data'] = list()
-                                            
-                                            if(0 in user_ids):
-                                                coordinator_ref_all = Coordinator.objects.all()
-                                                coordinator_serialized = Coordinator_Serializer(coordinator_ref_all, many=True).data
-
-                                                for cos in coordinator_serialized:
-                                                    data_returned['return'].append(True)
-                                                    data_returned['code'].append(100)
-                                                    data_returned['message'].append(None)
-                                                    data_returned['data'].append(cos)
+                                            # from parent
+                                            if(data[0] == False):
+                                                data_returned['return'] = False
+                                                data_returned['code'] = 102
+                                                data_returned['message'] = "USER not valid."
+                                                return JsonResponse(data_returned, safe=True)
                                             
                                             else:
-                                                for id in user_ids:
-                                                    try:
-                                                        coordinator_ref = Coordinator.objects.filter(user_credential_id = int(id))
-                                        
-                                                    except Exception as ex:
-                                                        data_returned['return'].append(False)
-                                                        data_returned['code'].append(404)
-                                                        data_returned['message'].append(str(ex))
-                                                        data_returned['data'].append(None)
-                                                        
+                                                data_returned['data'] = dict()
+                                                temp = dict()
+                                                
+                                                if(0 in user_ids):
+                                                    coordinator_ref_all = Coordinator.objects.all()
+                                                    
+                                                    if(len(coordinator_ref_all) < 1):
+                                                        temp['return'] = False
+                                                        temp['code'] = 404
+                                                        temp['message'] = 'Coordinator Tray Empty.'
+                                                        data_returned['data'][id] = temp.copy()
+                                                        temp.clear()
+                                                        return JsonResponse(data_returned, safe=True)
+
                                                     else:
-                                                        if(len(coordinator_ref) < 1):
-                                                            data_returned['return'].append(False)
-                                                            data_returned['code'].append(103)
-                                                            data_returned['message'].append("Coordinate id invalid.")
-                                                            data_returned['data'].append(None)
+                                                        coordinator_serialized = Coordinator_Serializer(coordinator_ref_all, many=True).data
+                                                        temp_2 = list()
+                                                        temp['return']= True
+                                                        temp['code'] = 100
+                                                        for cos in coordinator_serialized:
+                                                            temp_2.append(cos)
+                                                        
+                                                        temp['data'] = temp_2
+                                                        data_returned['data'][id] = temp.copy()
+                                                        temp.clear()
+                                                
+                                                else:
+                                                    for id in user_ids:
+                                                        try:
+                                                            coordinator_ref = Coordinator.objects.filter(user_credential_id = int(id))
+                                            
+                                                        except Exception as ex:
+                                                            temp['return'] = False
+                                                            temp['code'] = 404
+                                                            temp['message'] = str(ex)
+                                                            data_returned['data'][id] = temp.copy()
+                                                            temp.clear()
                                                             
                                                         else:
-                                                            coordinator_ref = coordinator_ref[0]
-                                                            coordinator_serialized = Coordinator_Serializer(coordinator_ref, many=False).data
+                                                            if(len(coordinator_ref) < 1):
+                                                                temp['return'] = False
+                                                                temp['code'] = 103
+                                                                temp['message'] = "INVALID : Coordinate id"
+                                                                data_returned['data'][id] = temp.copy()
+                                                                temp.clear()
+                                                                
+                                                            else:
+                                                                coordinator_ref = coordinator_ref[0]
+                                                                coordinator_serialized = Coordinator_Serializer(coordinator_ref, many=False).data
 
-                                                            data_returned['return'].append(True)
-                                                            data_returned['code'].append(100)
-                                                            data_returned['message'].append(None)
-                                                            data_returned['data'].append(coordinator_serialized)
+                                                                temp['return'] = True
+                                                                temp['code'] = 100
+                                                                temp['data'] = coordinator_serialized
+                                                                data_returned['data'][id] = temp.copy()
+                                                                temp.clear()
                                 
                                 else: # self fetch
                                     data = auth.check_authorization("user")
@@ -696,6 +730,7 @@ def subject_API(request):
                             try:
                                 incoming_data = incoming_data['data']
                                 auth.token = incoming_data['hash']
+                                subject_ids = tuple(incoming_data['subject_id'])
 
                             except Exception as ex:
                                 data_returned['return'] = False
@@ -704,51 +739,63 @@ def subject_API(request):
                                 return JsonResponse(data_returned, safe=True)
                     
                             else:
-                                subject_ids = tuple(incoming_data['subject_id'])
-                                data = auth.check_authorization("admin", "prime") # admin_prime + coordinators can remove subjects
-
-                                if(data[0] == False):
+                                if(len(subject_ids) < 1):
                                     data_returned['return'] = False
-                                    data_returned['code'] = 102
-                                    data_returned['message'] = 'HASH not of ADMIN PRIME.'
+                                    data_returned['code'] = 404
+                                    data_returned['message'] = 'Value Error : Atleast one subject id is required.'
                                     return JsonResponse(data_returned, safe=True)
-
+                                
                                 else:
-                                    coordinator_ref = Coordinator.objects.filter(user_credential_id = int(data[1]))
+                                    data = auth.check_authorization("admin", "prime") # admin_prime + coordinators can remove subjects
 
-                                    if(len(coordinator_ref) < 1):
+                                    if(data[0] == False):
                                         data_returned['return'] = False
-                                        data_returned['code'] = 103
-                                        data_returned['code'] = 'ADMIN not COORDINATOR.'
+                                        data_returned['code'] = 102
+                                        data_returned['message'] = 'HASH not of ADMIN PRIME.'
                                         return JsonResponse(data_returned, safe=True)
 
                                     else:
-                                        data_returned['return'] = list()
-                                        data_returned['code'] = list()
-                                        data_returned['message'] = list()
-                                        
-                                        for sub in subject_ids:
-                                            try:
-                                                subject_ref = Subject.objects.filter(subject_id = int(sub))
-                                                if(len(subject_ref) < 1):
-                                                    data_returned['return'].append(False)
-                                                    data_returned['code'].append(107)
-                                                    data_returned['message'].append('Invalid Subject ID.')
+                                        coordinator_ref = Coordinator.objects.filter(user_credential_id = int(data[1]))
 
+                                        if(len(coordinator_ref) < 1):
+                                            data_returned['return'] = False
+                                            data_returned['code'] = 103
+                                            data_returned['code'] = 'ADMIN not COORDINATOR.'
+                                            return JsonResponse(data_returned, safe=True)
+
+                                        else:
+                                            data_returned['data'] = dict()
+                                            temp = dict()
+                                            
+                                            for id in subject_ids:
+                                                try:
+                                                    subject_ref = Subject.objects.filter(subject_id = int(id))
+
+                                                except Exception as ex:
+                                                    temp['return'] = False
+                                                    temp['code'] = 404
+                                                    temp['message'] = str(ex)
+                                                    data_returned[data][id] = temp.copy()
+                                                    temp.clear()
+                                                
                                                 else:
-                                                    subject_ref = subject_ref[0]
-                                                    subject_ref.delete()
+                                                    if(len(subject_ref) < 1):
+                                                        temp['return'] = False
+                                                        temp['code'] = 107
+                                                        temp['message'] = 'Invalid : Subject ID.'
+                                                        data_returned['data'][id] = temp.copy()
+                                                        temp.clear()
 
-                                                    data_returned['return'].append(True)
-                                                    data_returned['code'].append(100)
-                                                    data_returned['message'].append(None)
+                                                    else:
+                                                        subject_ref = subject_ref[0]
+                                                        subject_ref.delete()
 
-                                            except Exception as ex:
-                                                data_returned['return'].append(False)
-                                                data_returned['code'].append(404)
-                                                data_returned['message'].append(str(ex))
+                                                        temp['return'] = True
+                                                        temp['code'] = 100
+                                                        data_returned['data'][id] = temp.copy()
+                                                        temp.clear()
 
-                                return JsonResponse(data_returned, safe=True)
+                                    return JsonResponse(data_returned, safe=True)
 
                         elif(incoming_data["action"].upper() == "READ"):
                             data_returned['action'] += "-"+incoming_data["action"].upper()
@@ -756,6 +803,7 @@ def subject_API(request):
                             try:
                                 incoming_data = incoming_data['data']
                                 auth.token = incoming_data['hash']
+                                subject_ids = tuple(incoming_data['subject_id'])
 
                             except Exception as ex:
                                 data_returned['return'] = False
@@ -764,64 +812,73 @@ def subject_API(request):
                                 return JsonResponse(data_returned, safe=True)
                     
                             else:
-                                subject_ids = tuple(incoming_data['subject_id'])
-                                data = auth.check_authorization("user") # every one can see subject data
-                                if(data[0] == False):
+                                if(len(subject_ids) < 1):
                                     data_returned['return'] = False
-                                    data_returned['code'] = 102
-                                    data_returned['message'] = 'HASH not USER.'
+                                    data_returned['code'] = 404
+                                    data_returned['message'] = 'Value Error : Atleast one subject id required.'
                                     return JsonResponse(data_returned, safe=True)
-
+                                
                                 else:
-                                    if(0 in subject_ids):
-                                        subject_ref = Subject.objects.all()
-
-                                        if(len(subject_ref) < 1):
-                                            data_returned['return'] = False
-                                            data_returned['code'] = 404
-                                            data_returned['data'] = None
-                                            data_returned['message'] = 'SUBJECT Tray Empty.'
-                                            return JsonResponse(data_returned, safe=True)
-                                        
-                                        else:
-                                            subject_serialized = Subject_Serializer(subject_ref, many=True)
-
-                                            data_returned['return'] = True
-                                            data_returned['code'] = 100
-                                            data_returned['data'] = subject_serialized.data
-                                            data_returned['message'] = None
+                                    data = auth.check_authorization("user") # every one can see subject data
+                                    if(data[0] == False):
+                                        data_returned['return'] = False
+                                        data_returned['code'] = 102
+                                        data_returned['message'] = 'HASH not USER.'
+                                        return JsonResponse(data_returned, safe=True)
 
                                     else:
-                                        data_returned['return'] = list()
-                                        data_returned['code'] = list()
-                                        data_returned['data'] = list()
-                                        data_returned['message'] = list()
+                                        data_returned['data'] = dict()
+                                        temp = dict()
 
-                                        for sub in subject_ids:
-                                            try:
-                                                subject_ref = Subject.objects.filter(subject_id = int(sub))
-                                                if(len(subject_ref) < 1):
-                                                    data_returned['return'].append(False)
-                                                    data_returned['code'].append(107)
-                                                    data_returned['data'].append(None)
-                                                    data_returned['message'].append('Invalid Subject ID.')
+                                        if(0 in subject_ids):
+                                            subject_ref = Subject.objects.all()
 
-                                                else:
-                                                    subject_ref = subject_ref[0]
-                                                    subject_serialized = Subject_Serializer(subject_ref, many=False)
+                                            if(len(subject_ref) < 1):
+                                                temp['return'] = False
+                                                temp['code'] = 404
+                                                temp['message'] = 'SUBJECT Tray Empty.'
+                                                data_returned['data'][0] = temp.copy()
+                                                temp.clear()
+                                                return JsonResponse(data_returned, safe=True)
+                                            
+                                            else:
+                                                subject_serialized = Subject_Serializer(subject_ref, many=True)
+
+                                                temp['return'] = True
+                                                temp['code'] = 100
+                                                temp['data'] = subject_serialized.data
+                                                data_returned['data'][0] = temp.copy()
+                                                temp.clear()
+
+                                        else:
+                                            for id in subject_ids:
+                                                try:
+                                                    subject_ref = Subject.objects.filter(subject_id = int(id))
+                                                    if(len(subject_ref) < 1):
+                                                        temp['return'] = False
+                                                        temp['code'] = 107
+                                                        temp['message'] = 'Invalid Subject ID.'
+                                                        data_returned[data][id] = temp.copy()
+                                                        temp.clear()
+
+                                                    else:
+                                                        subject_ref = subject_ref[0]
+                                                        subject_serialized = Subject_Serializer(subject_ref, many=False)
+                                                        
+                                                        temp['return'] = True
+                                                        temp['code'] = 100
+                                                        temp['data'] = subject_serialized.data
+                                                        data_returned[data][id] = temp.copy()
+                                                        temp.clear()
                                                     
-                                                    data_returned['return'].append(True)
-                                                    data_returned['code'].append(100)
-                                                    data_returned['data'].append(subject_serialized.data)
-                                                    data_returned['message'].append(None)
-                                                
-                                            except Exception as ex:
-                                                data_returned['return'].append(False)
-                                                data_returned['code'].append(404)
-                                                data_returned['data'].append(None)
-                                                data_returned['message'].append(str(ex))
-                                
-                                return JsonResponse(data_returned, safe=True)
+                                                except Exception as ex:
+                                                    temp['return'] = False
+                                                    temp['code'] = 404
+                                                    temp['message'] = str(ex)
+                                                    data_returned[data][id] = temp.copy()
+                                                    temp.clear()
+                                    
+                                    return JsonResponse(data_returned, safe=True)
         
                         else:
                             data_returned['return'] = False
@@ -946,7 +1003,7 @@ def forum_API(request):
                             try:
                                 incoming_data = incoming_data['data']
                                 auth.token = incoming_data['hash']
-                                forum_ids = tuple(incoming_data['forum_id'])
+                                forum_ids = tuple(set(incoming_data['forum_id']))
 
                             except Exception as ex:
                                 data_returned['return'] = False
@@ -957,41 +1014,41 @@ def forum_API(request):
                             else:
                                 data = auth.check_authorization("user")
 
-                                if(data[0] == False):
+                                if(len(forum_ids) < 1):
                                     data_returned['return'] = False
-                                    data_returned['code'] = 102
-                                    data_returned['message'] = 'HASH not USER.'
+                                    data_returned['code'] = 404
+                                    data_returned['message'] = 'Value Error : Atleast one forum id required.'
                                     return JsonResponse(data_returned, safe=True)
                                 
                                 else:
-                                    if(len(forum_ids) < 1):
+                                    if(data[0] == False):
                                         data_returned['return'] = False
-                                        data_returned['code'] = 404
-                                        data_returned['message'] = 'Value Error : Atleast one forum id required.'
+                                        data_returned['code'] = 102
+                                        data_returned['message'] = 'HASH not USER.'
                                         return JsonResponse(data_returned, safe=True)
                                     
                                     else:
-                                        data_returned['return'] = list()
-                                        data_returned['code'] = list()
-                                        data_returned['message'] = list()
-                                        data_returned['data'] = list()
+                                        data_returned['data'] = dict()
+                                        temp = dict()
 
                                         for id in forum_ids:
                                             try:
                                                 forum_ref = Forum.objects.filter(forum_id = int(id))
                                             
                                             except Exception as ex:
-                                                data_returned['return'].append(False)
-                                                data_returned['code'].append(404)
-                                                data_returned['message'].append(str(ex))
-                                                data_returned['data'].append(None)
+                                                temp['return'] = False
+                                                temp['code'] = 404
+                                                temp['message'] = str(ex)
+                                                data_returned[data][id] = temp.copy()
+                                                temp.clear()
                                             
                                             else:
                                                 if(len(forum_ref) < 1):
-                                                    data_returned['return'].append(False)
-                                                    data_returned['code'].append(404)
-                                                    data_returned['message'].append("INVALID : Forum ID")
-                                                    data_returned['data'].append(None)
+                                                    temp['return'] = False
+                                                    temp['code'] = 404
+                                                    temp['message'] = "INVALID : Forum ID"
+                                                    data_returned[data][id] = temp.copy()
+                                                    temp.clear()
                                                 
                                                 else:
                                                     forum_ref = forum_ref[0]
@@ -1004,10 +1061,11 @@ def forum_API(request):
                                                         for reply in replies_for_forum:
                                                             reply_list.append(reply.reply_id)
 
-                                                    data_returned['return'].append(True)
-                                                    data_returned['code'].append(100)
-                                                    data_returned['message'].append(None)
-                                                    data_returned['data'].append({"forum" : forum_serialized, "reply_id" : reply_list})
+                                                    temp['return'] = True
+                                                    temp['code'] = 100
+                                                    temp['data'] = {"forum" : forum_serialized, "reply" : reply_list}
+                                                    data_returned[data][id] = temp.copy()
+                                                    temp.clear()
 
                                 return JsonResponse(data_returned, safe=True)
 
@@ -1084,7 +1142,7 @@ def forum_API(request):
                             try:
                                 incoming_data = incoming_data['data']
                                 auth.token = incoming_data['hash']
-                                forum_ids = tuple(incoming_data['forum_id'])
+                                forum_ids = tuple(set(incoming_data['forum_id']))
 
                             except Exception as ex:
                                 data_returned['return'] = False
@@ -1103,39 +1161,43 @@ def forum_API(request):
                                 
                                 else:
                                     coordinator_ref = Coordinator.objects.filter(user_credential_id = int(data[1]))
-                                    if(len(coordinator_ref) < 1):
+
+                                    if(len(forum_ids) < 1):
                                         data_returned['return'] = False
                                         data_returned['code'] = 404
-                                        data_returned['message'] = 'USER not Coordinator.'
+                                        data_returned['message'] = 'Value Error : Atleast one forum id required.'
                                         return JsonResponse(data_returned, safe=True)
                                     
                                     else:
-                                        if(len(forum_ids) < 1):
+                                        if(len(coordinator_ref) < 1):
                                             data_returned['return'] = False
                                             data_returned['code'] = 404
-                                            data_returned['message'] = 'Value Error : Atleast one forum id required.'
+                                            data_returned['message'] = 'USER not Coordinator.'
                                             return JsonResponse(data_returned, safe=True)
                                         
                                         else:
-                                            data_returned['return'] = list()
-                                            data_returned['code'] = list()
-                                            data_returned['message'] = list()
+                                            data_returned['data'] = dict()
+                                            temp = dict()
 
                                             if(0 in forum_ids): # wholesale delete
                                                 forum_ref_all = Forum.objects.all()
 
                                                 if(len(forum_ref_all) < 1):
-                                                    data_returned['return'].append(False)
-                                                    data_returned['code'].append(404)
-                                                    data_returned['message'].append('Operation Error : Forum tray empty.')
+                                                    temp['return'] = False
+                                                    temp['code'] = 404
+                                                    temp['message'] = 'Operation Error : Forum tray empty.'
+                                                    data_returned[data][0] = temp.copy()
+                                                    temp.clear()
                                                     return JsonResponse(data_returned, safe=True)
                                                 
                                                 else:
                                                     forum_ref_all.delete()
 
-                                                    data_returned['return'].append(True)
-                                                    data_returned['code'].append(100)
-                                                    data_returned['message'].append('Success : Forum tray cleared.')
+                                                    temp['return'] = True
+                                                    temp['code'] = 100
+                                                    temp['message'] = 'Success : Forum tray cleared.'
+                                                    temp[data][id] = temp.copy()
+                                                    temp.clear()
                                             
                                             else:
                                                 for id in forum_ids:
@@ -1143,23 +1205,28 @@ def forum_API(request):
                                                         forum_ref = Forum.object.filter(forum_id = int(id))
                                                     
                                                     except Exception as ex:
-                                                        data_returned['return'].append(False)
-                                                        data_returned['code'].append(404)
-                                                        data_returned['message'].append('Value Error : Atleast one forum id required.')
+                                                        temp['return'] = False
+                                                        temp['code'] = 404
+                                                        temp['message'] = 'Value Error : Atleast one forum id required.'
+                                                        data_returned[data][id] = temp.copy()
+                                                        temp.clear()
                                                     
                                                     else:
                                                         if(len(forum_ref) < 1):
-                                                            data_returned['return'].append(False)
-                                                            data_returned['code'].append(404)
-                                                            data_returned['message'].append('INVALID : forum id.')
+                                                            temp['return'] = False
+                                                            temp['code'] = 404
+                                                            temp['message'] = 'INVALID : forum id.'
+                                                            data_returned[data][id] = temp.copy()
+                                                            temp.clear()
                                                         
                                                         else:
                                                             forum_ref = forum_ref[0]
                                                             forum_ref.delete()
 
-                                                            data_returned['return'].append(True)
-                                                            data_returned['code'].append(100)
-                                                            data_returned['message'].append('Success : Forum deleted.')
+                                                            temp['return'] = True
+                                                            temp['code'] = 100
+                                                            data_returned[data][id] = temp.copy()
+                                                            temp.clear()
 
                                 return JsonResponse(data_returned, safe=True)
 

@@ -191,6 +191,16 @@ class Authorize(Authorize_Prime):
     def check_authorization(self, key_1=None, key_2=None, api_check=False):
         from auth_prime.models import Admin_Credential, User_Credential, Api_Token_Table
 
+        def logger(api_key, message=None):
+            try:
+                import logging
+                logging.basicConfig(format='%(asctime)s -- %(message)s')
+                logging.warning(f"API : {api_key} | {message}")
+            except Exception:
+                return False
+            else:
+                return True
+
         if(api_check == False):
             data = self.check_token()
 
@@ -251,13 +261,13 @@ class Authorize(Authorize_Prime):
                         if(len(api_ref) < 1):
                             rdata = (False, "Invalid API AUTH TOKEN")
                         else:
+                            # print("LOGGER : ",logger(api_key = self.api_auth, message = api_ref[0].user_name))
                             rdata = (True, 1)
                 except Exception as ex:
                     rdata = (False, str(ex))
             
             return rdata
 
-    
     def sanction_authorization(self):
 
         data = self.create_token()
@@ -411,5 +421,3 @@ class Cookie(object):
         except Exception as ex:
             print(f"[x] CHECK AUTH Ex : {str(ex)}")
             return False
-
-
