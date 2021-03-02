@@ -20,7 +20,7 @@ class Diary(models.Model):
         else:
             post_id = self.post_id
 
-        return f"{self.diary_id} | {post_id} | {self.user_credential_id}"
+        return f"{self.diary_id} || {post_id} || {self.user_credential_id}"
 
 class Submission(models.Model):
     submission_id = models.AutoField(primary_key=True, null=False, blank=False, unique=True)
@@ -29,9 +29,10 @@ class Submission(models.Model):
     user_credential_id = models.ForeignKey(User_Credential, null=False, blank=False, on_delete=models.CASCADE)
 
     submission_name = models.CharField(max_length=512)
-    submission_body_1 = models.TextField(null=False, blank=False)
-    submission_body_2 = models.TextField(null=True, blank=True)
-    submission_external_url = models.URLField(null=True, blank=True)
+    submission_body = models.TextField(null=False, blank=False)
+    
+    submission_external_url_1 = models.URLField(null=True, blank=True)
+    submission_external_url_2 = models.URLField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.submission_id} | {self.assignment_id} | {self.user_credential_id}"
+        return f"{self.submission_id} || {self.assignment_id} || {self.user_credential_id}"

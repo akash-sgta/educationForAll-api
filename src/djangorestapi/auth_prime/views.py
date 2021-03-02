@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.core.files.storage import FileSystemStorage
 
 import re
+import json
 # --------------------------------------------------------------------------
 
 from auth_prime.models import User_Credential
@@ -51,7 +52,7 @@ def upload_image(request):
             auth = request.POST.get('auth')
             api_token_ref = Api_Token_Table.objects.filter(user_key_private = auth)
             if(len(api_token_ref) < 1):
-                return False, "INVALID-API token"
+                return False, "Api-Not Registered"
             
             else:
                 if(len(request.FILES) < 1):
@@ -83,17 +84,84 @@ def upload_image(request):
 
     elif(request.method == 'POST'):
         data_returned['action'] = request.method.upper()
-        data_returned['return'], message = post_it(request)
-
-        if(data_returned['return'] == True):
-            data_returned['code'] = 100
-            data_returned['data'] = {"image_id" : message}
+        
+        try:
+            action = request.POST.get('action')
+        
+        except Exception as ex:
+            data_returned['return'] = False
+            data_returned['code'] = 408
+            data_returned['message'] = "ERROR-Key-action needed."
+            return JsonResponse(data_returned, safe=True)
         
         else:
-            data_returned['code'] = 404
-            data_returned['message'] = f"ERROR-{message}"
+            data_returned['action'] += action.upper()
 
-        return JsonResponse(data_returned, safe=True)
+            if(action.upper() == 'CREATE'):
+                returned, message = post_it(request)
+
+                if(returned == True):
+                    data_returned['return'] = True
+                    data_returned['code'] = 100
+                    data_returned['data'] = {"image" : message}
+
+                else:
+                    data_returned['return'] = False
+                    data_returned['code'] = 404
+                    data_returned['message'] = f"ERROR-{message}"
+                    return JsonResponse(data_returned, safe=True)
+        
+            elif(action.upper() == 'DELETE'):
+
+                if('image_id' not in request.POST.keys()):
+                    data_returned['return'] = False
+                    data_returned['code'] = 408
+                    data_returned['message'] = f"ERROR-Key-image_id required"
+                    return JsonResponse(data_returned, safe=True)
+                
+                else:
+                    try:
+                        id = int(request.POST.get('image_id'))
+                    
+                    except Exception as ex:
+                        data_returned['return'] = False
+                        data_returned['code'] = 408
+                        data_returned['message'] = f"ERROR-DataType-{str(ex)}"
+                        return JsonResponse(data_returned, safe=True)
+                    
+                    else:
+                        image_ref = Image.objects.filter(image_id = id)
+
+                        if(len(image_ref) < 1):
+                            data_returned['return'] = False
+                            data_returned['code'] = 114
+                            data_returned['message'] = f"ERROR-Invalid-image id"
+                            return JsonResponse(data_returned, safe=True)
+                        
+                        else:
+                            image_ref = image_ref[0]
+                            fs = FileSystemStorage()
+
+                            if(fs.exists(image_ref.image_name)):
+                                fs.delete(image_ref.image_name)
+                                image_ref.delete()
+
+                                data_returned['return'] = True
+                                data_returned['code'] = 100
+                            
+                            else:
+                                data_returned['return'] = False
+                                data_returned['code'] = 114
+                                data_returned['message'] = f"ERROR-Invalid-Image name"
+                                return JsonResponse(data_returned, safe=True)
+
+            else:
+                data_returned['return'] = False
+                data_returned['code'] = 403
+                data_returned['message'] = f"ERROR-Action-Child action invalid"
+                return JsonResponse(data_returned, safe=True)
+
+            return JsonResponse(data_returned, safe=True)
     
     else:
         data_returned['return'] = False
@@ -211,7 +279,8 @@ def user_credential_API(request):
                                                 else:
                                                     data_returned['return'] = True
                                                     data_returned['code'] = 100
-                                                    data_returned['data'] = {'hash' : data[1]}
+                                                    data_returned['data'] = {'hash' : data[1], "user" : user_credential_de_serialized.data['user_credential_id']}
+                                                    # data_returned = json.dumps(data_returned)
                         
                                             else:
                                                 data_returned['return'] = False
@@ -219,6 +288,7 @@ def user_credential_API(request):
                                                 data_returned['message'] = f"ERROR-Serializing-{user_credential_de_serialized.errors}"
                                                 return JsonResponse(data_returned, safe=True)
                             
+                            # return JsonResponse(data_returned, safe=False)
                             return JsonResponse(data_returned, safe=True)
 
                         elif(incoming_data["action"].upper() in ("SIGNIN","LOGIN")):
@@ -525,7 +595,7 @@ def user_credential_API(request):
                                                                     data_returned['data'][id] = temp.copy()
                                                                     temp.clear()
 
-                                        return JsonResponse(data_returned, safe=True)
+                                return JsonResponse(data_returned, safe=True)
 
                         elif(incoming_data['action'].upper()  == "DELETE"):
                             data_returned['action'] += "-"+incoming_data["action"].upper()
@@ -713,7 +783,7 @@ def user_credential_API(request):
                                         else:
                                             pass
 
-                                    email_temp = user_credential_ref.user_email.lower()
+                                    # email_temp = user_credential_ref.user_email.lower()
                                     user_credential_de_serialized.initial_data['user_email'] = email_temp
                     
                                     # necessary fields for serializer but can not be given permission to user
@@ -962,8 +1032,10 @@ def user_profile_API(request):
                                                                         if(user.user_pofile_pic in (None, "")):
                                                                             pass
                                                                         else:
+                                                                            image = user.user_profile_pic
                                                                             fs = FileSystemStorage()
-                                                                            fs.delete(user.user_pofile_pic.image_name)
+                                                                            if(fs.exists(image.image_name)):
+                                                                                fs.delete(image.image_name)
                                                                             user.user_pofile_pic.delete()
                                                                         
                                                                         user.delete()
@@ -1016,7 +1088,9 @@ def user_profile_API(request):
                                                                                     pass
                                                                                 else:
                                                                                     fs = FileSystemStorage()
-                                                                                    fs.delete(user_credential_ref.user_profile_id.user_profile_pic.image_name)
+                                                                                    image = user_credential_ref.user_profile_id.user_profile_pic
+                                                                                    if(fs.exists(image.image_name)):
+                                                                                        fs.delete(image.image_name)
                                                                                     user_credential_ref.user_profile_id.user_profile_pic.delete()
                                                                                 
                                                                                 user_credential_ref.user_profile_id.delete()
@@ -1035,6 +1109,14 @@ def user_profile_API(request):
                                                 return JsonResponse(data_returned, safe=True)
                                             
                                             else:
+                                                if(self_user_profile_ref.user_profile_pic in (None, "")):
+                                                    pass
+                                                else:
+                                                    image = self_user_profile_ref.user_profile_pic
+                                                    fs = FileSystemStorage()
+                                                    if(fs.exists(image.image_name)):
+                                                        fs.delete(image.image_name)
+                                                
                                                 self_user_profile_ref.delete()
                                                 data_returned['return'] = True
                                                 data_returned['code'] = 100
@@ -1100,8 +1182,10 @@ def user_profile_API(request):
 
                                                     data_returned['return'] = True
                                                     data_returned['code'] = 100
-                                                    data_returned['message'] = "SUCCESS-Edit-PROFILE without IMAGE"
-
+                                                    if(user_profile_de_serialized.data['user_profile_pic'] in (None, "")):
+                                                        data_returned['message'] = "SUCCESS-Edit-PROFILE without IMAGE"
+                                                    else:
+                                                        data_returned['message'] = "SUCCESS-Edit-PROFILE with IMAGE"
                                                 else:
                                                     data_returned['return'] = False
                                                     data_returned['code'] = 405
@@ -1222,7 +1306,7 @@ def user_profile_API(request):
                                                                     if(user_profile_serialized['user_profile_pic'] in (None, "")):
                                                                         pass
                                                                     else:
-                                                                        user_profile_serialized['user_profile_pic'] = Image.objects.get(image_id = int(user_profile_serialized['user_profile_pic']))
+                                                                        user_profile_serialized['user_profile_pic'] = Image.objects.get(image_id = int(user_profile_serialized['user_profile_pic'])).image_url
 
                                                                     temp['data'] = user_profile_serialized
                                                                     data_returned['data'][id] = temp.copy()
@@ -1242,9 +1326,9 @@ def user_profile_API(request):
                                                 data_returned['code'] = 100
                                                 
                                                 if(user_profile_serialized['user_profile_pic'] in (None, "")):
-                                                    pass
+                                                    user_profile_serialized['user_profile_pic'] = None
                                                 else:
-                                                    user_profile_serialized['user_profile_pic'] = Image.objects.get(image_id = int(user_profile_serialized['user_profile_pic']))
+                                                    user_profile_serialized['user_profile_pic'] = Image.objects.get(image_id = int(user_profile_serialized['user_profile_pic'])).image_url
                                                 
                                                 data_returned['data'] = user_profile_serialized
 
@@ -1389,7 +1473,7 @@ def admin_credential_API(request):
 
                                                                 temp['return'] = True
                                                                 temp['code'] = 100
-                                                                temp['data'] = {"admin" : admin_credential_ref_new.validated_data['admin_credential_id']}
+                                                                temp['data'] = {"admin" : admin_credential_ref_new.data['admin_credential_id']}
                                                                 data_returned['data'][id] = temp.copy()
                                                                 temp.clear()
 
@@ -1831,13 +1915,15 @@ def admin_credential_API(request):
                                         return JsonResponse(data_returned, safe=True)
                                     
                                     else:
+                                        temp = dict()
+
                                         admin_credential_ref = Admin_Credential.objects.get(user_credential_id = int(data[1]))
                                         admin_credential_serialized = Admin_Credential_Serializer(admin_credential_ref, many=False).data
                                         
                                         # key = "self"
                                         temp['admin'] = admin_credential_serialized
 
-                                        many_to_many_ref = Admin_Cred_Admin_Prev_Int.objects.filter(admin_credential_id = temp[key]['admin_credential_id'])
+                                        many_to_many_ref = Admin_Cred_Admin_Prev_Int.objects.filter(admin_credential_id = temp['admin']['admin_credential_id'])
                                         if(len(many_to_many_ref) < 1):
                                             privileges = None
                                         else:
@@ -2143,6 +2229,81 @@ def admin_privilege_API(request):
 
                                 return JsonResponse(data_returned, safe=True)
 
+                        elif(incoming_data["action"].upper() == "EDIT"):
+                            data_returned['action'] += "-"+incoming_data["action"].upper()
+                        
+                            try:
+                                incoming_data = incoming_data['data']
+                                auth.token = incoming_data['hash']
+                                incoming_data = incoming_data['data']
+
+                            except Exception as ex:
+                                data_returned['return'] = False
+                                data_returned['code'] = 402
+                                data_returned['message'] = f"ERROR-Key-{str(ex)}"
+                                return JsonResponse(data_returned, safe=True)
+                    
+                            else:
+                                data = auth.check_authorization("admin", "prime") #admins can change other admins and self change is permitted
+                                
+                                if(data[0] == False):
+                                    data_returned['return'] = False
+                                    data_returned['code'] = 110
+                                    data_returned['message'] = "ERROR-Hash-not ADMIN PRIME"
+                                    return JsonResponse(data_returned, safe=True)
+
+                                else:
+                                    try:
+                                        admin_privilege_ref_self = Admin_Privilege.objects.filter(admin_privilege_id = incoming_data['admin_privilege_id'])
+                                        admin_privilege_ref = Admin_Privilege.objects.filter(admin_privilege_name__contains = incoming_data["admin_privilege_name"].upper())
+                                    
+                                    except Exception as ex:
+                                        data_returned['return'] = False
+                                        data_returned['code'] = 404
+                                        data_returned['message'] = f"ERROR-Ambiguous-{str(ex)}"
+                                        return JsonResponse(data_returned, safe=True)
+
+                                    else:
+                                        if(len(admin_privilege_ref_self) < 1):
+                                            data_returned['return'] = False
+                                            data_returned['code'] = 404
+                                            data_returned['message'] = f"ERROR-Invalid-ADMIN PRIVILEGE id"
+                                            return JsonResponse(data_returned, safe=True)
+                                        
+                                        else:
+                                            admin_privilege_ref_self = admin_privilege_ref_self[0]
+                                        
+                                            if(len(admin_privilege_ref) > 0):
+                                                admin_privilege_ref = admin_privilege_ref[0]
+
+                                                if(admin_privilege_ref_self.admin_privilege_id != admin_privilege_ref_self.admin_privilege_id):
+                                                    data_returned['return'] = False
+                                                    data_returned['code'] = 117
+                                                    data_returned['message'] = 'ERROR-Create-Admin Privilege Name exists'
+                                                    return JsonResponse(data_returned, safe=True)
+                                                
+                                                else:
+                                                    pass
+                                                    
+                                            else:
+                                                pass
+                                    
+                                            admin_privilege_de_serialized = Admin_Privilege_Serializer(admin_privilege_ref_self, data=incoming_data)
+
+                                            if(admin_privilege_de_serialized.is_valid()):
+                                                admin_privilege_de_serialized.save()
+
+                                                data_returned['return'] = True
+                                                data_returned['code'] = 100
+                                            
+                                            else:
+                                                data_returned['return'] = False
+                                                data_returned['code'] = 403
+                                                data_returned['message'] = f"ERROR-Serialize-{admin_privilege_de_serialized.errors}"
+                                                return JsonResponse(data_returned, safe=True)
+                                
+                                return JsonResponse(data_returned, safe=True)
+
                         else:
                             data_returned['return'] = False
                             data_returned['code'] = 403
@@ -2154,7 +2315,7 @@ def admin_privilege_API(request):
                         data_returned['code'] = 404
                         data_returned['message'] = f"ERROR-Ambiguous-{str(ex)}"
                         return JsonResponse(data_returned, safe=True)
-
+    
     else:
         data_returned['return'] = False
         data_returned['code'] = 403
@@ -2262,6 +2423,7 @@ def api_token_web(request, word=None):
                             data_returned['user_name'] = apit.user_name.split()[0]
                             data_returned['type'] = 'logged'.upper()
                             data_returned['api_token'] = apit.user_key_private
+                            data_returned['pinned'] = pinned
                             return cookie.set_authentication_info(request, 'auth_prime/api.html', data_returned, apit.pk)
                     except Exception as ex:
                         print(f"[x] API KEY LOGIN : {str(ex)}")

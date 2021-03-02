@@ -21,7 +21,7 @@ class Submission_Serializer(serializers.ModelSerializer):
             'assignment_id',
             'user_credential_id',
             'submission_name',
-            'submission_body_1',
-            'submission_body_2',
-            'submission_external_url'
+            'submission_body',
+            "submission_external_url_1",
+            "submission_external_url_2"
         )

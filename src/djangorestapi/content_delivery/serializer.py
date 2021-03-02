@@ -94,5 +94,6 @@ class Post_Serializer(serializers.ModelSerializer):
             'post_body',
             'post_views',
             'post_upvote',
-            'post_downvote'
+            'post_downvote',
+            'prime'
         )

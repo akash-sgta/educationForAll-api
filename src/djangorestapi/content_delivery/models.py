@@ -90,7 +90,7 @@ class Assignment(models.Model):
     assignment_external_url = models.URLField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.assignment_id} | {self.asignment_name}"
+        return f"{self.assignment_id} | {self.assignment_name}"
 
 # ----------------------------------------------
 
@@ -108,7 +108,9 @@ class Post(models.Model):
     post_body = models.TextField()
     post_views = models.PositiveBigIntegerField()
     post_upvote = models.IntegerField()
-    pos_downvote = models.IntegerField()
+    post_downvote = models.IntegerField()
+
+    prime = models.BooleanField(default=False, null=False, blank=False)
 
     def __str__(self):
         if(self.user_credential_id == None):
@@ -141,4 +143,4 @@ class Post(models.Model):
         else:
             lecture_id = self.lecture_id.lecture_id
         
-        return f"{self.post_id} | {user_credential_id} | {subject_id} | {video_id} | {forum_id} | {lecture_id} | {assignment_id}"
+        return f"{self.post_id} || {user_credential_id} || {subject_id} || {video_id} || {forum_id} || {lecture_id} || {assignment_id}"

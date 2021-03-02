@@ -1,0 +1,1808 @@
+{
+	"info": {
+		"_postman_id": "ffa9923c-cf45-4844-ac25-b07a7245dcfa",
+		"name": "education-for-all",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "auth_prime",
+			"item": [
+				{
+					"name": "user_credential_api",
+					"item": [
+						{
+							"name": "get",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8000/api/user/user/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"user",
+										"user",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create - signup",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"ydDD80Y3BV9DEMeC3umI2wM2CKoKP8N4Ab07upmfL1EYCNfJhg8WOnTZmu8ROpcy\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"signup\",\r\n        \"data\" : {\r\n            \"data\" : {\r\n                \"user_f_name\" : \"Akash\",\r\n                \"user_m_name\" : null,\r\n                \"user_l_name\" : \"Sengupta\",\r\n                \"user_email\" : \"alphatrionakash@gmail.com\",\r\n                \"user_password\" : \"sengupta\",\r\n                \"user_security_question\" : \"Favourite Buttocks\",\r\n                \"user_security_answer\" : \"Abella Danger\"\r\n            }\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/user/user/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"user",
+										"user",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "signin",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"ydDD80Y3BV9DEMeC3umI2wM2CKoKP8N4Ab07upmfL1EYCNfJhg8WOnTZmu8ROpcy\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"signin\",\r\n        \"data\" : {\r\n            \"data\" : {\r\n                \"user_email\" : \"alphatrionakash@gmail.com\",\r\n                \"user_password\" : \"sengupta\"\r\n            }\r\n\r\n        }\r\n\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/api/user/user/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"api",
+										"user",
+										"user",
+										""
+									]
+								},
+								"description": "SIGNIN"
+							},
+							"response": []
+						},
+						{
+							"name": "signout",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"ydDD80Y3BV9DEMeC3umI2wM2CKoKP8N4Ab07upmfL1EYCNfJhg8WOnTZmu8ROpcy\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"signout\",\r\n        \"data\" : {\r\n            \"hash\": \"A1eCYExM4PIJp0W6HF47KK6G7MAxOySTXNbj1Mt85pXhLbEUeTnpSBQ0eNeLFpXX\",\r\n            \"user_id\" : []\r\n        }\r\n\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/user/user/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"user",
+										"user",
+										""
+									]
+								},
+								"description": "SIGNOUT"
+							},
+							"response": []
+						},
+						{
+							"name": "delete",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"ydDD80Y3BV9DEMeC3umI2wM2CKoKP8N4Ab07upmfL1EYCNfJhg8WOnTZmu8ROpcy\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"delete\",\r\n        \"data\" : {\r\n            \"hash\": \"5XI15zjtwPnwyeeqeiv9thlMiCNvD1vRx9S1Dz2TDjhUtPOfI4zOFmhibOC842yu\",\r\n            \"user_id\" : [\"a\",1,2,3,4,5,12,13]\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/user/user/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"user",
+										"user",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "edit",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"ydDD80Y3BV9DEMeC3umI2wM2CKoKP8N4Ab07upmfL1EYCNfJhg8WOnTZmu8ROpcy\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"edit\",\r\n        \"data\" : {\r\n            \"hash\": \"lfHIqjemCK5PwkvxDHj4vQj1fiq5TfgtaaZ26GY4MSe7eWFGGiFRNTRgcV0kc5Tl\",\r\n            \"data\" : {\r\n                \"user_f_name\" : \"Akash\",\r\n                \"user_m_name\" : null,\r\n                \"user_l_name\" : \"Sengupta\",\r\n                \"user_email\" : \"alphatrionakash@gmail.com\"\r\n            }\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/user/user/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"user",
+										"user",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "read",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"ydDD80Y3BV9DEMeC3umI2wM2CKoKP8N4Ab07upmfL1EYCNfJhg8WOnTZmu8ROpcy\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"read\",\r\n        \"data\" : {\r\n            \"hash\": \"lfHIqjemCK5PwkvxDHj4vQj1fiq5TfgtaaZ26GY4MSe7eWFGGiFRNTRgcV0kc5Tl\",\r\n            \"user_id\" :[1,4,2,\"a\"]\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/user/user/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"user",
+										"user",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "user_profile_api",
+					"item": [
+						{
+							"name": "get",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8000/api/user/profile/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"user",
+										"profile",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"ydDD80Y3BV9DEMeC3umI2wM2CKoKP8N4Ab07upmfL1EYCNfJhg8WOnTZmu8ROpcy\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"create\",\r\n        \"data\" : {\r\n            \"hash\": \"lfHIqjemCK5PwkvxDHj4vQj1fiq5TfgtaaZ26GY4MSe7eWFGGiFRNTRgcV0kc5Tl\",\r\n            \"data\" : {\r\n                \"user_profile_headline\" : \"<b>Python Enthuciast</b> | Retro Music | Problem Solving\",\r\n                \"user_bio\" : \"<p>It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).</p>\",\r\n                \"user_english_efficiency\" : 2,\r\n                \"user_git_profile\" : \"https://github.com/akash-sgta\",\r\n                \"user_likedin_profile\" : \"https://www.linkedin.com/in/akash-sengupta-026a66146/\",\r\n                \"user_roll_number\" : 430117010049,\r\n                \"prime\" : true\r\n            }\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/user/profile/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"user",
+										"profile",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"ydDD80Y3BV9DEMeC3umI2wM2CKoKP8N4Ab07upmfL1EYCNfJhg8WOnTZmu8ROpcy\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"delete\",\r\n        \"data\" : {\r\n            \"hash\": \"lfHIqjemCK5PwkvxDHj4vQj1fiq5TfgtaaZ26GY4MSe7eWFGGiFRNTRgcV0kc5Tl\",\r\n            \"user_id\" : [2,3,4,5,6,\"a\",1]\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/user/profile/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"user",
+										"profile",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "edit",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"ydDD80Y3BV9DEMeC3umI2wM2CKoKP8N4Ab07upmfL1EYCNfJhg8WOnTZmu8ROpcy\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"edit\",\r\n        \"data\" : {\r\n            \"hash\": \"lfHIqjemCK5PwkvxDHj4vQj1fiq5TfgtaaZ26GY4MSe7eWFGGiFRNTRgcV0kc5Tl\",\r\n            \"data\" : {\r\n                \"user_profile_headline\" : \"<b>Python Enthuciast</b> | Retro Music | Problem Solving\",\r\n                \"user_bio\" : \"<p>It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).</p>\",\r\n                \"user_english_efficiency\" : 2,\r\n                \"user_git_profile\" : \"https://github.com/akash-sgta\",\r\n                \"user_likedin_profile\" : \"https://www.linkedin.com/in/akash-sengupta-026a66146/\",\r\n                \"user_profile_pic\" : 1,\r\n                \"user_roll_number\" : null,\r\n                \"prime\" : false\r\n            }\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/user/profile/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"user",
+										"profile",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "read",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"ydDD80Y3BV9DEMeC3umI2wM2CKoKP8N4Ab07upmfL1EYCNfJhg8WOnTZmu8ROpcy\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"read\",\r\n        \"data\" : {\r\n            \"hash\": \"lfHIqjemCK5PwkvxDHj4vQj1fiq5TfgtaaZ26GY4MSe7eWFGGiFRNTRgcV0kc5Tl\",\r\n            \"user_id\" : [1,2,3,4,5,6,\"a\"]\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/user/profile/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"user",
+										"profile",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "image_api_user_profile",
+					"item": [
+						{
+							"name": "get",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8000/api/user/profile/image/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"user",
+										"profile",
+										"image",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "post",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "auth",
+											"value": "ydDD80Y3BV9DEMeC3umI2wM2CKoKP8N4Ab07upmfL1EYCNfJhg8WOnTZmu8ROpcy",
+											"type": "text"
+										},
+										{
+											"key": "image",
+											"type": "file",
+											"src": "/E:/DOWNLOADS/generic_profile_picture.jpg"
+										},
+										{
+											"key": "action",
+											"value": "create",
+											"type": "text"
+										},
+										{
+											"key": "image_id",
+											"value": "3",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/user/profile/image/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"user",
+										"profile",
+										"image",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "admin_credential_api",
+					"item": [
+						{
+							"name": "get",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8000/api/admin/admin/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"admin",
+										"admin",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"ydDD80Y3BV9DEMeC3umI2wM2CKoKP8N4Ab07upmfL1EYCNfJhg8WOnTZmu8ROpcy\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"create\",\r\n        \"data\" : {\r\n            \"hash\": \"lfHIqjemCK5PwkvxDHj4vQj1fiq5TfgtaaZ26GY4MSe7eWFGGiFRNTRgcV0kc5Tl\",\r\n            \"user_id\" : [5]\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/api/admin/admin/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"api",
+										"admin",
+										"admin",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"8jX6Kl2yPRS8kdjd9h14uM15tLxBr5F7ZKv2Bp6eNBa3PYWKvOtoWmZuVvJKznTf\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"delete\",\r\n        \"data\" : {\r\n            \"hash\": \"M8cNY3qBLF6G7aiINCQvhpG3qykwWNrW04LxxIEQVALR1nKtvrK9SZX91zwbeEs6\",\r\n            \"user_id\" : [\"a\",1,2,3,4,5,12,13]\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/admin/admin/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"admin",
+										"admin",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "edit",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"ydDD80Y3BV9DEMeC3umI2wM2CKoKP8N4Ab07upmfL1EYCNfJhg8WOnTZmu8ROpcy\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"edit\",\r\n        \"data\" : {\r\n            \"hash\": \"lfHIqjemCK5PwkvxDHj4vQj1fiq5TfgtaaZ26GY4MSe7eWFGGiFRNTRgcV0kc5Tl\",\r\n            \"updates\" : [\r\n                    {\r\n                        \"admin_id\" : 4,\r\n                        \"privilege_id\" : 2\r\n                    }\r\n                ]\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/api/admin/admin/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"api",
+										"admin",
+										"admin",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "read",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"ydDD80Y3BV9DEMeC3umI2wM2CKoKP8N4Ab07upmfL1EYCNfJhg8WOnTZmu8ROpcy\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"read\",\r\n        \"data\" : {\r\n            \"hash\": \"lfHIqjemCK5PwkvxDHj4vQj1fiq5TfgtaaZ26GY4MSe7eWFGGiFRNTRgcV0kc5Tl\",\r\n            \"user_id\" : [\"a\",1,2,3,4,5,12,13,14,15,0]\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/admin/admin/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"admin",
+										"admin",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "admin_privilege_api",
+					"item": [
+						{
+							"name": "get",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8000/api/admin/privilege/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"admin",
+										"privilege",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"8jX6Kl2yPRS8kdjd9h14uM15tLxBr5F7ZKv2Bp6eNBa3PYWKvOtoWmZuVvJKznTf\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"create\",\r\n        \"data\" : {\r\n            \"hash\": \"M8cNY3qBLF6G7aiINCQvhpG3qykwWNrW04LxxIEQVALR1nKtvrK9SZX91zwbeEs6\",\r\n            \"data\" : {\r\n                \"admin_privilege_name\" : \"PD\",\r\n                \"admin_privilege_description\" : \"Privilege_Description.\"\r\n            }\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/admin/privilege/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"admin",
+										"privilege",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"8jX6Kl2yPRS8kdjd9h14uM15tLxBr5F7ZKv2Bp6eNBa3PYWKvOtoWmZuVvJKznTf\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"delete\",\r\n        \"data\" : {\r\n            \"hash\": \"M8cNY3qBLF6G7aiINCQvhpG3qykwWNrW04LxxIEQVALR1nKtvrK9SZX91zwbeEs6\",\r\n            \"privilege_id\" : [2,3,\"l\",2,2,2,2]\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/admin/privilege/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"admin",
+										"privilege",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "read",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"ydDD80Y3BV9DEMeC3umI2wM2CKoKP8N4Ab07upmfL1EYCNfJhg8WOnTZmu8ROpcy\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"read\",\r\n        \"data\" : {\r\n            \"hash\": \"lfHIqjemCK5PwkvxDHj4vQj1fiq5TfgtaaZ26GY4MSe7eWFGGiFRNTRgcV0kc5Tl\",\r\n            \"privilege_id\" : [2,3,\"l\",1,0]\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/admin/privilege/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"admin",
+										"privilege",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "edit",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"8jX6Kl2yPRS8kdjd9h14uM15tLxBr5F7ZKv2Bp6eNBa3PYWKvOtoWmZuVvJKznTf\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"edit\",\r\n        \"data\" : {\r\n            \"hash\": \"M8cNY3qBLF6G7aiINCQvhpG3qykwWNrW04LxxIEQVALR1nKtvrK9SZX91zwbeEs6\",\r\n            \"data\" : {\r\n                \"admin_privilege_id\" : 1,\r\n                \"admin_privilege_name\" : \"PD\",\r\n                \"admin_privilege_description\" : \"Privilege_Description.\"\r\n            }\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/api/admin/privilege/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"api",
+										"admin",
+										"privilege",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "content_delivery",
+			"item": [
+				{
+					"name": "coordinator_api",
+					"item": [
+						{
+							"name": "get",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8000/api/content/coordinator/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"content",
+										"coordinator",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"ydDD80Y3BV9DEMeC3umI2wM2CKoKP8N4Ab07upmfL1EYCNfJhg8WOnTZmu8ROpcy\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"create\",\r\n        \"data\" : {\r\n            \"hash\": \"lfHIqjemCK5PwkvxDHj4vQj1fiq5TfgtaaZ26GY4MSe7eWFGGiFRNTRgcV0kc5Tl\",\r\n            \"user_id\": [5]\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/api/content/coordinator/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"api",
+										"content",
+										"coordinator",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"8jX6Kl2yPRS8kdjd9h14uM15tLxBr5F7ZKv2Bp6eNBa3PYWKvOtoWmZuVvJKznTf\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"delete\",\r\n        \"data\" : {\r\n            \"hash\": \"M8cNY3qBLF6G7aiINCQvhpG3qykwWNrW04LxxIEQVALR1nKtvrK9SZX91zwbeEs6\",\r\n            \"user_id\": [1,2]\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/content/coordinator/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"content",
+										"coordinator",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "read",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"8jX6Kl2yPRS8kdjd9h14uM15tLxBr5F7ZKv2Bp6eNBa3PYWKvOtoWmZuVvJKznTf\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"read\",\r\n        \"data\" : {\r\n            \"hash\": \"M8cNY3qBLF6G7aiINCQvhpG3qykwWNrW04LxxIEQVALR1nKtvrK9SZX91zwbeEs6\",\r\n            \"user_id\": [0]\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/content/coordinator/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"content",
+										"coordinator",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "edit",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"8jX6Kl2yPRS8kdjd9h14uM15tLxBr5F7ZKv2Bp6eNBa3PYWKvOtoWmZuVvJKznTf\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"edit\",\r\n        \"data\" : {\r\n            \"hash\": \"M8cNY3qBLF6G7aiINCQvhpG3qykwWNrW04LxxIEQVALR1nKtvrK9SZX91zwbeEs6\",\r\n            \"updates\" : [\r\n                {\r\n                    \"coordinator_id\" : \"a\",\r\n                    \"subject_id\" : \"z\"\r\n                },\r\n                {\r\n                    \"coordinator_id\" : 5,\r\n                    \"subject_id\" : 1\r\n                },\r\n                {\r\n                    \"coordinator_id\" : 1,\r\n                    \"subject_id\" : 1\r\n                }\r\n            ]\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/content/coordinator/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"content",
+										"coordinator",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "subject_api",
+					"item": [
+						{
+							"name": "get",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8000/api/content/subject/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"content",
+										"subject",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"8jX6Kl2yPRS8kdjd9h14uM15tLxBr5F7ZKv2Bp6eNBa3PYWKvOtoWmZuVvJKznTf\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"create\",\r\n        \"data\" : {\r\n            \"hash\": \"M8cNY3qBLF6G7aiINCQvhpG3qykwWNrW04LxxIEQVALR1nKtvrK9SZX91zwbeEs6\",\r\n            \"data\" : {\r\n                \"subject_name\" : \"object oriented programming\",\r\n                \"subject_description\" : \"Object-oriented programming (OOP) is a programming paradigm based on the concept of 'objects', which can contain data and code: data in the form of fields (often known as attributes or properties), and code, in the form of procedures (often known as methods).\"\r\n            }\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/content/subject/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"content",
+										"subject",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"8jX6Kl2yPRS8kdjd9h14uM15tLxBr5F7ZKv2Bp6eNBa3PYWKvOtoWmZuVvJKznTf\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"delete\",\r\n        \"data\" : {\r\n            \"hash\": \"M8cNY3qBLF6G7aiINCQvhpG3qykwWNrW04LxxIEQVALR1nKtvrK9SZX91zwbeEs6\",\r\n            \"subject_id\": [1,2]\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/content/subject/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"content",
+										"subject",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "read",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"ydDD80Y3BV9DEMeC3umI2wM2CKoKP8N4Ab07upmfL1EYCNfJhg8WOnTZmu8ROpcy\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"read\",\r\n        \"data\" : {\r\n            \"hash\": \"lfHIqjemCK5PwkvxDHj4vQj1fiq5TfgtaaZ26GY4MSe7eWFGGiFRNTRgcV0kc5Tl\",\r\n            \"subject_id\": [\"a\",1,2]\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/api/content/subject/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"api",
+										"content",
+										"subject",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "edit",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"8jX6Kl2yPRS8kdjd9h14uM15tLxBr5F7ZKv2Bp6eNBa3PYWKvOtoWmZuVvJKznTf\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"create\",\r\n        \"data\" : {\r\n            \"hash\": \"M8cNY3qBLF6G7aiINCQvhpG3qykwWNrW04LxxIEQVALR1nKtvrK9SZX91zwbeEs6\",\r\n            \"data\" : {\r\n                \"subject_id\" : 2,\r\n                \"subject_name\" : \"object oriented programming\",\r\n                \"subject_description\" : \"Object-oriented programming (OOP) is a programming paradigm based on the concept of 'objects', which can contain data and code: data in the form of fields (often known as attributes or properties), and code, in the form of procedures (often known as methods).\"\r\n            }\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/api/content/subject/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"api",
+										"content",
+										"subject",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "forum_api",
+					"item": [
+						{
+							"name": "get",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8000/api/content/forum/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"content",
+										"forum",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"ydDD80Y3BV9DEMeC3umI2wM2CKoKP8N4Ab07upmfL1EYCNfJhg8WOnTZmu8ROpcy\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"create\",\r\n        \"data\" : {\r\n            \"hash\": \"lfHIqjemCK5PwkvxDHj4vQj1fiq5TfgtaaZ26GY4MSe7eWFGGiFRNTRgcV0kc5Tl\",\r\n            \"data\" : {\r\n                \"forum_name\" : \"test\"\r\n            }\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/api/content/forum/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"api",
+										"content",
+										"forum",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "read",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"ydDD80Y3BV9DEMeC3umI2wM2CKoKP8N4Ab07upmfL1EYCNfJhg8WOnTZmu8ROpcy\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"read\",\r\n        \"data\" : {\r\n            \"hash\": \"lfHIqjemCK5PwkvxDHj4vQj1fiq5TfgtaaZ26GY4MSe7eWFGGiFRNTRgcV0kc5Tl\",\r\n            \"forum_id\" : [12,0,1,2,3,4,5,\"a\",6,7]\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/api/content/forum/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"api",
+										"content",
+										"forum",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "edit",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"ydDD80Y3BV9DEMeC3umI2wM2CKoKP8N4Ab07upmfL1EYCNfJhg8WOnTZmu8ROpcy\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"edit\",\r\n        \"data\" : {\r\n            \"hash\": \"lfHIqjemCK5PwkvxDHj4vQj1fiq5TfgtaaZ26GY4MSe7eWFGGiFRNTRgcV0kc5Tl\",\r\n            \"data\" : {\r\n                \"forum_id\" : 1,\r\n                \"forum_name\" : \"teseeeeeeet\"\r\n            }\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/api/content/forum/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"api",
+										"content",
+										"forum",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"ydDD80Y3BV9DEMeC3umI2wM2CKoKP8N4Ab07upmfL1EYCNfJhg8WOnTZmu8ROpcy\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"delete\",\r\n        \"data\" : {\r\n            \"hash\": \"lfHIqjemCK5PwkvxDHj4vQj1fiq5TfgtaaZ26GY4MSe7eWFGGiFRNTRgcV0kc5Tl\",\r\n            \"forum_id\" : [0,1,2,3,4,5,\"a\",6,7]\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/api/content/forum/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"api",
+										"content",
+										"forum",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "reply_api",
+					"item": [
+						{
+							"name": "get",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8000/api/content/reply/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"content",
+										"reply",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"8jX6Kl2yPRS8kdjd9h14uM15tLxBr5F7ZKv2Bp6eNBa3PYWKvOtoWmZuVvJKznTf\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"create\",\r\n        \"data\" : {\r\n            \"hash\": \"M8cNY3qBLF6G7aiINCQvhpG3qykwWNrW04LxxIEQVALR1nKtvrK9SZX91zwbeEs6\",\r\n            \"data\" : {\r\n                \"forum_id\" : 12,\r\n                \"reply_body\" : \"TEST REPLY BODY\"\r\n            }\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/content/reply/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"content",
+										"reply",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "read",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"8jX6Kl2yPRS8kdjd9h14uM15tLxBr5F7ZKv2Bp6eNBa3PYWKvOtoWmZuVvJKznTf\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"read\",\r\n        \"data\" : {\r\n            \"hash\": \"M8cNY3qBLF6G7aiINCQvhpG3qykwWNrW04LxxIEQVALR1nKtvrK9SZX91zwbeEs6\",\r\n            \"reply_id\" : [6,7,8,9]\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/content/reply/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"content",
+										"reply",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"8jX6Kl2yPRS8kdjd9h14uM15tLxBr5F7ZKv2Bp6eNBa3PYWKvOtoWmZuVvJKznTf\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"delete\",\r\n        \"data\" : {\r\n            \"hash\": \"M8cNY3qBLF6G7aiINCQvhpG3qykwWNrW04LxxIEQVALR1nKtvrK9SZX91zwbeEs6\",\r\n            \"reply_id\" : [1,2,3,6,7,7]\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/content/reply/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"content",
+										"reply",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "edit",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"8jX6Kl2yPRS8kdjd9h14uM15tLxBr5F7ZKv2Bp6eNBa3PYWKvOtoWmZuVvJKznTf\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"edit\",\r\n        \"data\" : {\r\n            \"hash\": \"M8cNY3qBLF6G7aiINCQvhpG3qykwWNrW04LxxIEQVALR1nKtvrK9SZX91zwbeEs6\",\r\n            \"data\" : {\r\n                \"reply_id\" : 10,\r\n                \"reply_body\" : \"C___TEST REPLY BODY\"\r\n            }\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/content/reply/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"content",
+										"reply",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "lecture_api",
+					"item": [
+						{
+							"name": "get",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8000/api/content/lecture/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"content",
+										"lecture",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"8jX6Kl2yPRS8kdjd9h14uM15tLxBr5F7ZKv2Bp6eNBa3PYWKvOtoWmZuVvJKznTf\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"create\",\r\n        \"data\" : {\r\n            \"hash\": \"M8cNY3qBLF6G7aiINCQvhpG3qykwWNrW04LxxIEQVALR1nKtvrK9SZX91zwbeEs6\",\r\n            \"data\" : {\r\n                \"lecture_name\" : \"Ulululu\",\r\n                \"lecture_body_1\" : \"Ulululululululululululu\",\r\n                \"lecture_body_2\" : null,\r\n                \"lecture_external_url\" : null\r\n            }\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/content/lecture/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"content",
+										"lecture",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "read",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"8jX6Kl2yPRS8kdjd9h14uM15tLxBr5F7ZKv2Bp6eNBa3PYWKvOtoWmZuVvJKznTf\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"read\",\r\n        \"data\" : {\r\n            \"hash\": \"M8cNY3qBLF6G7aiINCQvhpG3qykwWNrW04LxxIEQVALR1nKtvrK9SZX91zwbeEs6\",\r\n            \"lecture_id\" : [1,\"s\",6,7,8,9]\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/content/lecture/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"content",
+										"lecture",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"8jX6Kl2yPRS8kdjd9h14uM15tLxBr5F7ZKv2Bp6eNBa3PYWKvOtoWmZuVvJKznTf\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"delete\",\r\n        \"data\" : {\r\n            \"hash\": \"M8cNY3qBLF6G7aiINCQvhpG3qykwWNrW04LxxIEQVALR1nKtvrK9SZX91zwbeEs6\",\r\n            \"lecture_id\" : [1,\"s\",6,7,8,9,2,3,4]\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/content/lecture/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"content",
+										"lecture",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "edit",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"ydDD80Y3BV9DEMeC3umI2wM2CKoKP8N4Ab07upmfL1EYCNfJhg8WOnTZmu8ROpcy\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"edit\",\r\n        \"data\" : {\r\n            \"hash\": \"lfHIqjemCK5PwkvxDHj4vQj1fiq5TfgtaaZ26GY4MSe7eWFGGiFRNTRgcV0kc5Tl\",\r\n            \"data\" : {\r\n                \"lecture_id\" : 1,\r\n                \"lecture_name\" : \"Ulululu\",\r\n                \"lecture_body_1\" : \"Ulululululululululululu\",\r\n                \"lecture_body_2\" : null,\r\n                \"lecture_external_url\" : null\r\n            }\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/api/content/lecture/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"api",
+										"content",
+										"lecture",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "assignment_api",
+					"item": [
+						{
+							"name": "get",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8000/api/content/assignment/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"content",
+										"assignment",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"8jX6Kl2yPRS8kdjd9h14uM15tLxBr5F7ZKv2Bp6eNBa3PYWKvOtoWmZuVvJKznTf\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"create\",\r\n        \"data\" : {\r\n            \"hash\": \"M8cNY3qBLF6G7aiINCQvhpG3qykwWNrW04LxxIEQVALR1nKtvrK9SZX91zwbeEs6\",\r\n            \"data\" : {\r\n                \"assignment_name\" : \"Assignent Test\",\r\n                \"assignment_body_1\" : \"Assignent Test Assignent TestAssignent TestAssignent TestAssignent TestAssignent TestAssignent Test\",\r\n                \"assignment_body_2\" : null,\r\n                \"assignment_external_url\" : null\r\n            }\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/content/assignment/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"content",
+										"assignment",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "read",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"ydDD80Y3BV9DEMeC3umI2wM2CKoKP8N4Ab07upmfL1EYCNfJhg8WOnTZmu8ROpcy\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"read\",\r\n        \"data\" : {\r\n            \"hash\": \"lfHIqjemCK5PwkvxDHj4vQj1fiq5TfgtaaZ26GY4MSe7eWFGGiFRNTRgcV0kc5Tl\",\r\n            \"assignment_id\" : [1,\"s\",6,7,8,9]\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/api/content/assignment/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"api",
+										"content",
+										"assignment",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "edit",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"ydDD80Y3BV9DEMeC3umI2wM2CKoKP8N4Ab07upmfL1EYCNfJhg8WOnTZmu8ROpcy\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"edit\",\r\n        \"data\" : {\r\n            \"hash\": \"lfHIqjemCK5PwkvxDHj4vQj1fiq5TfgtaaZ26GY4MSe7eWFGGiFRNTRgcV0kc5Tl\",\r\n            \"data\" : {\r\n                \"assignment_id\" : 2,\r\n                \"assignment_name\" : \"Assignent Test\",\r\n                \"assignment_body_1\" : \"Assignent Test Assignent TestAssignent TestAssignent TestAssignent TestAssignent TestAssignent Test\",\r\n                \"assignment_body_2\" : null,\r\n                \"assignment_external_url\" : null\r\n            }\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/api/content/assignment/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"api",
+										"content",
+										"assignment",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"ydDD80Y3BV9DEMeC3umI2wM2CKoKP8N4Ab07upmfL1EYCNfJhg8WOnTZmu8ROpcy\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"delete\",\r\n        \"data\" : {\r\n            \"hash\": \"lfHIqjemCK5PwkvxDHj4vQj1fiq5TfgtaaZ26GY4MSe7eWFGGiFRNTRgcV0kc5Tl\",\r\n            \"assignment_id\" : [1,\"s\",6,7,8,9]\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/api/content/assignment/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"api",
+										"content",
+										"assignment",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "post_api",
+					"item": [
+						{
+							"name": "get",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8000/api/content/post/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"content",
+										"post",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"ydDD80Y3BV9DEMeC3umI2wM2CKoKP8N4Ab07upmfL1EYCNfJhg8WOnTZmu8ROpcy\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"create\",\r\n        \"data\" : {\r\n            \"hash\": \"lfHIqjemCK5PwkvxDHj4vQj1fiq5TfgtaaZ26GY4MSe7eWFGGiFRNTRgcV0kc5Tl\",\r\n            \"data\" : {\r\n                \"subject_id\" : null,\r\n                \"video_id\" : null,\r\n                \"forum_id\" : null,\r\n                \"lecture_id\" : null,\r\n                \"assignment_id\" : null,\r\n                \"post_name\" : \"New Test Post\",\r\n                \"post_body\" : \"Post body Post body Post body Post body Post body Post body Post body Post body\",\r\n                \"post_views\" : 0,\r\n                \"post_upvote\" : 0,\r\n                \"post_downvote\" : 0\r\n            }\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/content/post/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"content",
+										"post",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "edit",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"ydDD80Y3BV9DEMeC3umI2wM2CKoKP8N4Ab07upmfL1EYCNfJhg8WOnTZmu8ROpcy\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"create\",\r\n        \"data\" : {\r\n            \"hash\": \"lfHIqjemCK5PwkvxDHj4vQj1fiq5TfgtaaZ26GY4MSe7eWFGGiFRNTRgcV0kc5Tl\",\r\n            \"data\" : {\r\n                \"post_id\" : 2,\r\n                \"subject_id\" : null,\r\n                \"video_id\" : null,\r\n                \"forum_id\" : null,\r\n                \"lecture_id\" : null,\r\n                \"assignment_id\" : null,\r\n                \"post_name\" : \"New Test Post\",\r\n                \"post_body\" : \"Post body Post body Post body Post body Post body Post body Post body Post body\",\r\n                \"post_views\" : 0,\r\n                \"post_upvote\" : 0,\r\n                \"post_downvote\" : 0\r\n            }\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/api/content/post/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"api",
+										"content",
+										"post",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "read",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"ydDD80Y3BV9DEMeC3umI2wM2CKoKP8N4Ab07upmfL1EYCNfJhg8WOnTZmu8ROpcy\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"read\",\r\n        \"data\" : {\r\n            \"hash\": \"lfHIqjemCK5PwkvxDHj4vQj1fiq5TfgtaaZ26GY4MSe7eWFGGiFRNTRgcV0kc5Tl\",\r\n            \"post_id\" : [1,\"s\",6,7,8,9]\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/api/content/post/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"api",
+										"content",
+										"post",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"ydDD80Y3BV9DEMeC3umI2wM2CKoKP8N4Ab07upmfL1EYCNfJhg8WOnTZmu8ROpcy\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"delete\",\r\n        \"data\" : {\r\n            \"hash\": \"lfHIqjemCK5PwkvxDHj4vQj1fiq5TfgtaaZ26GY4MSe7eWFGGiFRNTRgcV0kc5Tl\",\r\n            \"post_id\" : [1,\"s\",6,7,8,9]\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/api/content/post/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"api",
+										"content",
+										"post",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "json",
+			"value": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"8jX6Kl2yPRS8kdjd9h14uM15tLxBr5F7ZKv2Bp6eNBa3PYWKvOtoWmZuVvJKznTf\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"create\",\r\n        \"data\" : {\r\n            \"hash\": \"M8cNY3qBLF6G7aiINCQvhpG3qykwWNrW04LxxIEQVALR1nKtvrK9SZX91zwbeEs6\",\r\n            \"data\" : {\r\n                \"lecture_name\" : \"Ulululu\",\r\n                \"lecture_body_1\" : \"Ulululululululululululu\",\r\n                \"lecture_body_2\" : null,\r\n                \"lecture_external_url\" : null\r\n            }\r\n        }\r\n    }\r\n}"
+		}
+	]
+}
