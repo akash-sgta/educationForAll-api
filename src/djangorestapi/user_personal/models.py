@@ -14,6 +14,8 @@ class Diary(models.Model):
     diary_name = models.CharField(max_length=512)
     diary_body = models.TextField()
 
+    made_date = models.CharField(default="-", max_length=16)
+
     def __str__(self):
         if(self.post_id == None):
             post_id = 'NULL'
@@ -33,6 +35,8 @@ class Submission(models.Model):
     
     submission_external_url_1 = models.URLField(null=True, blank=True)
     submission_external_url_2 = models.URLField(null=True, blank=True)
+
+    made_date = models.CharField(default="-", max_length=16)
 
     def __str__(self):
         return f"{self.submission_id} || {self.assignment_id} || {self.user_credential_id}"
