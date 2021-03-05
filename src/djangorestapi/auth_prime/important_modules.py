@@ -16,7 +16,7 @@ def TRUE_CALL(data=None, message=None):
         return {"return" : True, "code" : 100}
 
 # invalid GET method
-def GET_INVALID(data):
+def GET_INVALID(data=None):
     return {"return" : False, "code" : 403, "message" : 'ERROR-Invalid-GET Not supported'}
 
 # JSONParser error

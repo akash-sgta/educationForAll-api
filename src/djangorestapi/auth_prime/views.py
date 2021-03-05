@@ -162,7 +162,7 @@ def user_credential_API(request):
     data_returned = dict()
 
     if(request.method.upper() == 'GET'):
-        return JsonResponse(GET_INVALID, safe=True)
+        return JsonResponse(GET_INVALID(), safe=True)
 
     elif(request.method.upper() == 'POST'):
         data_returned['action'] = request.method.upper()
@@ -198,7 +198,7 @@ def user_credential_API(request):
                             
                             try:
                                 incoming_data = incoming_data["data"]
-                                user_credential_de_serialized = User_Credential_Serializer(data = incoming_data["data"])
+                                user_credential_de_serialized = User_Credential_Serializer(data = incoming_data)
                             
                             except Exception as ex:
                                 return JsonResponse(MISSING_KEY(ex), safe=True)
