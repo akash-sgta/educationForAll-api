@@ -197,7 +197,7 @@ def user_credential_API(request):
                             data_returned['action'] += "-"+incoming_data["action"].upper()
                             
                             try:
-                                incoming_data = incoming_data["data"]
+                                incoming_data = incoming_data["data"]['data']
                                 user_credential_de_serialized = User_Credential_Serializer(data = incoming_data)
                             
                             except Exception as ex:

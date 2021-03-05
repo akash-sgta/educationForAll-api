@@ -25,7 +25,7 @@ class Authorize_Prime(object):
     @user_email.setter
     def user_email(self, data):
         import re
-        PATTERN = r'^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
+        PATTERN = r'^[a-zA-Z0-9]+[\._]?[a-zA-Z0-9]+[@]\w+[.]\w{2,}$'
         if(re.search(PATTERN, data)):
             self._user_email = data
         else:
