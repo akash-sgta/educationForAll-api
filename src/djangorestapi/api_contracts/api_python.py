@@ -103,7 +103,7 @@ class Jass_Education(Jass_Education_Prime):
         super().__init__(key, url, port)
         self.__action = {
             'GET' : None,
-            'POST' : ('SIGNUP', 'SIGNIN', 'LOGIN', 'SIGNOUT', 'LOGOUT', 'DELETE', 'EDIT', 'READ')
+            'POST' : ('SIGNUP', 'SIGNIN', 'LOGIN', 'SIGNOUT', 'LOGOUT', 'DELETE', 'EDIT', 'READ', 'CREATE')
             }
 
     # ----------------------------------------------------
@@ -365,7 +365,260 @@ class Jass_Education(Jass_Education_Prime):
                 return get()
             elif(action.upper() == 'POST'):
                 return post()
-                
+
+    @overrides
+    def user_profile_api(self, action = None, action_sub = None, data = None):
+
+        url = self.url_join(self.url, 'api', 'user', 'profile')
+
+        def get():
+            try:
+                data = self.REQUEST.get(url = url)
+            except:
+                return (False, "Something went wrong. Try again later !")
+            else:
+                return (True, (data.status_code, data.json()))
+        
+        def post():
+
+            # ----------------------------------------------------
+
+            def create(api = None):
+                if(api == None):
+                    return (False, "API credentials not filled")
+                else:
+                    if(data == None):
+                        return (False, "Data not filled")
+                    else:
+                        ACTION = "create"
+                        KEYS = ("user_profile_headline", "user_bio", "user_english_efficiency", "user_git_profile", "user_likedin_profile", "user_roll_number", "prime")
+                        try:
+                            incoming_keys = data['data'].keys()
+                            for key in KEYS:
+                                if(key not in incoming_keys):
+                                    return (False, f"Key not provided => {key}")
+                                else:
+                                    pass
+                            
+                            posting = {
+                                "api" : api,
+                                "data" : {
+                                    "action" : ACTION,
+                                    "data" : data
+                                }
+                            }
+                            posting = json.dumps(posting)
+                            post_data = self.REQUEST.post(url = url, data = posting)
+                        
+                        except Exception as ex:
+                            return (False, f"EX => {ex}")
+                        
+                        else:
+                            return (True, (post_data.status_code, post_data.json()))
+
+            def delete(api = None):
+                if(api == None):
+                    return (False, "API credentials not filled")
+                else:
+                    if(data == None):
+                        return (False, "Data not filled")
+                    else:
+                        ACTION = "delete"
+                        KEYS = ("hash", "user_id")
+                        try:
+                            incoming_keys = data.keys()
+                            for key in KEYS[:-1]:
+                                if(key not in incoming_keys):
+                                    return (False, f"Key not provided => {key}")
+                                else:
+                                    pass
+                            
+                            posting = {
+                                "api" : api,
+                                "data" : {
+                                    "action" : ACTION,
+                                    "data" : data
+                                }
+                            }
+                            posting = json.dumps(posting)
+                            post_data = self.REQUEST.post(url = url, data = posting)
+                        
+                        except Exception as ex:
+                            return (False, f"EX => {ex}")
+                        
+                        else:
+                            return (True, (post_data.status_code, post_data.json()))
+
+            def edit(api = None):
+                if(api == None):
+                    return (False, "API credentials not filled")
+                else:
+                    if(data == None):
+                        return (False, "Data not filled")
+                    else:
+                        ACTION = "edit"
+                        KEYS = ("hash", "user_id")
+                        try:
+                            incoming_keys = data.keys()
+                            for key in KEYS[:-1]:
+                                if(key not in incoming_keys):
+                                    return (False, f"Key not provided => {key}")
+                                else:
+                                    pass
+                            
+                            posting = {
+                                "api" : api,
+                                "data" : {
+                                    "action" : ACTION,
+                                    "data" : data
+                                }
+                            }
+                            posting = json.dumps(posting)
+                            post_data = self.REQUEST.post(url = url, data = posting)
+                        
+                        except Exception as ex:
+                            return (False, f"EX => {ex}")
+                        
+                        else:
+                            return (True, (post_data.status_code, post_data.json()))
+
+            def read(api = None):
+                if(api == None):
+                    return (False, "API credentials not filled")
+                else:
+                    if(data == None):
+                        return (False, "Data not filled")
+                    else:
+                        ACTION = "read"
+                        KEYS = ("hash", "user_id")
+                        try:
+                            incoming_keys = data.keys()
+                            for key in KEYS[:-1]:
+                                if(key not in incoming_keys):
+                                    return (False, f"Key not provided => {key}")
+                                else:
+                                    pass
+                            
+                            posting = {
+                                "api" : api,
+                                "data" : {
+                                    "action" : ACTION,
+                                    "data" : data
+                                }
+                            }
+                            posting = json.dumps(posting)
+                            post_data = self.REQUEST.post(url = url, data = posting)
+                        
+                        except Exception as ex:
+                            return (False, f"EX => {ex}")
+                        
+                        else:
+                            return (True, (post_data.status_code, post_data.json()))
+
+            # ----------------------------------------------------
+
+            if(action_sub not in self.action['POST']):
+                return (False, "Invalid action_sub")
+            else:
+                api = {
+                    "version" : self.api_version,
+                    "auth" : self.api_key
+                }
+                if(action_sub.upper() == self.action['POST'][8]):
+                    return create(api = api)
+                elif(action_sub.upper() == self.action['POST'][5]):
+                    return delete(api = api)
+                elif(action_sub.upper() == self.action['POST'][6]):
+                    return edit(api = api)
+                elif(action_sub.upper() == self.action['POST'][7]):
+                    return read(api = api)
+                else:
+                    return (False, "Invalid action_sub")
+
+
+        if(action not in self.action.keys()):
+            return (False, "Invalid action")
+        else:
+            if(action.upper() == 'GET'):
+                return get()
+            elif(action.upper() == 'POST'):
+                return post()                
+
+    @overrides
+    def image_api(self, action = None, action_sub = None, data = None, file = None):
+        
+        url = self.url_join(self.url, 'api', 'user', 'profile', 'image')
+
+        def get():
+            try:
+                data = self.REQUEST.get(url = url)
+            except:
+                return (False, "Something went wrong. Try again later !")
+            else:
+                return (True, (data.status_code, data.json()))
+        
+        def post():
+
+            # ----------------------------------------------------
+
+            def create():
+                if(file == None):
+                    return (False, "File not filled")
+                else:
+                    ACTION = "create"
+                    try:
+                        posting = {
+                            "auth" : self.api_key,
+                            "action" : ACTION
+                        }
+                        # posting = json.dumps(posting)
+                        post_data = self.REQUEST.post(url = url, files = file, data = posting)
+                        
+                    except Exception as ex:
+                        return (False, f"EX => {ex}")
+                        
+                    else:
+                        return (True, (post_data.status_code, post_data.json()))
+
+            def delete():
+                if(data == None):
+                    return (False, "Data not filled")
+                else:
+                    ACTION = "delete"
+                    try:
+                        posting = {
+                            "auth" : self.api_key,
+                            "action" : ACTION,
+                            "image_id" : int(data)
+                        }
+                        # posting = json.dumps(posting)
+                        post_data = self.REQUEST.post(url = url, data = posting)
+                        
+                    except Exception as ex:
+                        return (False, f"EX => {ex}")
+                        
+                    else:
+                        return (True, (post_data.status_code, post_data.json()))
+            
+            # ----------------------------------------------------
+
+            if(action_sub not in self.action['POST']):
+                return (False, "Invalid action_sub")
+            else:
+                if(action_sub.upper() == self.action['POST'][8]):
+                    return create()
+                elif(action_sub.upper() == self.action['POST'][5]):
+                    return delete()
+                else:
+                    return (False, "Invalid action_sub")
+
+        if(action not in self.action.keys()):
+            return (False, "Invalid action")
+        else:
+            if(action.upper() == 'GET'):
+                return get()
+            elif(action.upper() == 'POST'):
+                return post()
 
 if __name__ == "__main__":
 
@@ -374,14 +627,16 @@ if __name__ == "__main__":
     else:
         system('clear')
 
-    JE = Jass_Education()
-    JE.api_key = 'QRqWCH1NifWNVLcbcvpTBmVqve6gMlmWvhpsY0OPKBqbnYDXpvdDRLfRnzY1GYWj'
-    JE.url = 'localhost'
+    JE = Jass_Education(key = 'QRqWCH1NifWNVLcbcvpTBmVqve6gMlmWvhpsY0OPKBqbnYDXpvdDRLfRnzY1GYWj', url='localhost')
+    # JE.api_key = 'QRqWCH1NifWNVLcbcvpTBmVqve6gMlmWvhpsY0OPKBqbnYDXpvdDRLfRnzY1GYWj'
+    # JE.url = 'localhost'
 
     # checking if server is live
     data = JE.check_server()
     if((data[0] == True) and (data[1][0] == 200)):
         print(data[1][1])
+
+        #------------------------UserCredential---------------------------------------
 
         # action GET
         if(False):
@@ -480,6 +735,106 @@ if __name__ == "__main__":
             }
             data = JE.user_credential_api(action = 'POST', action_sub = 'READ', data = temp)
 
+        #------------------------UserProfile---------------------------------------
+
+        # action GET
+        if(False):
+            data = JE.user_profile_api(action = 'GET')
+
+        # action POST => create
+        if(False):
+            HASH = "tJayfU218GEgal1M8E6sbluJwjCJbDRyBFdA6TTNUbvUMPFYZYKh4RwiPJOkivdL"
+            temp = {
+                "user_profile_headline" : "<b>Python Enthuciast</b> | Retro Music | Problem Solving",
+                "user_bio" : "<p>It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).</p>",
+                "user_english_efficiency" : 2,
+                "user_git_profile" : None,
+                "user_likedin_profile" : None,
+                "user_roll_number" : None,
+                "prime" : False
+            }
+            temp = {
+                "hash" : HASH,
+                "data" : temp
+            }
+            data = JE.user_profile_api(action = 'POST', action_sub = 'CREATE', data = temp)
+
+        # action POST => delete as ADMIN
+        if(False):
+            HASH = "tJayfU218GEgal1M8E6sbluJwjCJbDRyBFdA6TTNUbvUMPFYZYKh4RwiPJOkivdL"
+            temp = {
+                "hash" : f"{HASH}",
+                "user_id" : [2,2,2],
+            }
+            data = JE.user_profile_api(action = 'POST', action_sub = 'DELETE', data = temp)
+
+        # action POST => delete as USER
+        if(False):
+            HASH = "tJayfU218GEgal1M8E6sbluJwjCJbDRyBFdA6TTNUbvUMPFYZYKh4RwiPJOkivdL"
+            temp = {
+                "hash" : f"{HASH}",
+            }
+            data = JE.user_profile_api(action = 'POST', action_sub = 'DELETE', data = temp)
+
+        # action POST => read other as USER
+        if(False):
+            HASH = "tJayfU218GEgal1M8E6sbluJwjCJbDRyBFdA6TTNUbvUMPFYZYKh4RwiPJOkivdL"
+            temp = {
+                "hash" : f"{HASH}",
+                "user_id" : ["a",2,28,2,0],
+            }
+            data = JE.user_profile_api(action = 'POST', action_sub = 'READ', data = temp)
+
+        # action POST => read SELF as USER
+        if(False):
+            HASH = "tJayfU218GEgal1M8E6sbluJwjCJbDRyBFdA6TTNUbvUMPFYZYKh4RwiPJOkivdL"
+            temp = {
+                "hash" : f"{HASH}",
+            }
+            data = JE.user_profile_api(action = 'POST', action_sub = 'READ', data = temp)
+
+        # action POST => edit
+        if(False):
+            HASH = "tJayfU218GEgal1M8E6sbluJwjCJbDRyBFdA6TTNUbvUMPFYZYKh4RwiPJOkivdL"
+            temp = {
+                "user_profile_headline" : "<b>Python Enthuciast</b> | Retro Music | Problem Solving",
+                "user_bio" : "<p>It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).</p>",
+                "user_english_efficiency" : 2,
+                "user_git_profile" : None,
+                "user_likedin_profile" : None,
+                "user_roll_number" : 123415654845,
+                "prime" : True
+            }
+            temp = {
+                "hash" : HASH,
+                "data" : temp
+            }
+            data = JE.user_profile_api(action = 'POST', action_sub = 'EDIT', data = temp)
+
+        #------------------------Image---------------------------------------
+
+        # action GET
+        if(False):
+            data = JE.image_api(action = 'GET')
+        
+        # action POST => create
+        if(False):
+            try:
+                image_name = 'WIN_20201124_17_39_56_Pro.jpg'
+                image = open(image_name, 'rb')
+                FILES = {'image' : (image_name, image, 'image/jpeg', {'Expires': '0'})}
+            except:
+                data = (False, "Check image file")
+            else:
+                data = JE.image_api(action = 'POST', action_sub = 'CREATE', file = FILES)
+                image.close()
+        
+        # action POST => delete
+        if(False):
+            image_id = 13
+            data = JE.image_api(action = 'POST', action_sub = 'DELETE', data = image_id)
+
+        #--------------------------------------------------------------------------
 
         if(True):
             if((data[0] == True) and (data[1][0] == 200)):

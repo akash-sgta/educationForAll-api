@@ -54,6 +54,7 @@ def image_API(request):
             return False, "Value-No api auth token found"
         
         else:
+            # print(request.POST)
             auth = request.POST.get('auth')
             api_token_ref = Api_Token_Table.objects.filter(user_key_private = auth)
             if(len(api_token_ref) < 1):
@@ -65,7 +66,9 @@ def image_API(request):
                     return False, "Value-No files found"
                 else:
                     image_file = request.FILES['image']
+                    # print(image_file)
                     if(str(image_file.content_type).startswith("image")):
+                        # print(str(image_file.content_type))
                         if(image_file.size < 5000000):
                             if not os.path.exists('uploads/images'):
                                 os.makedirs('uploads/images')
@@ -82,6 +85,7 @@ def image_API(request):
                         else:
                             return False, "Size-Image size should be less than 5mb"
                     else:
+                        # print(str(image_file.content_type))
                         return False, "Format-POST file should be Image"
 
     def delete_it(request):
@@ -197,7 +201,8 @@ def user_credential_API(request):
                             data_returned['action'] += "-"+incoming_data["action"].upper()
                             
                             try:
-                                incoming_data = incoming_data["data"]['data']
+                                incoming_data = incoming_data["data"]
+                                incoming_data = incoming_data["data"]
                                 user_credential_de_serialized = User_Credential_Serializer(data = incoming_data)
                             
                             except Exception as ex:
@@ -248,7 +253,8 @@ def user_credential_API(request):
                             data_returned['action'] += "-"+incoming_data["action"].upper()
 
                             try:
-                                incoming_data = incoming_data['data']['data']
+                                incoming_data = incoming_data['data']
+                                incoming_data = incoming_data['data']
                                 auth.user_email = incoming_data['user_email'].lower()
                                 auth.user_password = incoming_data['user_password']
 
@@ -812,7 +818,7 @@ def user_profile_API(request):
                                                 and (user_profile_de_serialized.initial_data["prime"] == True)): # if student then roll number required
                                                     if(("user_roll_number" in user_profile_de_serialized.initial_data.keys())
                                                     and (user_profile_de_serialized.initial_data["user_roll_number"] in (None, ""))):
-                                                        return JsonResponse(MISSING_KEY(402, "Key-Student profile required roll number"), safe=True)
+                                                        return JsonResponse(MISSING_KEY("Key-Student profile required roll number"), safe=True)
                             
                                                 user_profile_de_serialized.initial_data["user_profile_id"] = self_user_profile_ref.user_profile_id
                                                 
@@ -868,7 +874,7 @@ def user_profile_API(request):
                                                         
                                                     else:
                                                         user_profile_serialized = User_Profile_Serializer(user_profile_ref, many=True).data
-
+                                                        data_returned['data'][0] = dict()
                                                         for user in user_profile_serialized:
                                                             key = int(user['user_profile_id'])
 
@@ -876,8 +882,10 @@ def user_profile_API(request):
                                                                 user['user_profile_pic'] = None
                                                             else:
                                                                 user['user_profile_pic'] = Image.objects.get(image_id = int(user['user_profile_pic'])).image_url
+                                                            
+                                                            data_returned['data'][0][key] = user
                                                         
-                                                        data_returned['data'][0] = TRUE_CALL(data = user)
+                                                        # data_returned['data'][0] = TRUE_CALL(data = user)
 
                                                 else: # individual id_profile fetch
                                                     for id in user_ids:
