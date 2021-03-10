@@ -121,6 +121,7 @@ class Api_Token_Table(models.Model):
     user_password = models.CharField(max_length=256, null=False, blank=False)
 
     user_key_private = models.CharField(max_length=256, null=False, blank=False)
+    api_endpoint = models.PositiveSmallIntegerField(choices=((1,"Web Development"), (2,"Android App Development"), (3,"Apple App Development"), (4,"Windows Software Development"), (5,"Linux Software Development"), (6,"Others")), default=1)
 
     def __str__(self):
         return f'{self.user_name} | {self.user_email}'

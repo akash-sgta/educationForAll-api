@@ -31,8 +31,8 @@ urlpatterns = [
 
     url(r'^checkserver/', views.check_server_status, name="CHECK_SERVER_STATUS"),
 
-    # url(r'^media/(?P<path>.*)$', serve,{'document_root': settings.MEDIA_ROOT}),
-    # url(r'^static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT})
+    url(r'^media/(?P<path>.*)$', serve,{'document_root': settings.MEDIA_ROOT}, name="MEDIA_SERVE"),
+    url(r'^static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT}, name="STATIC_SERVE"),
 ]
 
 # urlpatterns += url(r'^media/(?P<path>.*)$', serve,{'document_root': settings.MEDIA_ROOT})

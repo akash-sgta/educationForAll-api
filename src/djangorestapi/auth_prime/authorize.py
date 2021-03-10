@@ -25,7 +25,7 @@ class Authorize_Prime(object):
     @user_email.setter
     def user_email(self, data):
         import re
-        PATTERN = r'^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
+        PATTERN = r'^[a-zA-Z0-9]+[\._]?[a-zA-Z0-9]+[@]\w+[.]\w{2,}$'
         if(re.search(PATTERN, data)):
             self._user_email = data
         else:
@@ -189,7 +189,22 @@ class Authorize(Authorize_Prime):
 
     
     def check_authorization(self, key_1=None, key_2=None, api_check=False):
-        from auth_prime.models import Admin_Credential, User_Credential, Api_Token_Table
+        from auth_prime.models import Admin_Credential
+        from auth_prime.models import Admin_Privilege
+        from auth_prime.models import Admin_Cred_Admin_Prev_Int
+
+        from auth_prime.models import User_Credential
+        from auth_prime.models import Api_Token_Table
+
+        def logger(api_key, message=None):
+            try:
+                import logging
+                logging.basicConfig(format='%(asctime)s -- %(message)s')
+                logging.warning(f"API : {api_key} | {message}")
+            except Exception:
+                return False
+            else:
+                return True
 
         if(api_check == False):
             data = self.check_token()
@@ -209,17 +224,50 @@ class Authorize(Authorize_Prime):
                         user_credential_ref = User_Credential.objects.get(user_credential_id = int(data['data']))
                         admin_credential_ref = Admin_Credential.objects.filter(user_credential_id = user_credential_ref)
                         if(len(admin_credential_ref) > 0):
+                            admin_credential_ref = admin_credential_ref[0]
 
                             if(key_2 != None and key_2.upper() == "PRIME"):
                                 # hash - true
                                 # user is admin - true
-                                admin_credential_ref = admin_credential_ref[0]
                                 if(admin_credential_ref.prime == True):
                                     rdata = (True, int(data['data'])) # sending back hash related user data
                                 else:
                                     message = "ADMIN not PRIME."
                                     print("[x] CHECK_TOKEN_ADMIN - {}".format(message))
                                     rdata = (False, message)
+                            
+                            elif(key_2 != None and key_2.upper() == 'ALPHA'):
+                                admin_privilege_ref = Admin_Privilege.objects.filter(admin_privilege_name__icontains = 'ALPHA')
+
+                                if(len(admin_privilege_ref) < 1):
+                                    rdata = (False, "AdminPriv-ALPHA not found")
+                                        
+                                else:
+                                    admin_privilege_ref = admin_privilege_ref[0]
+                                    many_to_many = Admin_Cred_Admin_Prev_Int.objects.filter(admin_privilege_id = admin_privilege_ref.admin_privilege_id,
+                                                                                            admin_credential_id = admin_credential_ref.admin_credential_id)
+                                            
+                                    if(len(many_to_many) < 1):
+                                        rdata = (False, "Pair-Admin Credential<+>Admin Privilege not found")
+                                    else:
+                                        rdata = (True, int(data['data'])) # sending back hash related user data
+                            
+                            elif(key_2 != None and key_2.upper() == 'CAGP'):
+                                admin_privilege_ref = Admin_Privilege.objects.filter(admin_privilege_name__contains = 'CAGP') # for COPG privilege exists
+                                    
+                                if(len(admin_privilege_ref) < 1):
+                                    rdata = (False, 'NotFound-CAGP privilege')
+                                    
+                                else:
+                                    admin_privilege_ref = admin_privilege_ref[0]
+                                    many_to_many_ref = Admin_Cred_Admin_Prev_Int.objects.filter(admin_credential_id = admin_credential_ref.admin_credential_id,
+                                                                                                admin_privilege_id = admin_privilege_ref.admin_privilege_id) # for the hash admin has the privilege
+                                        
+                                    if(len(many_to_many_ref) < 1):
+                                        rdata = (False, "Pair-Not Found Admin Credential<=>Admin PRIVILEGE")
+
+                                    else:
+                                        rdata = (True, int(data['data'])) # sending back hash related user data
 
                             else:
                                 # hash - true
@@ -251,13 +299,13 @@ class Authorize(Authorize_Prime):
                         if(len(api_ref) < 1):
                             rdata = (False, "Invalid API AUTH TOKEN")
                         else:
+                            # print("LOGGER : ",logger(api_key = self.api_auth, message = api_ref[0].user_name))
                             rdata = (True, 1)
                 except Exception as ex:
                     rdata = (False, str(ex))
             
             return rdata
 
-    
     def sanction_authorization(self):
 
         data = self.create_token()
@@ -349,7 +397,7 @@ class Cookie(object):
         else:
             return hashd
     # ------------------------------------------
-    def set_authentication_info(self, request, file_path=None, data=None, pk=None):
+    def set_authentication_info(self, request=None, file_path=None, data=None, pk=None):
         
         try:
             if((file_path==None) or (data==None) or (pk==None)):
@@ -411,5 +459,3 @@ class Cookie(object):
         except Exception as ex:
             print(f"[x] CHECK AUTH Ex : {str(ex)}")
             return False
-
-

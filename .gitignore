@@ -135,3 +135,4 @@ development.py
 .vscode
 staticfiles/
 root/
+media/

@@ -32,7 +32,8 @@ class Video_Serializer(serializers.ModelSerializer):
         fields = (
             'video_id',
             'video_name',
-            'video_url'
+            'video_url',
+            'made_date'
         )
 
 class Forum_Serializer(serializers.ModelSerializer):
@@ -40,7 +41,8 @@ class Forum_Serializer(serializers.ModelSerializer):
         model = Forum
         fields = (
             'forum_id',
-            'forum_name'
+            'forum_name',
+            'made_date'
         )
 
 class Reply_Serializer(serializers.ModelSerializer):
@@ -52,7 +54,8 @@ class Reply_Serializer(serializers.ModelSerializer):
             'user_credential_id',
             'reply_body',
             'reply_upvote',
-            'reply_downvote'
+            'reply_downvote',
+            'made_date'
         )
 
 class Lecture_Serializer(serializers.ModelSerializer):
@@ -61,9 +64,10 @@ class Lecture_Serializer(serializers.ModelSerializer):
         fields = (
             'lecture_id',
             'lecture_name',
-            'lecture_body_1',
-            'lecture_body_2',
-            'lecture_external_url'
+            'lecture_body',
+            'lecture_external_url_1',
+            'lecture_external_url_2',
+            'made_date'
         )
 
 class Assignment_Serializer(serializers.ModelSerializer):
@@ -72,9 +76,10 @@ class Assignment_Serializer(serializers.ModelSerializer):
         fields = (
             'assignment_id',
             'assignment_name',
-            'assignment_body_1',
-            'assignment_body_2',
-            'assignment_external_url'
+            'assignment_body',
+            'assignment_external_url_1',
+            'assignment_external_url_2',
+            'made_date'
         )
 
 # ----------------------------------------------
@@ -94,5 +99,7 @@ class Post_Serializer(serializers.ModelSerializer):
             'post_body',
             'post_views',
             'post_upvote',
-            'post_downvote'
+            'post_downvote',
+            'prime',
+            'made_date'
         )

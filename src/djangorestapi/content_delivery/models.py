@@ -35,13 +35,15 @@ class Subject_Coordinator_Int(models.Model):
     def __str__(self):
         return f"{self.subject_id} || {self.coordinator_id}"
 
-# ----------------------------------------------
+# --------------------------------------------------------------------------------------------
 
 class Video(models.Model):
     video_id = models.AutoField(primary_key=True, null=False, blank=False, unique=True)
 
     video_name = models.CharField(max_length=512, null=False, blank=False)
     video_url = models.URLField(max_length=1024, null=False, blank=False)
+
+    made_date = models.CharField(default="-", max_length=16)
 
     def __str__(self):
         return f"{self.video_id} | {self.video_name}"
@@ -50,6 +52,8 @@ class Forum(models.Model):
     forum_id = models.AutoField(primary_key=True, null=False, blank=False, unique=True)
 
     forum_name = models.CharField(max_length=512, null=False, blank=False)
+
+    made_date = models.CharField(default="-", max_length=16)
 
     def __str__(self):
         return f"{self.forum_id} | {self.forum_name}"
@@ -64,6 +68,8 @@ class Reply(models.Model):
     reply_upvote = models.IntegerField(null=True, blank=True)
     reply_downvote = models.IntegerField(null=True, blank=True)
 
+    made_date = models.CharField(default="-", max_length=16)
+
     def __str__(self):
         if(self.user_credential_id == None):
             return f"{self.reply_id} | {self.forum_id.forum_name} | NULL"
@@ -74,9 +80,11 @@ class Lecture(models.Model):
     lecture_id = models.AutoField(primary_key=True, null=False, blank=False, unique=True)
 
     lecture_name = models.CharField(max_length=512, null=False, blank=False)
-    lecture_body_1 = models.TextField(default="", null=False, blank=False)
-    lecture_body_2 = models.TextField(null=True, blank=True)
-    lecture_external_url = models.URLField(null=True, blank=True)
+    lecture_body = models.TextField(default="", null=False, blank=False)
+    lecture_external_url_1 = models.URLField(null=True, blank=True)
+    lecture_external_url_2 = models.URLField(null=True, blank=True)
+
+    made_date = models.CharField(default="-", max_length=16)
 
     def __str__(self):
         return f"{self.lecture_id} | {self.lecture_name}"
@@ -85,14 +93,16 @@ class Assignment(models.Model):
     assignment_id = models.AutoField(primary_key=True, null=False, blank=False, unique=True)
 
     assignment_name = models.CharField(max_length=512)
-    assignment_body_1 = models.TextField(null=False, blank=False)
-    assignment_body_2 = models.TextField(null=True, blank=True)
-    assignment_external_url = models.URLField(null=True, blank=True)
+    assignment_body = models.TextField(null=False, blank=False)
+    assignment_external_url_1 = models.URLField(null=True, blank=True)
+    assignment_external_url_2 = models.URLField(null=True, blank=True)
+
+    made_date = models.CharField(default="-", max_length=16)
 
     def __str__(self):
-        return f"{self.assignment_id} | {self.asignment_name}"
+        return f"{self.assignment_id} | {self.assignment_name}"
 
-# ----------------------------------------------
+# --------------------------------------------------------------------------------------------
 
 class Post(models.Model):
     post_id = models.AutoField(primary_key=True, null=False, blank=False, unique=True)
@@ -108,7 +118,11 @@ class Post(models.Model):
     post_body = models.TextField()
     post_views = models.PositiveBigIntegerField()
     post_upvote = models.IntegerField()
-    pos_downvote = models.IntegerField()
+    post_downvote = models.IntegerField()
+
+    made_date = models.CharField(default="-", max_length=16)
+
+    prime = models.BooleanField(default=False, null=False, blank=False)
 
     def __str__(self):
         if(self.user_credential_id == None):
@@ -141,4 +155,6 @@ class Post(models.Model):
         else:
             lecture_id = self.lecture_id.lecture_id
         
-        return f"{self.post_id} | {user_credential_id} | {subject_id} | {video_id} | {forum_id} | {lecture_id} | {assignment_id}"
+        return f"{self.post_id} || {user_credential_id} || {subject_id} || {video_id} || {forum_id} || {lecture_id} || {assignment_id}"
+
+# --------------------------------------------------------------------------------------------

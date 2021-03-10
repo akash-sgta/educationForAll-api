@@ -64,15 +64,28 @@
     <hr>
     <h2>
         {{type}}
-        {% if user_name %}
-        as, {{user_name}}
+        {% if user %}
+        | {{user.user_name}} |
+        {% if user.api_endpoint == 1 %}
+        Web Development
+        {% elif user.api_endpoint == 2  %}
+        Android App Development
+        {% elif user.api_endpoint == 3  %}
+        Apple App Development
+        {% elif user.api_endpoint == 4  %}
+        Windows Software Development
+        {% elif user.api_endpoint == 5  %}
+        Linux Software Development
+        {% else %}
+        Others
+        {% endif %}
         {% endif %}
     </h2>
     <hr>
     <br>
 </center>
 
-{% if not adimin %}
+{% if not admin %}
 
 {% if type == 'SIGNUP' %}
 <center>
@@ -91,6 +104,19 @@
                     <th>Last Name</th>
                     <td>
                         <input type="text" name="user_l_name" id="user_l_name" required>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Api Endpoint</th>
+                    <td>
+                        <select name="api_endpoint" id="api_endpoint" required>
+                            <option value="6" selected>Others</option>
+                            <option value="1">Web Development</option>
+                            <option value="2">Android App Development</option>
+                            <option value="3">Apple App Development</option>
+                            <option value="4">Windows Software Development</option>
+                            <option value="5">Linux Software Development</option>
+                        </select>
                     </td>
                 </tr>
                 <tr>
@@ -207,7 +233,12 @@
                     </h3>
                 </td>
                 <td>
-                    <input type="text" value="{{api_token}}" id="auth_token" name="auth_token" style="width: 10; background-color: #6b5353; color: #7a8952;" readonly>
+                    {% if user %}
+                    <input type="text" value="{{user.user_key_private}}" id="auth_token" name="auth_token" style="width: 10; background-color: #6b5353; color: #7a8952;" readonly>
+                    {% else %}
+                    INVALID
+                    {% endif %}
+                    
                 </td>
                 <td>
                     <button type="button" onclick="copy_me()">Copy ME</button>
@@ -229,13 +260,15 @@
     <br>
     <hr>
     <p>
-        <a href="{% static 'docs/education-for-all.postman_collection.json.gg' %}" style="text-decoration: none; color:aquamarine;" target="_blank">--> POSTMAN JSON EXPORT (DEVELOPMENT)<span style="color:magenta;">[Latest]</span> <--</a><br><br>
-        <a href="{% static 'docs/ERROR CODES_20022021.pdf' %}" style="text-decoration: none; color:aquamarine;" target="_blank">--> <span style="color: yellow;">Error</span> Codes <span style="color:magenta;">[Latest]</span> <--</a><br><br>
-        <a href="{% static 'docs/User Credential API_20022021.pdf' %}" style="text-decoration: none; color:aquamarine;" target="_blank">--> User Credential API Contract <span style="color:magenta;">[Latest]</span> <--</a><br><br>
-        <a href="{% static 'docs/User Profile API_20022021.pdf' %}" style="text-decoration: none; color:aquamarine;" target="_blank">--> User Profile API Contract <span style="color:magenta;">[Latest]</span> <--</a><br><br>
-        <a href="{% static 'docs/Admin Credential API_20022021.pdf' %}" style="text-decoration: none; color:aquamarine;" target="_blank">--> Admin Credential API Contract <span style="color:magenta;">[Latest]</span> <--</a><br><br>
-        <a href="{% static 'docs/Admin Privilege API_20022021.pdf' %}" style="text-decoration: none; color:aquamarine;" target="_blank">--> Admin Privilege API Contract <span style="color:magenta;">[Latest]</span> <--</a><br><br>
-        <a href="{% static 'docs/Coordinator API_20022021.pdf' %}" style="text-decoration: none; color:aquamarine;" target="_blank">--> Coordinator API Contract <span style="color:magenta;">[Latest]</span> <--</a><br><br>
+        <a href="{% static 'docs/education-for-all.postman_collection.json' %}" style="text-decoration: none; color:aquamarine;" target="_blank" download="JSON_EXPORT">==> POSTMAN JSON EXPORT (DEVELOPMENT)<span style="color:magenta;">[Latest]</span> <==</a><br><br>
+        <!--
+        <a href="{% static 'docs/ERROR CODES_20022021.pdf' %}" style="text-decoration: none; color:aquamarine;" target="_blank">==> <span style="color: yellow;">Error</span> Codes <span style="color:magenta;">[Latest]</span> <==</a><br><br>
+        <a href="{% static 'docs/User Credential API_20022021.pdf' %}" style="text-decoration: none; color:aquamarine;" target="_blank">==> User Credential API Contract <span style="color:magenta;">[Latest]</span> <==</a><br><br>
+        <a href="{% static 'docs/User Profile API_20022021.pdf' %}" style="text-decoration: none; color:aquamarine;" target="_blank">==> User Profile API Contract <span style="color:magenta;">[Latest]</span> <==</a><br><br>
+        <a href="{% static 'docs/Admin Credential API_20022021.pdf' %}" style="text-decoration: none; color:aquamarine;" target="_blank">==> Admin Credential API Contract <span style="color:magenta;">[Latest]</span> <==</a><br><br>
+        <a href="{% static 'docs/Admin Privilege API_20022021.pdf' %}" style="text-decoration: none; color:aquamarine;" target="_blank">==> Admin Privilege API Contract <span style="color:magenta;">[Latest]</span> <==</a><br><br>
+        <a href="{% static 'docs/Coordinator API_20022021.pdf' %}" style="text-decoration: none; color:aquamarine;" target="_blank">==> Coordinator API Contract <span style="color:magenta;">[Latest]</span> <==</a><br><br>
+        -->
     </p>
     <hr>
 </center>

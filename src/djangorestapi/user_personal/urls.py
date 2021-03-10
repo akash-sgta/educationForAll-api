@@ -3,10 +3,7 @@ from user_personal import views
 
 urlpatterns = [
     
-    url(r'api/diary/$', views.diary_API),
-    url(r'api/diary/([0-9]*)$', views.diary_API),
-
-    url(r'api/submission/$', views.submission_API),
-    url(r'api/submission/([0-9]*)$', views.submission_API),
+    url(r'api/personal/diary/', views.diary.run, name="DIARY_API"),
+    url(r'api/personal/submission/', views.submission.run, name="SUBMISSION_API"),
 
 ]
