@@ -372,8 +372,8 @@ class User_Credential_Api(API_Prime, Authorize):
                     user_credential_ref = User_Credential.objects.get(user_credential_id = int(data[1]))
                     if(user_credential_ref.user_profile_id not in (None, "")):
                         user_credential_ref.user_profile_id.delete()
-                        user_credential_ref.delete()
-                        self.data_returned = self.TRUE_CALL()
+                    user_credential_ref.delete()
+                    self.data_returned = self.TRUE_CALL()
             
             return JsonResponse(self.data_returned, safe=True)
 
@@ -494,7 +494,7 @@ class User_Profile_Api(API_Prime, Authorize):
                 return JsonResponse(self.CUSTOM_FALSE(102, "Hash-not USER"), safe=True)
                                     
             else:
-                self_user_profile_ref = User_Credential.objects.get(user_credential_id = int(data[1])).user_profile_id
+                self_user_credential_ref = User_Credential.objects.get(user_credential_id = int(data[1]))
                 if('user_id' in incoming_data.keys()): # user fetching other user_profiles
                     self.data_returned['data'] = dict()
                     temp = dict()
@@ -518,7 +518,7 @@ class User_Profile_Api(API_Prime, Authorize):
                                         user['user_profile_pic'] = None
                                     else:
                                         user['user_profile_pic'] = Image.objects.get(image_id = int(user['user_profile_pic'])).image_url
-                                        self.data_returned['data'][0][key] = user
+                                    self.data_returned['data'][0][key] = user
                                                         
                         else: # individual id_profile fetch
                             for id in user_ids:
@@ -547,16 +547,19 @@ class User_Profile_Api(API_Prime, Authorize):
                                             self.data_returned['data'][id] = self.TRUE_CALL(data = user_profile_serialized)
                                         
                 else: # self fetch profile
-                    if(self_user_profile_ref == None):
+                    
+                    if(self_user_credential_ref.user_profile_id == None):
                         return JsonResponse(self.CUSTOM_FALSE(106, "NotFound-USER PROFILE"), safe=True)
                                             
                     else:
+                        self_user_profile_ref = User_Profile.objects.get(user_profile_id = int(self_user_credential_ref.user_profile_id.user_profile_id))
+                        print(self_user_profile_ref)
                         user_profile_serialized = User_Profile_Serializer(self_user_profile_ref, many=False).data
                         if(user_profile_serialized['user_profile_pic'] in (None, "")):
                             user_profile_serialized['user_profile_pic'] = None
                         else:
                             user_profile_serialized['user_profile_pic'] = Image.objects.get(image_id = int(user_profile_serialized['user_profile_pic'])).image_url
-                            self.data_returned = self.TRUE_CALL(data = user_profile_serialized)
+                        self.data_returned = self.TRUE_CALL(data = {"user" : self_user_credential_ref.user_credential_id, "profile" : user_profile_serialized})
 
             return JsonResponse(self.data_returned, safe=True)
 
@@ -567,6 +570,7 @@ class User_Profile_Api(API_Prime, Authorize):
         try:
             incoming_data = incoming_data['data']
             self.token = incoming_data['hash']
+            incoming_data = incoming_data['data']
 
         except Exception as ex:
             return JsonResponse(self.CUSTOM_FALSE(402, f"Parsing-{str(ex)}"), safe=True)
@@ -583,7 +587,7 @@ class User_Profile_Api(API_Prime, Authorize):
                                         
                 else:
                     try:
-                        user_profile_de_serialized = User_Profile_Serializer(self_user_profile_ref, data = incoming_data['data'])
+                        user_profile_de_serialized = User_Profile_Serializer(self_user_profile_ref, data = incoming_data)
 
                     except Exception as ex:
                         return JsonResponse(self.CUSTOM_FALSE(405, f"Serialize-{str(ex)}"), safe=True)
@@ -600,7 +604,7 @@ class User_Profile_Api(API_Prime, Authorize):
                                 message = "SUCCESS-Edit-PROFILE without IMAGE"
                             else:
                                 message = "SUCCESS-Edit-PROFILE with IMAGE"
-                                self.data_returned = self.TRUE_CALL(message = message)
+                            self.data_returned = self.TRUE_CALL(message = message)
 
                         else:
                             return JsonResponse(self.CUSTOM_FALSE(405, f"Serialize-{user_profile_de_serialized.errors}"), safe=True)
@@ -654,20 +658,23 @@ class User_Profile_Api(API_Prime, Authorize):
                             self.data_returned['data'] = dict()
                             temp = dict()
                             if(0 in user_ids): # all at once
-                                user_profile_ref_all = User_Profile.objects.all().exclude(user_profile_id = int(self_user_profile_ref.user_profile_id))
+                                if(self_user_profile_ref not in (None, "")):
+                                    user_profile_ref_all = User_Profile.objects.all().exclude(user_profile_id = int(self_user_profile_ref.user_profile_id))
+                                else:
+                                    user_profile_ref_all = User_Profile.objects.all()
                                 if(len(user_profile_ref_all) < 1):
                                     self.data_returned['data'][0] = self.CUSTOM_FALSE(151, "Empty-Profile Tray")
                                     return JsonResponse(self.data_returned, safe=True)
                                                                 
                                 else:
                                     for user in user_profile_ref_all:
-                                        if(user.user_pofile_pic in (None, "")):
+                                        if(user.user_profile_pic in (None, "")):
                                             pass
                                         else:
                                             if(delete_image(user.user_profile_pic)):
                                                 pass
-                                            user.delete()
-                                            self.data_returned['data'][0] = self.TRUE_CALL()
+                                        user.delete()
+                                    self.data_returned['data'][0] = self.TRUE_CALL()
 
                             else: # individual id_profile delete
                                 for id in user_ids:
@@ -689,7 +696,6 @@ class User_Profile_Api(API_Prime, Authorize):
                                             else:
                                                 if(self_user_profile_ref == user_credential_ref.user_profile_id):
                                                     message = "SUCCESS-Delete-self profile"
-                                                
                                                 else:
                                                     message = None
                                                 
@@ -698,7 +704,8 @@ class User_Profile_Api(API_Prime, Authorize):
                                                 else:
                                                     if(delete_image(user_credential_ref.user_profile_id.user_profile_pic)):
                                                         pass
-                                                    user_credential_ref.user_profile_id.delete()
+                                                
+                                                user_credential_ref.user_profile_id.delete()
 
                                                 if(message == None):
                                                     self.data_returned['data'][id] = self.TRUE_CALL()
@@ -929,6 +936,7 @@ class Admin_Credential_Api(API_Prime, Authorize):
                                 return JsonResponse(self.data_returned, safe=True)
                                                 
                             else:
+                                self.data_returned['data'][0] = list()
                                 admin_credential_all_serialized = Admin_Credential_Serializer(admin_credential_ref_all, many=True).data
                                 for admin in admin_credential_all_serialized:
                                     # if(admin['user_credential_id'] == int(data[1])):
@@ -942,7 +950,8 @@ class Admin_Credential_Api(API_Prime, Authorize):
                                         privileges = list()
                                         for mtmr in many_to_many_ref:
                                             privileges.append(mtmr.admin_privilege_id.admin_privilege_id)
-                                            self.data_returned['data'][0][id] = self.TRUE_CALL(data = {"admin" : admin, "privilege" : privileges})
+                                    self.data_returned['data'][0].append({"admin" : admin, "privilege" : privileges})
+                                self.data_returned['data'][0] = self.TRUE_CALL(data = self.data_returned['data'][0])
                                             
                         else:
                             temp = dict()

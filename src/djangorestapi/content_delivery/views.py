@@ -25,7 +25,7 @@ from content_delivery.serializer import Lecture_Serializer
 from content_delivery.serializer import Assignment_Serializer
 from content_delivery.serializer import Post_Serializer
 
-from auth_prime.important_modules import Api_Prime
+from auth_prime.important_modules import API_Prime
 
 from auth_prime.models import User_Credential
 from auth_prime.models import Admin_Credential
@@ -137,8 +137,16 @@ class Coordinator_Api(API_Prime, Authorize):
                                     return JsonResponse(self.data_returned, safe=True)
 
                                 else:
-                                    coordinator_serialized_all = Coordinator_Serializer(coordinator_ref_all, many=True).data
-                                    self.data_returned['data'][0] = self.TRUE_CALL(data = coordinator_ref_all)
+                                    self.data_returned['data'][0] = list()
+                                    for cordinator in coordinator_ref_all:
+                                        coordinator_serialized_self = Coordinator_Serializer(coordinator, many=False).data
+                                        subject_ref_self = Subject.objects.filter(coordinator_id = coordinator_serialized_self['coordinator_id'])
+                                        subject_serialized_self = Subject_Serializer(subject_ref_self, many=True).data
+                                        subject = list()
+                                        for sub in subject_serialized_self:
+                                            subject.append(sub['subject_id'])
+                                        self.data_returned['data'][0].append({"coordinator" : coordinator_serialized_self, "subject" : subject})
+                                    self.data_returned['data'][0] = self.TRUE_CALL(data = self.data_returned['data'][0])
 
                             else:
                                 for id in user_ids:
@@ -155,7 +163,12 @@ class Coordinator_Api(API_Prime, Authorize):
                                         else:
                                             coordinator_ref = coordinator_ref[0]
                                             coordinator_serialized = Coordinator_Serializer(coordinator_ref, many=False).data
-                                            self.data_returned['data'][id] = self.TRUE_CALL(data = coordinator_serialized)
+                                            subject_ref_self = Subject.objects.filter(coordinator_id = coordinator_serialized['coordinator_id'])
+                                            subject_serialized_self = Subject_Serializer(subject_ref_self, many=True).data
+                                            subject = list()
+                                            for sub in subject_serialized_self:
+                                                subject.append(sub['subject_id'])
+                                            self.data_returned['data'][id] = self.TRUE_CALL(data = {"coordinator" : coordinator_serialized_self, "subject" : subject})
                                 
             else: # self fetch
                 data = self.check_authorization("user")
@@ -170,7 +183,13 @@ class Coordinator_Api(API_Prime, Authorize):
                     else:
                         coordinator_ref = coordinator_ref[0]
                         coordinator_serialized = Coordinator_Serializer(coordinator_ref, many=False).data
-                        self.data_returned = self.TRUE_CALL(data = coordinator_serialized)
+                        subject_ref_self = Subject.objects.filter(coordinator_id = coordinator_ref.coordinator_id)
+                        subject_serialized_self = Subject_Serializer(subject_ref_self, many=True).data
+                        subject = list()
+                        for sub in subject_serialized_self:
+                            subject.append(sub['subject_id'])
+                        self.data_returned = self.TRUE_CALL(data = {"coordinator" : coordinator_serialized, "subject" : subject})
+
             return JsonResponse(self.data_returned, safe=True)
 
     @overrides
@@ -605,7 +624,7 @@ class Forum_Api(API_Prime, Authorize):
         self.clear()
         try:
             incoming_data = incoming_data['data']
-            self..token = incoming_data['hash']
+            self.token = incoming_data['hash']
             incoming_data = incoming_data['data']
 
         except Exception as ex:
@@ -1390,7 +1409,7 @@ class Post_Api(API_Prime, Authorize):
             return JsonResponse(self.MISSING_KEY(ex), safe=True)
                     
         else:
-            data = self..check_authorization("user")
+            data = self.check_authorization("user")
             if(data[0] == False):
                 return JsonResponse(self.CUSTOM_FALSE(102, "Hash-not USER"), safe=True)
                                 
