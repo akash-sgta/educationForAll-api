@@ -1,5 +1,6 @@
 from django.views.decorators.csrf import csrf_exempt
 from django.http.response import JsonResponse
+from rest_framework.parsers import JSONParser
 
 def logger(api_key, message):
     import logging
