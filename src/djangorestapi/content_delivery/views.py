@@ -190,8 +190,6 @@ class Coordinator_Api(API_Prime, Authorize):
                             subject.append(sub['subject_id'])
                         self.data_returned = self.TRUE_CALL(data = {"coordinator" : coordinator_serialized, "subject" : subject})
 
-            return JsonResponse(self.data_returned, safe=True)
-
     @overrides
     def edit(self, incoming_data):
         self.data_returned['action'] += "-EDIT"

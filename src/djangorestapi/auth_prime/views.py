@@ -372,6 +372,7 @@ class User_Credential_Api(API_Prime, Authorize):
                     user_credential_ref = User_Credential.objects.get(user_credential_id = int(data[1]))
                     if(user_credential_ref.user_profile_id not in (None, "")):
                         user_credential_ref.user_profile_id.delete()
+
                     user_credential_ref.delete()
                     self.data_returned = self.TRUE_CALL()
             
@@ -547,7 +548,6 @@ class User_Profile_Api(API_Prime, Authorize):
                                             self.data_returned['data'][id] = self.TRUE_CALL(data = user_profile_serialized)
                                         
                 else: # self fetch profile
-                    
                     if(self_user_credential_ref.user_profile_id == None):
                         return JsonResponse(self.CUSTOM_FALSE(106, "NotFound-USER PROFILE"), safe=True)
                                             
@@ -658,10 +658,12 @@ class User_Profile_Api(API_Prime, Authorize):
                             self.data_returned['data'] = dict()
                             temp = dict()
                             if(0 in user_ids): # all at once
+
                                 if(self_user_profile_ref not in (None, "")):
                                     user_profile_ref_all = User_Profile.objects.all().exclude(user_profile_id = int(self_user_profile_ref.user_profile_id))
                                 else:
                                     user_profile_ref_all = User_Profile.objects.all()
+
                                 if(len(user_profile_ref_all) < 1):
                                     self.data_returned['data'][0] = self.CUSTOM_FALSE(151, "Empty-Profile Tray")
                                     return JsonResponse(self.data_returned, safe=True)
@@ -696,6 +698,7 @@ class User_Profile_Api(API_Prime, Authorize):
                                             else:
                                                 if(self_user_profile_ref == user_credential_ref.user_profile_id):
                                                     message = "SUCCESS-Delete-self profile"
+
                                                 else:
                                                     message = None
                                                 
