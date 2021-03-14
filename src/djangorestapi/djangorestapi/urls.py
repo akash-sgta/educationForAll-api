@@ -28,6 +28,8 @@ urlpatterns = [
 
     url(r'^', include('auth_prime.urls')),
     url(r'^', include('content_delivery.urls')),
+    url(r'^', include('user_personal.urls')),
+    url(r'^', include('analytics.urls')),
 
     url(r'^checkserver/', views.check_server_status, name="CHECK_SERVER_STATUS"),
 

@@ -21,7 +21,8 @@ class User_Profile_Serializer(serializers.ModelSerializer):
             'user_linkedin_profile',
             'user_profile_pic',
             'user_roll_number',
-            'prime'
+            'prime',
+            'made_date'
         )
 
 class User_Credential_Serializer(serializers.ModelSerializer):

@@ -32,6 +32,14 @@ from auth_prime.models import Admin_Credential
 from auth_prime.models import Admin_Cred_Admin_Prev_Int
 from auth_prime.models import Admin_Privilege
 
+from user_personal.models import Notification
+from user_personal.models import User_Notification_Int
+from user_personal.models import Enroll
+
+from user_personal.serializer import Notification_Serializer
+from user_personal.serializer import User_Notification_Int_Serializer
+from user_personal.serializer import Enroll_Serializer
+
 from auth_prime.authorize import Authorize
 
 # ------------------------------------------------------
@@ -57,7 +65,7 @@ class Coordinator_Api(API_Prime, Authorize):
         else:
             data = self.check_authorization("admin", "cagp") # Coordinators can be placed by admins only
             if(data[0] == False):
-                return JsonResponse(CUSTOM_FALSE(111, "Hash-not ADMIN"), safe=True)
+                return JsonResponse(self.CUSTOM_FALSE(111, "Hash-not ADMIN"), safe=True)
 
             else:
                 try:
@@ -93,7 +101,7 @@ class Coordinator_Api(API_Prime, Authorize):
                                         user_credential_ref = user_credential_ref[0]
                                         coordinator_ref_new = Coordinator(user_credential_id = user_credential_ref)
                                         coordinator_ref_new.save()
-                                        self.data_returned['data'][id] = self.TRUE_CALL(data = {"coordinator" : coordinator_ref_new.data['coordinator_id']})
+                                        self.data_returned['data'][id] = self.TRUE_CALL(data = {"coordinator" : coordinator_ref_new.coordinator_id})
 
             return JsonResponse(self.data_returned, safe=True)
 
@@ -1336,6 +1344,36 @@ class Post_Api(API_Prime, Authorize):
                     post_de_serialized.initial_data['made_date'] = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
                     if(post_de_serialized.is_valid()):
                         post_de_serialized.save()
+                        post_ref_self = Post.objects.get(post_id = post_de_serialized.data['post_id'])
+                        subject_ref_self = Subject.objects.get(subject_id = post_de_serialized.data['subject_id']) # considering subject not null and true for all post
+                        message = f"POST : {post_de_serialized.data['post_name']} for SUBJECT : {subject_ref_self.subject_name} has been created on {post_de_serialized.initial_data['made_date']}."
+                        message += "You are getting this notification beacuse you have enrolled for the subject."
+                        notification_ref_new = Notification(post_id = post_ref_self,
+                                                            made_date = datetime.now().strftime("%m/%d/%Y %H:%M:%S"),
+                                                            notification_body = message)
+                        notification_ref_new.save()
+                        enroll_ref = Enroll.objects.filter(subject_id = post_de_serialized.data['subject_id']).order_by('-pk') # for students
+                        if(len(enroll_ref) < 1):
+                            pass # do something
+
+                        else:
+                            for enroll in enroll_ref:
+                                user_notification_int_new = User_Notification_Int(user_credential_id = enroll.user_credential_id,
+                                                                                notification_id = notification_ref_new,
+                                                                                made_date = datetime.now().strftime("%m/%d/%Y %H:%M:%S"))
+                                user_notification_int_new.save()
+
+                        subject_coordinator_int_ref = Subject_Coordinator_Int.objects.filter(subject_id = post_de_serialized.data['subject_id']).order_by('-pk') # for teachers
+                        if(len(subject_coordinator_int_ref) < 1):
+                            pass # do something
+
+                        else:
+                            for teacher in subject_coordinator_int_ref:
+                                user_notification_int_new = User_Notification_Int(user_credential_id = teacher.coordinator_id.user_credential_id,
+                                                                                notification_id = notification_ref_new,
+                                                                                made_date = datetime.now().strftime("%m/%d/%Y %H:%M:%S"))
+                                user_notification_int_new.save()
+                        
                         self.data_returned = self.TRUE_CALL(data = {"post" : post_de_serialized.data['post_id'], "user" : data[1]})
                                         
                     else:
@@ -1438,6 +1476,36 @@ class Post_Api(API_Prime, Authorize):
                                 post_de_serialized = Post_Serializer(post_ref_self, data = incoming_data)
                                 if(post_de_serialized.is_valid()):
                                     post_de_serialized.save()
+                                    post_ref_self = Post.objects.get(post_id = post_de_serialized.data['post_id'])
+                                    subject_ref_self = Subject.objects.get(subject_id = post_de_serialized.data['subject_id']) # considering subject not null and true for all post
+                                    message = f"POST : {post_de_serialized.data['post_name']} for SUBJECT : {subject_ref_self.subject_name} has been edited on {datetime.now().strftime('%m/%d/%Y %H:%M:%S')}."
+                                    message += "You are getting this notification beacuse you have enrolled for the subject."
+                                    notification_ref_new = Notification(post_id = post_ref_self,
+                                                                        made_date = datetime.now().strftime("%m/%d/%Y %H:%M:%S"),
+                                                                        notification_body = message)
+                                    notification_ref_new.save()
+                                    enroll_ref = Enroll.objects.filter(subject_id = post_de_serialized.data['subject_id']).order_by('-pk') # for students
+                                    if(len(enroll_ref) < 1):
+                                        pass # do something
+
+                                    else:
+                                        for enroll in enroll_ref:
+                                            user_notification_int_new = User_Notification_Int(user_credential_id = enroll.user_credential_id,
+                                                                                            notification_id = notification_ref_new,
+                                                                                            made_date = datetime.now().strftime("%m/%d/%Y %H:%M:%S"))
+                                            user_notification_int_new.save()
+
+                                    subject_coordinator_int_ref = Subject_Coordinator_Int.objects.filter(subject_id = post_de_serialized.data['subject_id']).order_by('-pk') # for teachers
+                                    if(len(subject_coordinator_int_ref) < 1):
+                                        pass # do something
+
+                                    else:
+                                        for teacher in subject_coordinator_int_ref:
+                                            user_notification_int_new = User_Notification_Int(user_credential_id = teacher.coordinator_id.user_credential_id,
+                                                                                            notification_id = notification_ref_new,
+                                                                                            made_date = datetime.now().strftime("%m/%d/%Y %H:%M:%S"))
+                                            user_notification_int_new.save()
+                                    
                                     self.data_returned = self.TRUE_CALL(data = {"post" : post_de_serialized.data['post_id'], "user" : data[1]})
                                                     
                                 else:

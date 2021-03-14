@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'auth_prime',
     'user_personal',
     'content_delivery',
+    'analytics',
 ]
 
 MIDDLEWARE = [

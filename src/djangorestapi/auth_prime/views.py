@@ -9,6 +9,7 @@ import re
 import json
 import os
 from overrides import overrides
+from datetime import datetime
 
 # --------------------------------------------------------------------------
 
@@ -461,7 +462,7 @@ class User_Profile_Api(API_Prime, Authorize):
                         if(("prime" in user_profile_de_serialized.initial_data.keys()) and (user_profile_de_serialized.initial_data["prime"] == True)): # if student then roll number required
                             if(("user_roll_number" in user_profile_de_serialized.initial_data.keys()) and (user_profile_de_serialized.initial_data["user_roll_number"] in (None, ""))):
                                 return JsonResponse(self.MISSING_KEY("Student profile required roll number"), safe=True)
-                        
+                        user_profile_de_serialized.initial_data['made_date'] = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
                         if(user_profile_de_serialized.is_valid()):
                             user_profile_de_serialized.save()
                             user_profile_ref = User_Profile.objects.get(user_profile_id = user_profile_de_serialized.data['user_profile_id'])

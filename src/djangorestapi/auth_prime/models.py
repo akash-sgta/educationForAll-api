@@ -18,7 +18,6 @@ class Image(models.Model):
     def __str__(self):
         return f"{self.image_id} | {self.image_name}"
 
-
 # ---------------------------------------------------------------------------------------------------------------------------------------
 
 class User_Profile(models.Model):
@@ -31,13 +30,14 @@ class User_Profile(models.Model):
     user_linkedin_profile = models.URLField(max_length=256, null=True, blank=True)
     user_roll_number = models.CharField(max_length=14, validators=[
             RegexValidator(
-                regex=r'^[0-9]{12}$',
+                regex=r'^[1-9]{1}[0-9]{11}$',
                 message='12 Digit University Roll Number.',
                 code='invalid_roll_number'
             )
         ], null=True, blank=True)
     
     prime = models.BooleanField(default=True) # is student ?
+    made_date = models.CharField(default="-", max_length=32)
 
     user_profile_pic = models.ForeignKey(Image, blank=True, null=True, on_delete=models.SET_NULL)
 
@@ -73,11 +73,6 @@ class User_Token_Table(models.Model):
     def __str__(self):
         return f"{self.token_id} | {self.token_hash}"
 
-# User_Credential.objects = User_Credential.objects.using('authDB')
-# User_Token_Table.objects = User_Token_Table.objects.using('authDB')
-
-# User_Profile.objects = User_Profile.objects.using('authDB')
-
 # ---------------------------------------------------------------------------------------------------------------------------------------
 
 class Admin_Privilege(models.Model):
@@ -109,10 +104,6 @@ class Admin_Cred_Admin_Prev_Int(models.Model):
     def __str__(self):
         return f"{self.admin_credential_id} | {self.admin_privilege_id}"
 
-# Admin_Privilege.objects = Admin_Privilege.objects.using('authDB')
-# Admin_Credential.objects = Admin_Credential.objects.using('authDB')
-# Admin_Cred_Admin_Prev_Int.objects = Admin_Cred_Admin_Prev_Int.objects.using('authDB')
-
 # ---------------------------------------------------------------------------------------------------------------------------------------
 
 class Api_Token_Table(models.Model):
@@ -125,7 +116,5 @@ class Api_Token_Table(models.Model):
 
     def __str__(self):
         return f'{self.user_name} | {self.user_email}'
-
-# Api_Token_Table.objects = Api_Token_Table.objects.using('authDB')
 
 # ---------------------------------------------------------------------------------------------------------------------------------------
