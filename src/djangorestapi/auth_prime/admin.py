@@ -8,8 +8,8 @@ from auth_prime.models import Admin_Privilege
 from auth_prime.models import Admin_Credential
 from auth_prime.models import Admin_Cred_Admin_Prev_Int
 from auth_prime.models import User_Token_Table
-from auth_prime.models import  Api_Token_Table
-from auth_prime.models import  Image
+from auth_prime.models import Api_Token_Table
+from auth_prime.models import Image
 
 # -----------------------------------------------
 

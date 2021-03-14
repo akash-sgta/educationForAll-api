@@ -1,6 +1,15 @@
 from django.contrib import admin
-from content_delivery.models import Coordinator, Subject, Subject_Coordinator_Int, Video, Forum, Reply, Lecture, Assignment, Post
 
+from content_delivery.models import Coordinator
+from content_delivery.models import Subject
+from content_delivery.models import Subject_Coordinator_Int
+from content_delivery.models import Video
+from content_delivery.models import Forum
+from content_delivery.models import Reply
+from content_delivery.models import Lecture
+from content_delivery.models import Assignment
+from content_delivery.models import Post
+# -----------------------------------------------------------
 # Register your models here.
 admin.site.register(Coordinator)
 admin.site.register(Subject)

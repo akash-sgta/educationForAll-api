@@ -66,6 +66,7 @@ class API_Prime(Json_Forward):
         super().__init__()
         self.__request = None
         self.__data_returned = dict()
+        self.json_response = JsonResponse({"return" : False, "message" : "Action not permitted"}, safe=True)
     
     @property
     def request(self):
@@ -85,16 +86,16 @@ class API_Prime(Json_Forward):
         return JsonResponse(self.GET_INVALID(), safe=True)
     
     def create(self, *args, **kwargs):
-        return False
+        return self.json_response
     
     def read(self, *args, **kwargs):
-        return False
+        return self.json_response
     
     def edit(self, *args, **kwargs):
-        return False
+        return self.json_response
     
     def delete(self, *args, **kwargs):
-        return False
+        return self.json_response
     
     def method_post(self):
         try:
@@ -159,51 +160,3 @@ class API_Prime(Json_Forward):
 
     def __str__(self):
         return super().__str__()
-
-# true call return
-def TRUE_CALL(data=None, message=None):
-    if(data != None):
-        if(message != None):
-            return {"return" : True, "code" : 100, "data" : data, "message" : message}
-        else:
-            return {"return" : True, "code" : 100, "data" : data}
-    elif(message != None):
-        return {"return" : True, "code" : 100, "message" : message}
-    else:
-        return {"return" : True, "code" : 100}
-
-# invalid GET method
-def GET_INVALID(data=None):
-    return {"return" : False, "code" : 403, "message" : 'ERROR-Invalid-GET Not supported'}
-
-# JSONParser error
-def JSON_PARSER_ERROR(data):
-    return {"return" : False, "code" : 401, "message" : f"ERROR-Parsing-{str(data)}"}
-
-# missing KEY
-def MISSING_KEY(data):
-    return {"return" : False, "code" : 402, "message" : f"ERROR-Key-{str(data)}"}
-
-# invalid API
-def API_RELATED(data):
-    return {"return" : False, "code" : 115, "message" : f"ERROR-Key-{str(data)}"}
-
-# error ambiguous 404
-def AMBIGUOUS_404(data):
-    return {"return" : False, "code" : 404, "message" : f"ERROR-Ambiguous-{str(data)}"}
-
-# invalid action
-def INVALID_ACTION(data):
-    if(str(data).upper() == 'PARENT'):
-        return {"return" : False, "code" : 403, "message" : "ERROR-Action-Child action invalid"}
-    elif(str(data).upper() == 'CHILD'):
-        return {"return" : False, "code" : 403, "message" : "ERROR-Action-Parent action invalid"}
-    else:
-        return {"return" : False, "code" : 403, "message" : f"ERROR-Action-{str(data).upper()} action invalid"}
-
-# custom error reference
-def CUSTOM_FALSE(code=None, message=None):
-    if(code != None and message != None):
-        return {"return" : False, "code" : code, "message" : f"ERROR-{message}"}
-    else:
-        return {"return" : False, "code" : None, "message" : "Custom_False:Admin"}

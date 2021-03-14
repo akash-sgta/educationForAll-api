@@ -91,13 +91,13 @@
 <center>
     <table>
         <tbody>
-            <form action="{% url 'API_TOKEN' %}" enctype="multipart/form-data" method="POST">
+            <form action="{% url 'API_TOKEN' %}" enctype="multipart/form-data" method="POST" autocomplete="on">
                 {% csrf_token %}
                 <input type="text" name="form_type" id="form_type" value="signup" hidden required>
                 <tr>
                     <th>First Name</th>
                     <td>
-                        <input type="text" name="user_f_name" id="user_f_name" required>
+                        <input type="text" name="user_f_name" id="user_f_name" required autofocus>
                     </td>
                 </tr>
                 <tr>
@@ -174,13 +174,13 @@
 <center>
     <table>
         <tbody>
-            <form action="{% url 'API_TOKEN' %}" enctype="multipart/form-data" method="POST">
+            <form action="{% url 'API_TOKEN' %}" enctype="multipart/form-data" method="POST" autocomplete="on">
                 {% csrf_token %}
                 <input type="text" name="form_type" id="form_type" value="signin" hidden required>
                 <tr>
                     <th>Email ID</th>
                     <td>
-                        <input type="email" name="user_email" id="user_email"  onkeyup="signin_vars()" required>
+                        <input type="email" name="user_email" id="user_email"  onkeyup="signin_vars()" required autofocus>
                     </td>
                 </tr>
                 <tr>
