@@ -24,7 +24,7 @@ from django.conf import settings
 from djangorestapi import views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('mahnigga/', admin.site.urls),
 
     url(r'^', include('auth_prime.urls')),
     url(r'^', include('content_delivery.urls')),

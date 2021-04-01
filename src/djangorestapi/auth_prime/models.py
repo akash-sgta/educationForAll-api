@@ -67,8 +67,7 @@ class User_Token_Table(models.Model):
     user_credential_id = models.ForeignKey(User_Credential, null=True, blank=True, on_delete=models.CASCADE)
 
     token_hash = models.CharField(default='', max_length=512)
-    token_start = models.CharField(default='dd-mm-yyyy HH:MM:SS', max_length=32)
-    token_end = models.CharField(default='dd-mm-yyyy HH:MM:SS', max_length=32)
+    token_start = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.token_id} | {self.token_hash}"

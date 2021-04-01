@@ -18,36 +18,42 @@ class Notification_Handler(BotHandler, Database):
         super().__init__()
         self.token = token
         self.db = db
+        self.stop_thread = False
     
     def run(self):
         try:
-            while(True):
-                query = r'''SELECT user_credential_id_id, notification_id_id FROM user_personal_user_notification_int WHERE prime_1 = false;'''
-                self.connect()
-                data = self.operation(query).fetchall()
-                if(len(data) < 1):
-                    pass
+            while(not self.stop_thread):
+                try:
+                    query = r'''SELECT user_credential_id_id, notification_id_id FROM user_personal_user_notification_int WHERE prime_1 = false;'''
+                    self.connect()
+                    data = self.operation(query).fetchall()
+                    if(len(data) < 1):
+                        print(f"[N] Notification count\t:\t0")
 
-                else:
-                    for notification in data:
-                        query = r'''SELECT user_tg_id FROM auth_prime_user_credential WHERE user_credential_id = {};'''.format(notification[0])
-                        user_tg_id_data = self.operation(query).fetchall()
-                        query = r'''SELECT notification_body, made_date FROM user_personal_notification WHERE notification_id = {};'''.format(notification[1])
-                        notification_data = self.operation(query).fetchall()
-                        print(user_tg_id_data, notification_data)
-                        text = f"{notification_data[0][1]}\n{notification_data[0][0]}"
-                        self.send_message(user_tg_id_data[0][0], text)
-                        query = r'''UPDATE user_personal_user_notification_int SET prime_1 = True WHERE user_credential_id_id = {} and notification_id_id = {};'''.format(notification[0], notification[1])
-                        data = self.operation(query)
+                    else:
+                        print(f"[N] Notification count\t:\t{len(data)}")
 
-                self.commit()
-                self.disconnect()
+                        for notification in data:
+                            query = r'''SELECT user_tg_id FROM auth_prime_user_credential WHERE user_credential_id = {};'''.format(notification[0])
+                            user_tg_id_data = self.operation(query).fetchall()
+                            query = r'''SELECT notification_body, made_date FROM user_personal_notification WHERE notification_id = {};'''.format(notification[1])
+                            notification_data = self.operation(query).fetchall()
+                            print(user_tg_id_data, notification_data)
+                            text = f"{notification_data[0][1]}\n{notification_data[0][0]}"
+                            self.send_message(user_tg_id_data[0][0], text)
+                            query = r'''UPDATE user_personal_user_notification_int SET prime_1 = True WHERE user_credential_id_id = {} and notification_id_id = {};'''.format(notification[0], notification[1])
+                            data = self.operation(query)
 
-                sleep(5)
+                    self.commit()
+                    self.disconnect()
 
-        except KeyboardInterrupt as ex:
-            self.alive = False
-            raise(KeyboardInterrupt)
+                    sleep(4)
+
+                except KeyboardInterrupt as ex:
+                    self.stop_thread = True
+        
+        except Exception as ex:
+            print(f"[t] EX\t:\t{ex}")
 
 # ------------------------------------------------------------------------
 

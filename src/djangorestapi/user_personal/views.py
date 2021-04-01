@@ -1,24 +1,33 @@
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework.parsers import JSONParser
 from django.http.response import JsonResponse
+
+from rest_framework import status
+from rest_framework.parsers import JSONParser
+from rest_framework.viewsets import ModelViewSet
+from rest_framework.decorators import api_view, renderer_classes
+from rest_framework.response import Response
 
 from datetime import datetime
 from overrides import overrides
 
 # ------------------------------------------------------------
 
-from user_personal.models import Diary
-from user_personal.models import Submission
-from user_personal.models import Notification
-from user_personal.models import User_Notification_Int
-from user_personal.models import Enroll
+from user_personal.models import (
+        Diary,
+        Submission,
+        Notification,
+        User_Notification_Int,
+        Enroll,
+    )
 
-from user_personal.serializer import Diary_Serializer
-from user_personal.serializer import Submission_Serializer
-from user_personal.serializer import Notification_Serializer
-from user_personal.serializer import User_Notification_Int_Serializer
-from user_personal.serializer import Enroll_Serializer
+from user_personal.serializer import (
+        Diary_Serializer,
+        Submission_Serializer,
+        Notification_Serializer,
+        User_Notification_Int_Serializer,
+        Enroll_Serializer,
+    )
 
 from auth_prime.models import User_Credential
 
@@ -26,249 +35,279 @@ from content_delivery.models import Post
 from content_delivery.models import Coordinator
 
 from auth_prime.important_modules import API_Prime
+from auth_prime.important_modules import am_I_Authorized
 
 from auth_prime.authorize import Authorize
 
 # ------------------------------------------------------------
 
-class Diary_Api(API_Prime, Authorize):
-    
-    def __init__(self):
-        super().__init__()
+@csrf_exempt
+def api_diary_view(request, job, pk=None):
 
-    @overrides
-    def create(self, incoming_data):
-        self.data_returned['action'] += "-CREATE"
-        self.clear()
-        try:
-            incoming_data = incoming_data['data']
-            self.token = incoming_data['hash']
-            incoming_data = incoming_data['data']
-
-        except Exception as ex:
-            return JsonResponse(self.MISSING_KEY(ex), safe=True)
-                    
+    @api_view(['POST', ])
+    def create(request, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data)
         else:
-            data = self.check_authorization("user")
-            if(data[0] == False):
-                return JsonResponse(self.CUSTOM_FALSE(102, "Hash-not USER"), safe=True)
-                                
+            user_id = auth[1]
+            data = dict()
+            diary_serialized = Diary_Serializer(data=request.data)
+            diary_serialized.initial_data['user_credential_id'] = int(user_id)
+            if(diary_serialized.is_valid()):
+                diary_serialized.save()
+                data['success'] = True
+                data['data'] = diary_serialized.data
+                return Response(data=data, status=status.HTTP_201_CREATED)
             else:
-                diary_de_serialized = Diary_Serializer(data = incoming_data)
-                diary_de_serialized.initial_data['user_credential_id'] = int(data[1])
-                diary_de_serialized.initial_data['made_date'] = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
-                if(diary_de_serialized.is_valid()):
-                    diary_de_serialized.save()
-                    self.data_returned = self.TRUE_CALL(data = {"diary" : diary_de_serialized.data['diary_id'], "post" : diary_de_serialized.data['diary_id']})
-                                        
-                else:
-                    return JsonResponse(self.CUSTOM_FALSE(404, f"Serialise-{diary_de_serialized.errors}"), safe=True)
-                                
-            return JsonResponse(self.data_returned, safe=True)
+                data['success'] = False
+                data['message'] = f"error:SERIALIZING_ERROR, message:{diary_serialized.errors}"
+                return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
 
-    @overrides
-    def read(self, incoming_data):
-        self.data_returned['action'] += "-READ"
-        self.clear()
-        try:
-            incoming_data = incoming_data['data']
-            self.token = incoming_data['hash']
-            datas = tuple(incoming_data['data'])
-
-        except Exception as ex:
-            return JsonResponse(self.MISSING_KEY(ex), safe=True)
-                    
+    @api_view(['GET', ])
+    def read(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data)
         else:
-            keys = ('post_id', 'user')
-            for check in datas:
-                if('post_id' in check.keys()):
-                    if('user_id' in check.keys()):
-                        if(check['user_id'].upper() == 'ALL'):
-                            action = 1 # all diaries of post
-                        elif(check['user_id'].upper() == 'SELF'):
-                            action = 2 # one user diaries of post+user
-                        else:
-                            action = 4
-                    else:
-                        action = 4
-                elif('diary_id' in check.keys()):
-                    action = 3 # specific diaries
+            user_id = auth[1]
+            try:
+                if(int(pk) == 0):
+                    diary_ref = Diary.objects.filter(user_credential_id = user_id)
+                    diary_serialized = Diary_Serializer(diary_ref, many=True)
                 else:
-                    action = 4 # invalid
-                                    
-                if(action == 4): # invalid
-                    key = "-".join(list(check.keys()))
-                    self.data_returned['data'][key] = self.MISSING_KEY('Follow API contract')
-                                    
-                elif(action == 3): # specific diaries
-                    key = "diary"
-                    data = self.check_authorization('user')
-                                        
-                    if(data[0] == False):
-                        self.data_returned['data'][key] = self.CUSTOM_FALSE(666, "Hash-not USER")
-                                        
-                    else:
-                        try:
-                            diary_ids = tuple(set(check['diary_id']))
-                                            
-                        except Exception as ex:
-                            self.data_returned['data'][key] = self.AMBIGUOUS_404(ex)
-                                            
-                        else:
-                            for id in diary_ids:
-                                try:
-                                    diary_ref = Diary.objects.filter(diary_id = int(id))
-                                                
-                                except Exception as ex:
-                                    self.data_returned['data'][key][id] = self.CUSTOM_FALSE(408, f"DataType-{str(ex)}")
-
-                                else:
-                                    if(len(diary_ref) < 1):
-                                        self.data_returned['data'][key][id] = self.CUSTOM_FALSE(404, "Invalid-Diary ID")
-                                                    
-                                    else:
-                                        diary_ref = diary_ref[0]
-                                        if(diary_ref.user_credential_id != int(data[1])):
-                                            self.data_returned['data'][key][id] = self.CUSTOM_FALSE(404, "Invalid-Diary Does not belong to USER")
-
-                                        else:
-                                            diary_serialized = Diary_Serializer(diary_ref, many=False).data
-                                            self.data_returned['data'][key][id] = self.TRUE_CALL(data = diary_serialized)
-                                    
-                elif(action == 1): # all diaries of post
-                    key = "-".join('POST', check['post_id'], "ALL")
-                    data = auth.check_authorization('admin', 'alpha')
-                    if(data[1] == False):
-                        self.data_returned['data'][key] = self.CUSTOM_FALSE(666, "Hash-not ADMIN_ALPHA")
-                                        
-                    else:
-                        try:
-                            diary_ref_post = Diary.objects.filter(post_id = int(check[keys[1]])).order_by("-diary_id")
-                                            
-                        except Exception as ex:
-                            self.data_returned['data'][key] = self.CUSTOM_FALSE(666, f"DataType-{str(ex)}")
-                                            
-                        else:
-                            if(len(diary_ref_post) < 1):
-                                self.data_returned['data'][key] = self.CUSTOM_FALSE(151, f"Empty-Post_Diary Tray empty")
-                                                
-                            else:
-                                diary_ref_post_serialized = Diary_Serializer(diary_ref_post, many=True).data
-                                self.data_returned['data'][key] = self.TRUE_CALL(data = diary_ref_post_serialized)
-                                    
-                else: # one user diaries of post+user
-                    key = "-".join('POST', check['post_id'], "SELF")
-                    data = auth.check_authorization('user')
-                    if(data[1] == False):
-                        self.data_returned['data'][key] = self.CUSTOM_FALSE(666, "Hash-not USER")
-                                        
-                    else:
-                        try:
-                            diary_ref_user = Diary.objects.filter(user_id = int(data[1]), post_id = int(check['post_id'])).order_by("-diary_id")
-                                            
-                        except Exception as ex:
-                            self.data_returned['data'][key] = self.CUSTOM_FALSE(666, f"DataType-{str(ex)}")
-                                            
-                        else:
-                            if(len(diary_ref_user) < 1):
-                                self.data_returned['data'][key] = self.CUSTOM_FALSE(151, f"Empty-Post_Diary Tray empty")
-                                                
-                            else:
-                                diary_ref_user_serialized = Diary_Serializer(diary_ref_user, many=True).data
-                                self.data_returned['data'][key] = self.TRUE_CALL(data = diary_ref_post_serialized)
-
-
-            return JsonResponse(self.data_returned, safe=True)
-
-    @overrides
-    def edit(self, incoming_data):
-        self.data_returned['action'] += "-EDIT"
-        self.clear()
-        try:
-            incoming_data = incoming_data['data']
-            self.token = incoming_data['hash']
-            incoming_data = incoming_data['data']
-
-        except Exception as ex:
-            return JsonResponse(self.MISSING_KEY(ex), safe=True)
-                    
-        else:
-            data = self.check_authorization("user")
-            if(data[0] == False):
-                return JsonResponse(self.CUSTOM_FALSE(102, 'Hash-not USER'), safe=True)
-                                
+                    diary_ref = Diary.objects.get(user_credential_id = user_id, diary_id=pk)
+                    diary_serialized = Diary_Serializer(diary_ref, many=False)
+            except Diary.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
             else:
-                try:
-                    diary_ref = Diary.objects.filter(lecture_id = int(incoming_data['diary_id']))
+                data['success'] = True
+                data['data'] = diary_serialized.data
+                return Response(data=data, status=status.HTTP_202_ACCEPTED)
 
-                except Exception as ex:
-                    return JsonResponse(self.CUSTOM_FALSE(408, f"DataType-{str(ex)}"), safe=True)
-                                    
-                else:
-                    if(len(diary_ref) < 1):
-                        return JsonResponse(self.CUSTOM_FALSE(404, "Invalid-Diary Id"), safe=True)
-                                        
-                    else:
-                        diary_ref = diary_ref[0]
-                        if(diary_ref.user_credential_id.user_credential_id != int(data[1])):
-                            return JsonResponse(self.CUSTOM_FALSE(404, "Invalid-Diary does not belong to USER"), safe=True)
-                                            
-                        else:
-                            diary_de_serialized = Diary_Serializer(diary_ref, data = incoming_data)
-                            if(diary_de_serialized.is_valid()):
-                                diary_de_serialized.save()
-                                self.data_returned = self.TRUE_CALL(data = {"diary" : diary_de_serialized.data['diary_id'], "post" : diary_de_serialized.data['diary_id']})
-                                        
-                            else:
-                                return JsonResponse(self.JSON_PARSER_ERROR(f"{diary_de_serialized.errors}"), safe=True)
-                                
-            return JsonResponse(self.data_returned, safe=True)
-
-    @overrides
-    def delete(self, incoming_data):
-        self.data_returned['action'] += "-DELETE"
-        self.clear()
-        try:
-            incoming_data = incoming_data['data']
-            self.token = incoming_data['hash']
-            diary_ids = tuple(set(incoming_data['diary_id']))
-
-        except Exception as ex:
-            return JsonResponse(self.MISSING_KEY(ex), safe=True)
-                    
+    @api_view(['PUT', ])
+    def edit(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data)
         else:
-            data_a = self.check_authorization("admin", "alpha")
-            data_u = self.check_authorization("user")
-            for id in diary_ids:
-                try:
-                    diary_ref = Diary.objects.filter(lecture_id = int(id))
-                                        
-                except Exception as ex:
-                    self.data_returned['data'][id] = self.CUSTOM_FALSE(408, f"DataType-{str(ex)}")
+            user_id = auth[1]
+            try:
+                diary_ref = Diary.objects.filter(user_credential_id=user_id, diary_id=pk)
+                if(len(diary_ref) < 1):
+                    data['success'] = False
+                    data['message'] = "item does not belong to user"
+                    return Response(data = data)
 
+            except Diary.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            else:
+                diary_ref = diary_ref[0]
+                diary_serialized = Diary_Serializer(diary_ref, data=request.data)
+                diary_serialized.initial_data['user_credential_id'] = int(user_id)
+                diary_serialized.initial_data['post_id'] = diary_ref.post_id.post_id
+                if(diary_serialized.is_valid()):
+                    diary_serialized.save()
+                    data['success'] = True
+                    data['data'] = diary_serialized.data
+                    return Response(data = data)
                 else:
-                    if(len(diary_ref) < 1):
-                        self.data_returned['data'][id] = self.CUSTOM_FALSE(404, "Invalid-Diary Id")
-                                        
-                    else:
-                        if(data_u[0] == False):
-                            self.data_returned['data'][id] = self.CUSTOM_FALSE(404, "Hash-not USER")
-                                            
-                        else:
-                            diary_ref = diary_ref[0]
-                            if(diary_ref.user_credential_id != int(data_u[1])):
-                                if(data_a[0] == False):
-                                    self.data_returned['data'][id] = self.CUSTOM_FALSE(404, "Invalid-Diary does not belong to USER")
-                                                
-                                else: # deleted other as admin
-                                    diary_ref.delete()
-                                    self.data_returned['data'][id] = self.TRUE_CALL(message = "As ADMIN")
-                                                
-                            else: # deleted self as user
-                                diary_ref.delete()
-                                self.data_returned['data'][id] = self.TRUE_CALL(message = "As USER")
+                    data['success'] = False
+                    data['message'] = f"error:SERIALIZING_ERROR, message:{diary_serialized.errors}"
+                    return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
 
-            return JsonResponse(self.data_returned, safe=True)
+    @api_view(['DELETE', ])
+    def delete(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data)
+        else:
+            user_id = auth[1]
+            try:
+                diary_ref = Diary.objects.filter(user_credential_id = user_id, diary_id = pk)
+                if(len(diary_ref) < 1):
+                    data['success'] = False
+                    data['message'] = "item does not belong to user"
+                    return Response(data = data)
+            except Diary.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            else:
+                diary_ref = diary_ref[0]
+                diary_ref.delete()
+                data['success'] = True
+                return Response(data = data)
+
+    # active point
+    data = am_I_Authorized(request, "API")
+    if(data[0] == False):
+        return JsonResponse({"error":"API_KEY_UNAUTHORIZED", "message" : data[1]}, safe=True)
+    else:
+        data = am_I_Authorized(request, "USER")
+        if(job == 'create'):
+            return create(request, data)
+        elif(job == 'read'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/personal/diary/read/<id>"}, safe=True)
+            else:
+                return read(request, pk, data)
+        elif(job == 'edit'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/personal/diary/edit/<id>"}, safe=True)
+            else:
+                return edit(request, pk, data)
+        elif(job == 'delete'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/personal/diary/delete/<id>"}, safe=True)
+            else:
+                return delete(request, pk, data)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+# ------------------------------------------------------------
+
+@csrf_exempt
+def api_submission_view(request, job, pk=None):
+
+    @api_view(['POST', ])
+    def create(request, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data)
+        else:
+            user_id = auth[1]
+            data = dict()
+            submission_serialized = Submission_Serializer(data=request.data)
+            submission_serialized.initial_data['user_credential_id'] = int(user_id)
+            if(submission_serialized.is_valid()):
+                submission_serialized.save()
+                data['success'] = True
+                data['data'] = submission_serialized.data
+                return Response(data=data, status=status.HTTP_201_CREATED)
+            else:
+                data['success'] = False
+                data['message'] = f"error:SERIALIZING_ERROR, message:{submission_serialized.errors}"
+                return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
+
+    @api_view(['GET', ])
+    def read(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data)
+        else:
+            user_id = auth[1]
+            try:
+                if(int(pk) == 0):
+                    submission_ref = Submission.objects.filter(user_credential_id = user_id)
+                    submission_serialized = Submission_Serializer(submission_ref, many=True)
+                else:
+                    submission_ref = Submission.objects.get(user_credential_id = user_id)
+                    submission_serialized = Submission_Serializer(submission_ref, many=False)
+            except Submission.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            else:
+                data['success'] = True
+                data['data'] = submission_serialized.data
+                return Response(data=data, status=status.HTTP_202_ACCEPTED)
+
+    @api_view(['PUT', ])
+    def edit(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data)
+        else:
+            user_id = auth[1]
+            try:
+                submission_ref = Submission.objects.filter(user_credential_id = user_id, submission_id = pk)
+                if(len(submission_ref) < 1):
+                    data['success'] = False
+                    data['message'] = "item does not belong to user"
+                    return Response(data = data)
+
+            except Submission.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            else:
+                submission_ref = submission_ref[0]
+                submission_serialized = Submission_Serializer(submission_ref, data=request.data)
+                submission_serialized.initial_data['user_credential_id'] = int(user_id)
+                submission_serialized.initial_data['assignment_id'] = submission_ref.assignment_id.assignment_id
+                if(submission_serialized.is_valid()):
+                    submission_serialized.save()
+                    data['success'] = True
+                    data['data'] = submission_serialized.data
+                    return Response(data = data)
+                else:
+                    data['success'] = False
+                    data['message'] = f"error:SERIALIZING_ERROR, message:{submission_serialized.errors}"
+                    return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
+
+    @api_view(['DELETE', ])
+    def delete(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data)
+        else:
+            user_id = auth[1]
+            try:
+                submission_ref = Submission.objects.filter(user_credential_id = user_id, submission_id = pk)
+                if(len(submission_ref) < 1):
+                    data['success'] = False
+                    data['message'] = "item does not belong to user"
+                    return Response(data = data)
+            except Submission.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            else:
+                submission_ref = submission_ref[0]
+                submission_ref.delete()
+                data['success'] = True
+                return Response(data = data)
+
+    # active point
+    data = am_I_Authorized(request, "API")
+    if(data[0] == False):
+        return JsonResponse({"error":"API_KEY_UNAUTHORIZED", "message" : data[1]}, safe=True)
+    else:
+        data = am_I_Authorized(request, "USER")
+        if(job == 'create'):
+            return create(request, data)
+        elif(job == 'read'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/personal/submission/read/<id>"}, safe=True)
+            else:
+                return read(request, pk, data)
+        elif(job == 'edit'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/personal/submission/edit/<id>"}, safe=True)
+            else:
+                return edit(request, pk, data)
+        elif(job == 'delete'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/personal/submission/delete/<id>"}, safe=True)
+            else:
+                return delete(request, pk, data)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+# ------------------------------------------------------------
+# ------------------------------------------------------------
+# ------------------------------------------------------------
+# ------------------------------------------------------------
+# ------------------------------------------------------------
 
 class Submission_Api(API_Prime, Authorize):
     
@@ -872,7 +911,7 @@ class Enroll_Api(API_Prime, Authorize):
 
 # --------------------------------
 
-diary = Diary_Api()
+# diary = Diary_Api()
 submission = Submission_Api()
 notification = Notification_Api()
 enroll = Enroll_Api()

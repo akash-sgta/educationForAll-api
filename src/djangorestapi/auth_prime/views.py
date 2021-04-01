@@ -1,39 +1,454 @@
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
-from rest_framework.parsers import JSONParser
 from django.http.response import JsonResponse
 from django.contrib import messages
 from django.core.files.storage import FileSystemStorage
+
+from rest_framework import status
+from rest_framework.parsers import JSONParser
+from rest_framework.viewsets import ModelViewSet
+from rest_framework.decorators import api_view, renderer_classes
+from rest_framework.response import Response
 
 import re
 import json
 import os
 from overrides import overrides
-from datetime import datetime
+from datetime import datetime, timedelta
+from hashlib import sha256
+import string
+import random
 
 # --------------------------------------------------------------------------
 
-from auth_prime.models import User_Credential
-from auth_prime.models import User_Profile
-from auth_prime.models import Admin_Privilege
-from auth_prime.models import Admin_Credential
-from auth_prime.models import Admin_Cred_Admin_Prev_Int
-from auth_prime.models import User_Token_Table
-from auth_prime.models import Api_Token_Table
-from auth_prime.models import Image
+from auth_prime.models import (
+        User_Credential,
+        User_Profile,
+        Admin_Credential,
+        Admin_Privilege,
+        Admin_Cred_Admin_Prev_Int,
+        User_Token_Table,
+        Api_Token_Table,
+        Image
+    )
 
-from auth_prime.serializer import User_Credential_Serializer
-from auth_prime.serializer import User_Profile_Serializer
-from auth_prime.serializer import Admin_Privilege_Serializer
-from auth_prime.serializer import Admin_Credential_Serializer
+from auth_prime.serializer import (
+        User_Credential_Serializer,
+        User_Profile_Serializer,
+        Admin_Privilege_Serializer,
+        Admin_Credential_Serializer
+    )
 
 from auth_prime.authorize import Authorize
 from auth_prime.authorize import Cookie
 
 from auth_prime.important_modules import API_Prime
+from auth_prime.important_modules import (
+        am_I_Authorized,
+        create_password_hashed,
+        random_generator,
+        create_token
+    )
 
-# --------------------------------------------------------------------------
+# ------------------------------------------------------------
 
+
+
+# -------------------------USER_CREDENTIAL-----------------------------------
+
+@csrf_exempt
+def api_user_cred_view(request, job, pk=None):
+
+    @api_view(['POST', ])
+    def create(request, auth):
+        data = dict()
+        
+        if(request.data['action'].lower() == 'signin'):
+            if(auth[0]):
+                user_cred_ref = User_Credential.objects.get(user_credential_id = auth[1])
+                user_cred_serialized = User_Credential_Serializer(user_cred_ref, many=False)
+                data['success'] = True
+                data['message'] = "User already logged in, logout first"
+                return Response(data = data, status=status.HTTP_201_CREATED)
+            else:
+                myData = request.data['data']
+                user_cred_ref = User_Credential.objects.filter(user_email = myData['email'].lower())
+                if(len(user_cred_ref) < 1):
+                    data['success'] = False
+                    data['message'] = "Email not registered"
+                    return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+                else:
+                    user_cred_ref = user_cred_ref[0]
+                    if(user_cred_ref.user_password != create_password_hashed(myData['password'])):
+                        data['success'] = False
+                        data['message'] = "Password incorrect"
+                        return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+                    else:
+                        data['success'] = True
+                        data['data'] = create_token(user_cred_ref)
+                        return Response(data = data, status=status.HTTP_201_CREATED)
+        
+        elif(request.data['action'].lower() == 'signup'):
+            if(auth[0]):
+                data['success'] = False
+                data['message'] = "User already logged in, logout first"
+                return Response(data = data, status=status.HTTP_403_FORBIDDEN)
+            else:
+                user_cred_de_serialized = User_Credential_Serializer(data = request.data['data'])
+                user_cred_de_serialized.initial_data['user_email'] = user_cred_de_serialized.initial_data['user_email'].lower()
+                if(len(User_Credential.objects.filter(user_email = user_cred_de_serialized.initial_data['user_email'])) > 0):
+                    data['success'] = False
+                    data['message'] = "Email already in use"
+                    return Response(data = data, status = status.HTTP_403_FORBIDDEN)
+                else:
+                    user_cred_de_serialized.initial_data['user_password'] = create_password_hashed(user_cred_de_serialized.initial_data['user_password'])
+                    if(user_cred_de_serialized.is_valid()):
+                        user_cred_de_serialized.save()
+                        data['success'] = True
+                        user_cred_ref = User_Credential.objects.get(user_credential_id = user_cred_de_serialized.data['user_credential_id'])
+                        data['data'] = create_token(user_cred_ref)
+                        return Response(data = data, status=status.HTTP_201_CREATED)
+                    else:
+                        data['success'] = False
+                        data['message'] = user_cred_de_serialized.errors
+                        return Response(data = data, status = status.HTTP_400_BAD_REQUEST)
+
+    @api_view(['GET', ])
+    def read(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data)
+        else:
+            user_id = auth[1]
+            try:
+                if(int(pk) == 0 or int(pk) == user_id): #self
+                    user_cred_ref = User_Credential.objects.get(user_credential_id = user_id)
+                    data['success'] = True
+                    data['data'] = User_Credential_Serializer(user_cred_ref, many=False).data
+                    return Response(data = data, status = status.HTTP_202_ACCEPTED)
+                else:
+                    if(am_I_Authorized(request, 'ADMIN') > 0):
+                        if(int(pk) == 666):
+                            user_cred_ref = User_Credential.objects.all()
+                            data['success'] = True
+                            data['data'] = User_Credential_Serializer(user_cred_ref, many=True).data
+                            return Response(data = data, status = status.HTTP_202_ACCEPTED)
+                        else:
+                            try:
+                                user_cred_ref = User_Credential.objects.get(user_credential_id = pk)
+                            except User_Credential.DoesNotExist:
+                                data['success'] = False
+                                data['message'] = "item invalid"
+                                return Response(data = data, status = status.HTTP_404_NOT_FOUND)
+                            else:
+                                data['success'] = True
+                                data['data'] = User_Credential_Serializer(user_cred_ref, many=False).data
+                                return Response(data = data, status = status.HTTP_202_ACCEPTED)
+                    else:
+                        data['success'] = False
+                        data['message'] = "User does not have ADMIN privileges"
+                        return Response(data = data, status = status.HTTP_401_UNAUTHORIZED)
+            except Exception as ex:
+                print("EX : ", ex)
+                return Response(status = status.HTTP_400_BAD_REQUEST)
+
+    @api_view(['PUT', ])
+    def edit(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data)
+        else:
+            user_id = auth[1]
+            try:
+                user_cred_ref = User_Credential.objects.filter(user_credential_id = user_id)
+            except User_Credential.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            else:
+                user_cred_ref = user_cred_ref[0]
+                user_cred_serialized = User_Credential_Serializer(user_cred_ref, data=request.data)
+                user_cred_serialized.initial_data['user_credential_id'] = int(user_id)
+                if(user_cred_serialized.is_valid()):
+                    user_cred_serialized.save()
+                    data['success'] = True
+                    data['data'] = user_cred_serialized.data
+                    return Response(data = data)
+                else:
+                    data['success'] = False
+                    data['message'] = f"error:SERIALIZING_ERROR, message:{user_cred_serialized.errors}"
+                    return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
+
+    @api_view(['DELETE', ])
+    def delete(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data)
+        else:
+            user_id = auth[1]
+            try:
+                if(int(pk) == 0 or int(pk) == user_id): #self
+                    User_Credential.objects.get(user_credential_id = user_id).delete()
+                    data['success'] = True
+                    data['message'] = "User Deleted"
+                    return Response(data = data, status = status.HTTP_202_ACCEPTED)
+                else:
+                    if(am_I_Authorized(request, 'ADMIN') > 0):
+                        if(int(pk) == 666):
+                            User_Credential.objects.all().exclude(user_credential_id = user_id).delete()
+                            data['success'] = True
+                            data['message'] = "All User(s) Deleted"
+                            return Response(data = data, status = status.HTTP_202_ACCEPTED)
+                        else:
+                            try:
+                                user_cred_ref = User_Credential.objects.get(user_credential_id = pk)
+                            except User_Credential.DoesNotExist:
+                                data['success'] = False
+                                data['message'] = "item invalid"
+                                return Response(data = data, status = status.HTTP_404_NOT_FOUND)
+                            else:
+                                user_cred_ref.delete()
+                                data['success'] = True
+                                data['message'] = "User Deleted by ADMIN"
+                                return Response(data = data, status = status.HTTP_202_ACCEPTED)
+                    else:
+                        data['success'] = False
+                        data['message'] = "User does not have ADMIN privileges"
+                        return Response(data = data, status = status.HTTP_401_UNAUTHORIZED)
+            except Exception as ex:
+                print("EX : ", ex)
+                return Response(status = status.HTTP_400_BAD_REQUEST)
+
+    # active point
+    data = am_I_Authorized(request, "API")
+    if(data[0] == False):
+        return JsonResponse({"error":"API_KEY_UNAUTHORIZED", "message" : data[1]}, safe=True)
+    else:
+        data = am_I_Authorized(request, "USER")
+        if(job == 'create'):
+            return create(request, data)
+        elif(job == 'read'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/user/cred/read/<id>"}, safe=True)
+            else:
+                return read(request, pk, data)
+        elif(job == 'edit'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/user/cred/edit/<id>"}, safe=True)
+            else:
+                return edit(request, pk, data)
+        elif(job == 'delete'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/user/cred/delete/<id>"}, safe=True)
+            else:
+                return delete(request, pk, data)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+# -------------------------USER_PROFILE-----------------------------------
+
+@csrf_exempt
+def api_user_prof_view(request, job, pk=None):
+
+    @api_view(['POST', ])
+    def create(request, auth):
+        data = dict()
+        
+        if(request.data['action'].lower() == 'signin'):
+            if(auth[0]):
+                user_cred_ref = User_Credential.objects.get(user_credential_id = auth[1])
+                user_cred_serialized = User_Credential_Serializer(user_cred_ref, many=False)
+                data['success'] = True
+                data['message'] = "User already logged in, logout first"
+                return Response(data = data, status=status.HTTP_201_CREATED)
+            else:
+                myData = request.data['data']
+                user_cred_ref = User_Credential.objects.filter(user_email = myData['email'].lower())
+                if(len(user_cred_ref) < 1):
+                    data['success'] = False
+                    data['message'] = "Email not registered"
+                    return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+                else:
+                    user_cred_ref = user_cred_ref[0]
+                    if(user_cred_ref.user_password != create_password_hashed(myData['password'])):
+                        data['success'] = False
+                        data['message'] = "Password incorrect"
+                        return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+                    else:
+                        data['success'] = True
+                        data['data'] = create_token(user_cred_ref)
+                        return Response(data = data, status=status.HTTP_201_CREATED)
+        
+        elif(request.data['action'].lower() == 'signup'):
+            if(auth[0]):
+                data['success'] = False
+                data['message'] = "User already logged in, logout first"
+                return Response(data = data, status=status.HTTP_403_FORBIDDEN)
+            else:
+                user_cred_de_serialized = User_Credential_Serializer(data = request.data['data'])
+                user_cred_de_serialized.initial_data['user_email'] = user_cred_de_serialized.initial_data['user_email'].lower()
+                if(len(User_Credential.objects.filter(user_email = user_cred_de_serialized.initial_data['user_email'])) > 0):
+                    data['success'] = False
+                    data['message'] = "Email already in use"
+                    return Response(data = data, status = status.HTTP_403_FORBIDDEN)
+                else:
+                    user_cred_de_serialized.initial_data['user_password'] = create_password_hashed(user_cred_de_serialized.initial_data['user_password'])
+                    if(user_cred_de_serialized.is_valid()):
+                        user_cred_de_serialized.save()
+                        data['success'] = True
+                        user_cred_ref = User_Credential.objects.get(user_credential_id = user_cred_de_serialized.data['user_credential_id'])
+                        data['data'] = create_token(user_cred_ref)
+                        return Response(data = data, status=status.HTTP_201_CREATED)
+                    else:
+                        data['success'] = False
+                        data['message'] = user_cred_de_serialized.errors
+                        return Response(data = data, status = status.HTTP_400_BAD_REQUEST)
+
+    @api_view(['GET', ])
+    def read(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data)
+        else:
+            user_id = auth[1]
+            try:
+                if(int(pk) == 0 or int(pk) == user_id): #self
+                    user_cred_ref = User_Credential.objects.get(user_credential_id = user_id)
+                    data['success'] = True
+                    data['data'] = User_Credential_Serializer(user_cred_ref, many=False).data
+                    return Response(data = data, status = status.HTTP_202_ACCEPTED)
+                else:
+                    if(am_I_Authorized(request, 'ADMIN') > 0):
+                        if(int(pk) == 666):
+                            user_cred_ref = User_Credential.objects.all()
+                            data['success'] = True
+                            data['data'] = User_Credential_Serializer(user_cred_ref, many=True).data
+                            return Response(data = data, status = status.HTTP_202_ACCEPTED)
+                        else:
+                            try:
+                                user_cred_ref = User_Credential.objects.get(user_credential_id = pk)
+                            except User_Credential.DoesNotExist:
+                                data['success'] = False
+                                data['message'] = "item invalid"
+                                return Response(data = data, status = status.HTTP_404_NOT_FOUND)
+                            else:
+                                data['success'] = True
+                                data['data'] = User_Credential_Serializer(user_cred_ref, many=False).data
+                                return Response(data = data, status = status.HTTP_202_ACCEPTED)
+                    else:
+                        data['success'] = False
+                        data['message'] = "User does not have ADMIN privileges"
+                        return Response(data = data, status = status.HTTP_401_UNAUTHORIZED)
+            except Exception as ex:
+                print("EX : ", ex)
+                return Response(status = status.HTTP_400_BAD_REQUEST)
+
+    @api_view(['PUT', ])
+    def edit(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data)
+        else:
+            user_id = auth[1]
+            try:
+                user_cred_ref = User_Credential.objects.filter(user_credential_id = user_id)
+            except User_Credential.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            else:
+                user_cred_ref = user_cred_ref[0]
+                user_cred_serialized = User_Credential_Serializer(user_cred_ref, data=request.data)
+                user_cred_serialized.initial_data['user_credential_id'] = int(user_id)
+                if(user_cred_serialized.is_valid()):
+                    user_cred_serialized.save()
+                    data['success'] = True
+                    data['data'] = user_cred_serialized.data
+                    return Response(data = data)
+                else:
+                    data['success'] = False
+                    data['message'] = f"error:SERIALIZING_ERROR, message:{user_cred_serialized.errors}"
+                    return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
+
+    @api_view(['DELETE', ])
+    def delete(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data)
+        else:
+            user_id = auth[1]
+            try:
+                if(int(pk) == 0 or int(pk) == user_id): #self
+                    User_Credential.objects.get(user_credential_id = user_id).delete()
+                    data['success'] = True
+                    data['message'] = "User Deleted"
+                    return Response(data = data, status = status.HTTP_202_ACCEPTED)
+                else:
+                    if(am_I_Authorized(request, 'ADMIN') > 0):
+                        if(int(pk) == 666):
+                            User_Credential.objects.all().exclude(user_credential_id = user_id).delete()
+                            data['success'] = True
+                            data['message'] = "All User(s) Deleted"
+                            return Response(data = data, status = status.HTTP_202_ACCEPTED)
+                        else:
+                            try:
+                                user_cred_ref = User_Credential.objects.get(user_credential_id = pk)
+                            except User_Credential.DoesNotExist:
+                                data['success'] = False
+                                data['message'] = "item invalid"
+                                return Response(data = data, status = status.HTTP_404_NOT_FOUND)
+                            else:
+                                user_cred_ref.delete()
+                                data['success'] = True
+                                data['message'] = "User Deleted by ADMIN"
+                                return Response(data = data, status = status.HTTP_202_ACCEPTED)
+                    else:
+                        data['success'] = False
+                        data['message'] = "User does not have ADMIN privileges"
+                        return Response(data = data, status = status.HTTP_401_UNAUTHORIZED)
+            except Exception as ex:
+                print("EX : ", ex)
+                return Response(status = status.HTTP_400_BAD_REQUEST)
+
+    # active point
+    data = am_I_Authorized(request, "API")
+    if(data[0] == False):
+        return JsonResponse({"error":"API_KEY_UNAUTHORIZED", "message" : data[1]}, safe=True)
+    else:
+        data = am_I_Authorized(request, "USER")
+        if(job == 'create'):
+            return create(request, data)
+        elif(job == 'read'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/user/prof/read/<id>"}, safe=True)
+            else:
+                return read(request, pk, data)
+        elif(job == 'edit'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/user/prof/edit/<id>"}, safe=True)
+            else:
+                return edit(request, pk, data)
+        elif(job == 'delete'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/user/prof/delete/<id>"}, safe=True)
+            else:
+                return delete(request, pk, data)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+# ------------------------------------------------------------
+# ------------------------------------------------------------
+# ------------------------------------------------------------
+# ------------------------------------------------------------
+# ------------------------------------------------------------
 # -------------------------------API_SPACE-------------------------------------
 
 class User_Credential_Api(API_Prime, Authorize):
