@@ -16,10 +16,10 @@ class Diary_Serializer(serializers.ModelSerializer):
         fields = (
             'diary_id',
             'post_id',
-            'user_credential_id',
             'diary_name',
             'diary_body',
-            'made_date'
+            "made_date",
+            "user_credential_id"
         )
 
 class Submission_Serializer(serializers.ModelSerializer):

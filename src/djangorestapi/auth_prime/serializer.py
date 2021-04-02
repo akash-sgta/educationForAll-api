@@ -2,10 +2,13 @@ from rest_framework import serializers
 
 # ---------------------------------------------------------------
 
-from auth_prime.models import User_Profile
-from auth_prime.models import User_Credential
-from auth_prime.models import Admin_Privilege
-from auth_prime.models import Admin_Credential
+from auth_prime.models import (
+        User_Profile,
+        User_Credential,
+        Admin_Privilege,
+        Admin_Credential,
+        Image
+    )
 
 # ---------------------------------------------------------------
 
@@ -55,5 +58,10 @@ class Admin_Credential_Serializer(serializers.ModelSerializer):
             'admin_credential_id',
             'user_credential_id',
             'prime')
+
+class Image_Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = Image
+        fields = "__all__"
 
 # ---------------------------------------------------------------
