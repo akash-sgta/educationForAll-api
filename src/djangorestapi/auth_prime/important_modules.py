@@ -61,13 +61,15 @@ def am_I_Authorized(request, key):
                 else:
                     user_token_ref = user_token_ref[0]
                     admin_cred_ref = Admin_Credential.objects.filter(
-                                        user_credential_id = user_token_ref.user_credential_id.user_credential_id,
-                                        prime = True
+                                        user_credential_id = user_token_ref.user_credential_id.user_credential_id
                                     )
                     if(len(admin_cred_ref) < 1):
                         return 0
                     else:
-                        return 3 # for now, later check admin level
+                        if(admin_cred_ref.prime == False):
+                            return 2
+                        else:
+                            return 3 # for now, later check admin level
             else:
                 return 0
                 
@@ -99,6 +101,8 @@ def create_token(user_cred_ref):
     else:
         user_token_ref = user_token_ref[0]
     return user_token_ref.token_hash
+
+# --------------------------------------------------------
 
 def logger(api_key, message):
     import logging

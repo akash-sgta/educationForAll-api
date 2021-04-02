@@ -4,14 +4,13 @@ from auth_prime import views
 
 urlpatterns = [
 
-    url(r'api/user/cred/(?P<job>\w+)/(?P<pk>\d*)', views.api_user_cred_view, name="User_Cred_View"),
-    url(r'api/user/prof/(?P<job>\w+)/(?P<pk>\d*)', views.api_user_prof_view, name="User_Prof_View"),
-    url(r'api/user/profile/image/', views.image_endpoint.run, name="API_IMAGE"),
-    url(r'api/admin/admin/', views.admin_credential.run, name="API_ADMIN_CRED"),
-    url(r'api/admin/privilege/', views.admin_privilege.run, name="API_ADMIN_PRIV"),
+    url(r'api/user/cred/(?P<job>\w*)/(?P<pk>\d*)', views.api_user_cred_view, name="User_Cred_View"),
+    url(r'api/user/prof/(?P<job>\w*)/(?P<pk>\d*)', views.api_user_prof_view, name="User_Prof_View"),
+    url(r'api/user/image/(?P<job>\w*)/(?P<pk>\d*)', views.api_user_prof_image_view, name="User_Prof_Image_View"),
+    url(r'api/admin/cred/(?P<job>\w*)/(?P<pk>\d*)', views.api_admin_cred_view, name="Admin_Cred_View"),
+    url(r'api/admin/prev/(?P<job>\w*)/(?P<pk>\d*)', views.api_admin_priv_view, name="Admin_Prev_View"),
 
     url(r'web/api/(?P<word>\w*)/', views.api_token_web, name="API_TOKEN"),
     url(r'web/api/', views.api_token_web, name="API_TOKEN"),
-    # url(r'web/user/admin/privilege/$', views.admin_privilege_VIEW),
 
 ]

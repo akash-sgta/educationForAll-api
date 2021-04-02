@@ -37,7 +37,7 @@ class User_Profile(models.Model):
         ], null=True, blank=True)
     
     prime = models.BooleanField(default=True) # is student ?
-    made_date = models.CharField(default="-", max_length=32)
+    made_date = models.DateTimeField(auto_now_add=True)
 
     user_profile_pic = models.ForeignKey(Image, blank=True, null=True, on_delete=models.SET_NULL)
 
