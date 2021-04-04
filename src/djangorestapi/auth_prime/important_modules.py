@@ -5,7 +5,9 @@ from rest_framework.parsers import JSONParser
 from auth_prime.models import (
         Api_Token_Table,
         User_Token_Table,
-        Admin_Credential
+        Admin_Credential,
+        Admin_Privilege,
+        Admin_Cred_Admin_Prev_Int
     )
 
 from hashlib import sha256
@@ -66,7 +68,7 @@ def am_I_Authorized(request, key):
                     if(len(admin_cred_ref) < 1):
                         return 0
                     else:
-                        if(admin_cred_ref.prime == False):
+                        if(admin_cred_ref[0].prime == False):
                             return 2
                         else:
                             return 3 # for now, later check admin level
@@ -76,6 +78,41 @@ def am_I_Authorized(request, key):
         except Exception as ex:
             print("EX : ", ex)
             return 0
+
+def do_I_Have_Privilege(request, key):
+
+    try:
+        headers = request.headers
+        if('uauth' in headers):
+            token = headers['uauth'].split()[1]
+            user_token_ref = User_Token_Table.objects.filter(token_hash = token)
+            if(len(user_token_ref) < 1):
+                return False
+            else:
+                user_token_ref = user_token_ref[0]
+                admin_cred_ref = Admin_Credential.objects.filter(
+                                    user_credential_id = user_token_ref.user_credential_id.user_credential_id
+                                )
+                if(len(admin_cred_ref) < 1):
+                        return False
+                else:
+                    privilege_ref = Admin_Privilege.objects.filter(admin_privilege_name = key.upper())
+                    if(len(privilege_ref) < 1):
+                        return False
+                    else:
+                        many_to_many_ref = Admin_Cred_Admin_Prev_Int.objects.filter(
+                                            admin_credential_id = admin_cred_ref[0].admin_credential_id,
+                                            admin_privilege_id = privilege_ref[0].admin_privilege_id
+                                        )
+                        if(len(many_to_many_ref) < 1):
+                            return False
+                        else:
+                            return True
+        else:
+            return False
+    except Exception as ex:
+        print("EX : ", ex)
+        return False
 
 def create_password_hashed(password):
     sha256_ref = sha256()

@@ -4,12 +4,12 @@ from content_delivery import views
 
 urlpatterns = [
 
-    url(r'api/content/coordinator/', views.coordinator.run, name="COORDINATOR_API"),
-    url(r'api/content/subject/', views.subject.run, name="SUBJECT_API"),
-    url(r'api/content/forum/', views.forum.run, name="FORUM_API"),
-    url(r'api/content/reply/', views.reply.run, name="REPLY_API"),
-    url(r'api/content/lecture/', views.lecture.run, name="LECTURE_API"),
-    url(r'api/content/assignment/', views.assignment.run, name="ASSIGNMENT_API"),
-    url(r'api/content/post/', views.post.run, name="POST_API"),
+    url(r'api/content/coordinator/(?P<job>\w*)/(?P<pk>\d*)', views.api_coordinator_view, name="Coordinator_View"),
+    url(r'api/content/subject/(?P<job>\w*)/(?P<pk>\d*)', views.api_subject_view, name="Subject_View"),
+    url(r'api/content/forum/(?P<job>\w*)/(?P<pk>\d*)', views.api_forum_view, name="Forum_View"),
+    url(r'api/content/reply/(?P<job>\w*)/(?P<pk>\d*)', views.api_reply_view, name="Reply_View"),
+    url(r'api/content/lecture/(?P<job>\w*)/(?P<pk>\d*)', views.api_lecture_view, name="Lecture_View"),
+    url(r'api/content/assignment/(?P<job>\w*)/(?P<pk>\d*)', views.api_assignment_view, name="Assignment_View"),
+    url(r'api/content/post/(?P<job>\w*)/(?P<pk>\d*)', views.api_post_view, name="Post_View"),
     
 ]

@@ -15,23 +15,23 @@
  
 
 ### auth_prime
-##### - User_Credential_API <http://localhost/api/user/user/>
-##### - User_Profile_API <http://localhost/api/user/profile/>
-##### - Admin_Credential_API <http://localhost/api/admin/admin/>
-##### - Admin_Privilege_API <http://localhost/api/admin/privilege/>
-##### - Images_API <http://localhost/api/user/profile/image/>
+##### - User_Credential_API <http://localhost/api/user/cred//>
+##### - User_Profile_API <http://localhost/api/user/prof//>
+##### - Admin_Credential_API <http://localhost/api/admin/cred//>
+##### - Admin_Privilege_API <http://localhost/api/admin/priv//>
+##### - Images_API <http://localhost/api/user/image//>
 
  
 
 ### content_delivery
-##### - Coordinator_API <http://localhost/api/content/coordinator/>
-##### - Subject_API <http://localhost/api/content/subject/>
-##### - Forum_API <http://localhost/api/content/forum/>
-##### - Reply_API <http://localhost/api/content/reply/>
-##### - Lecture_API <http://localhost/api/content/lecture/>
-##### - Assignment_API <http://localhost/api/content/assignment/>
-##### - Video_API <http://localhost/api/content/video/>
-##### - Post_API <http://localhost/api/content/post/>
+##### - Coordinator_API <http://localhost/api/content/coordinator//>
+##### - Subject_API <http://localhost/api/content/subject//>
+##### - Forum_API <http://localhost/api/content/forum//>
+##### - Reply_API <http://localhost/api/content/reply//>
+##### - Lecture_API <http://localhost/api/content/lecture//>
+##### - Assignment_API <http://localhost/api/content/assignment//>
+##### - Video_API <http://localhost/api/content/video//>
+##### - Post_API <http://localhost/api/content/post//>
 
  
 

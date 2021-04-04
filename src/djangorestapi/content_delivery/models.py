@@ -53,7 +53,7 @@ class Forum(models.Model):
 
     forum_name = models.CharField(max_length=512, null=False, blank=False)
 
-    made_date = models.CharField(default="-", max_length=32)
+    made_date = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.forum_id} | {self.forum_name}"
@@ -65,10 +65,10 @@ class Reply(models.Model):
     user_credential_id = models.ForeignKey(User_Credential, null=True, blank=True, on_delete=models.SET_NULL)
 
     reply_body = models.TextField()
-    reply_upvote = models.IntegerField(null=True, blank=True)
-    reply_downvote = models.IntegerField(null=True, blank=True)
+    reply_upvote = models.IntegerField(default=0, null=True, blank=True)
+    reply_downvote = models.IntegerField(default=0, null=True, blank=True)
 
-    made_date = models.CharField(default="-", max_length=32)
+    made_date = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         if(self.user_credential_id == None):
@@ -84,7 +84,7 @@ class Lecture(models.Model):
     lecture_external_url_1 = models.URLField(null=True, blank=True)
     lecture_external_url_2 = models.URLField(null=True, blank=True)
 
-    made_date = models.CharField(default="-", max_length=32)
+    made_date = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.lecture_id} | {self.lecture_name}"
@@ -97,7 +97,7 @@ class Assignment(models.Model):
     assignment_external_url_1 = models.URLField(null=True, blank=True)
     assignment_external_url_2 = models.URLField(null=True, blank=True)
 
-    made_date = models.CharField(default="-", max_length=32)
+    made_date = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.assignment_id} | {self.assignment_name}"
@@ -116,11 +116,12 @@ class Post(models.Model):
 
     post_name = models.CharField(max_length=1024)
     post_body = models.TextField()
-    post_views = models.PositiveBigIntegerField()
-    post_upvote = models.IntegerField()
-    post_downvote = models.IntegerField()
+    
+    post_views = models.PositiveBigIntegerField(default=0)
+    post_upvote = models.IntegerField(default=0)
+    post_downvote = models.IntegerField(default=0)
 
-    made_date = models.CharField(default="-", max_length=32)
+    made_date = models.DateTimeField(auto_now=True)
 
     prime = models.BooleanField(default=False, null=False, blank=False)
 
