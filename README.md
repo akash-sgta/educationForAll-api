@@ -42,10 +42,10 @@
  
 
 ### user_personal
-##### - Submission_API <http://localhost/api/personal/submission/>
-##### - Diary_API <http://localhost/api/personal/diary/>
-##### - Enroll_API <http://localhost/api/personal/enroll/>
-##### - Notification_API <http://localhost/api/personal/notification/>
+##### - Submission_API <http://localhost/api/personal/submission///>
+##### - Diary_API <http://localhost/api/personal/diary//>
+##### - Enroll_API <http://localhost/api/personal/enroll//>
+##### - Notification_API <http://localhost/api/personal/notification//>
 
  
 
