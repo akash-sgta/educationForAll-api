@@ -9,10 +9,8 @@ from user_personal import views
 urlpatterns = [
     
     url(r'api/personal/diary/(?P<job>\w+)/(?P<pk>\d*)', views.api_diary_view, name="Diary_View"),
-
-    #url(r'api/personal/diary/', views.diary.run, name="DIARY_API"),
-    url(r'api/personal/submission/', views.submission.run, name="SUBMISSION_API"),
-    url(r'api/personal/notification/', views.notification.run, name="NOTIFICATION_API"),
-    url(r'api/personal/enroll/', views.enroll.run, name="ENROLL_API"),
+    url(r'api/personal/submission/(?P<job>\w+)/(?P<pk>\d*)/(?P<pkk>\d*)', views.api_submission_view, name="Submission_View"),
+    # url(r'api/personal/notification/(?P<job>\w+)/(?P<pk>\d*)', views.api_notification_view, name="Notification_View"),
+    url(r'api/personal/enroll/(?P<job>\w+)/(?P<pk>\d*)', views.api_enroll_view, name="Enroll_View"),
 
 ]

@@ -1,1618 +1,1271 @@
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework.parsers import JSONParser
 from django.http.response import JsonResponse
+
+from rest_framework import status
+from rest_framework.parsers import JSONParser
+from rest_framework.viewsets import ModelViewSet
+from rest_framework.decorators import api_view, renderer_classes
+from rest_framework.response import Response
 
 from datetime import datetime
 from overrides import overrides
 
 # ------------------------------------------------------
 
-from content_delivery.models import Coordinator
-from content_delivery.models import Subject
-from content_delivery.models import Subject_Coordinator_Int
-from content_delivery.models import Forum
-from content_delivery.models import Reply
-from content_delivery.models import Lecture
-from content_delivery.models import Assignment
-from content_delivery.models import Post
+from content_delivery.models import (
+        Coordinator,
+        Subject,
+        Subject_Coordinator_Int,
+        Forum,
+        Reply,
+        Lecture,
+        Assignment,
+        Post
+    )
 
-from content_delivery.serializer import Coordinator_Serializer
-from content_delivery.serializer import Subject_Serializer
-from content_delivery.serializer import Forum_Serializer
-from content_delivery.serializer import Reply_Serializer
-from content_delivery.serializer import Lecture_Serializer
-from content_delivery.serializer import Assignment_Serializer
-from content_delivery.serializer import Post_Serializer
+from content_delivery.serializer import (
+        Coordinator_Serializer,
+        Subject_Serializer,
+        Forum_Serializer,
+        Reply_Serializer,
+        Lecture_Serializer,
+        Assignment_Serializer,
+        Post_Serializer
+    )
 
 from auth_prime.important_modules import API_Prime
 
-from auth_prime.models import User_Credential
-from auth_prime.models import Admin_Credential
-from auth_prime.models import Admin_Cred_Admin_Prev_Int
-from auth_prime.models import Admin_Privilege
+from auth_prime.models import (
+        User_Credential,
+        User_Profile,
+        Admin_Credential,
+        Admin_Cred_Admin_Prev_Int,
+        Admin_Privilege
+    )
 
-from user_personal.models import Notification
-from user_personal.models import User_Notification_Int
-from user_personal.models import Enroll
+from auth_prime.serializer import (
+        User_Credential_Serializer,
+        User_Profile_Serializer
+    )
 
-from user_personal.serializer import Notification_Serializer
-from user_personal.serializer import User_Notification_Int_Serializer
-from user_personal.serializer import Enroll_Serializer
+from user_personal.models import (
+        Notification,
+        User_Notification_Int,
+        Enroll,
+        Submission
+    )
 
-from auth_prime.authorize import Authorize
+from user_personal.serializer import (
+        Notification_Serializer,
+        User_Notification_Int_Serializer,
+        Enroll_Serializer,
+        Submission_Serializer
+    )
 
-# ------------------------------------------------------
+from auth_prime.important_modules import (
+        am_I_Authorized,
+        do_I_Have_Privilege
+    )
 
-# ---------------------------------------------API SPACE-------------------------------------------------------
+# ---------------------COORDINATOR---------------------------------
 
-class Coordinator_Api(API_Prime, Authorize):
-    
-    def __init__(self):
-        super().__init__()
+@csrf_exempt
+def api_coordinator_view(request, job, pk=None):
 
-    @overrides
-    def create(self, incoming_data):
-        self.data_returned['action'] += "-CREATE"
-        self.clear()
-        try:
-            incoming_data = incoming_data['data']
-            self.token = incoming_data['hash']
-
-        except Exception as ex:
-            return JsonResponse(self.MISSING_KEY(ex), safe=True)
-
+    @api_view(['POST', ])
+    def create(request, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         else:
-            data = self.check_authorization("admin", "cagp") # Coordinators can be placed by admins only
-            if(data[0] == False):
-                return JsonResponse(self.CUSTOM_FALSE(111, "Hash-not ADMIN"), safe=True)
+            if(am_I_Authorized(request, "ADMIN") < 2):
+                data['success'] = False
+                data['message'] = "USER does not have required ADMIN PRIVILEGES"
+                return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+            else:
+                if(do_I_Have_Privilege(request, "CAGP")):
+                    id = request.data['user_id']
+                    coordinator_ref = Coordinator.objects.filter(user_credential_id = int(id))
+                    if(len(coordinator_ref) > 0):
+                        data['success'] = True
+                        data['message'] = "USER already COORDINATOR"
+                        data['data'] = Coordinator_Serializer(coordinator_ref[0], many=False).data
+                        return Response(data = data, status=status.HTTP_201_CREATED)
+                    else:
+                        try:
+                            user_cred_ref = User_Credential.objects.get(user_credential_id = int(id))
+                        except User_Credential.DoesNotExist:
+                            data['success'] = False
+                            data['message'] = "item invalid"
+                            return Response(data = data, status=status.HTTP_404_NOT_FOUND)
+                        else:
+                            coordinator_ref_new = Coordinator(user_credential_id = user_cred_ref)
+                            coordinator_ref_new.save()
+                            data['success'] = True
+                            data['data'] = Coordinator_Serializer(coordinator_ref_new, many=False).data
+                            return Response(data = data, status=status.HTTP_201_CREATED)
+                else:
+                    data['success'] = False
+                    data['message'] = "ADMIN does not have required ADMIN PRIVILEGES"
+                    return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
 
+    @api_view(['GET', ])
+    def read(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            user_id = auth[1]
+            if(int(pk) == 0): #all
+                coordinator_ref = Coordinator.objects.all()
+                coor_list = list()
+                for cor in coordinator_ref:
+                    many_to_many = Subject_Coordinator_Int.objects.filter(coordinator_id = cor.coordinator_id)
+                    subject_list = list()
+                    for one in many_to_many:
+                        subject_list.append(one.subject_id.subject_id)
+                    coor_list.append({
+                        "coordinator" : Coordinator_Serializer(cor, many=False).data,
+                        "subject" : subject_list.copy()}
+                    )
+                data['success'] = True
+                data['data'] = coor_list
+                return Response(data = data, status=status.HTTP_202_ACCEPTED)
             else:
                 try:
-                    user_ids = tuple(set(incoming_data['user_id']))
-                                            
-                except Exception as ex:
-                    return JsonResponse(self.AMBIGUOUS_404(ex), safe=True)
-
+                    coordinator_ref = Coordinator.objects.get(coordinator_id = int(pk))
+                except Coordinator.DoesNotExist:
+                    data['success'] = False
+                    data['message'] = "item does not exist"
+                    return Response(data = data, status=status.HTTP_404_NOT_FOUND)
                 else:
-                    if(len(user_ids) < 1):
-                        return JsonResponse(self.CUSTOM_FALSE(151, "Empty-At least one id required"), safe=True)
+                    many_to_many = Subject_Coordinator_Int.objects.filter(coordinator_id = int(pk))
+                    subject_list = list()
+                    for one in many_to_many:
+                        subject_list.append(one.subject_id.subject_id)
+                    data['success'] = True
+                    data['data'] = {
+                        "coordinator" : Coordinator_Serializer(coordinator_ref, many=False).data,
+                        "subject" : subject_list
+                    }
+                    return Response(data = data, status=status.HTTP_202_ACCEPTED)
 
-                    else:
-                        self.data_returned['data'] = dict()
-                        temp = dict()
-                        for id in user_ids:
-                            try:
-                                coordinator_ref = Coordinator.objects.filter(user_credential_id = int(id))
-                                                        
-                            except Exception as ex:
-                                self.data_returned['data'][id] = self.CUSTOM_FALSE(408, f"DataType-{str(ex)}")
-                                                        
-                            else:
-                                if(len(coordinator_ref) > 0):
-                                    self.data_returned['data'][id] = self.AMBIGUOUS_404("USER already CORDINATOR")
-
-                                else:
-                                    user_credential_ref = User_Credential.objects.filter(user_credential_id = int(id))
-                                    if(len(user_credential_ref) < 1):
-                                        self.data_returned['data'][id] = self.CUSTOM_FALSE(114, "Invalid-USER id")
-
-                                    else:
-                                        user_credential_ref = user_credential_ref[0]
-                                        coordinator_ref_new = Coordinator(user_credential_id = user_credential_ref)
-                                        coordinator_ref_new.save()
-                                        self.data_returned['data'][id] = self.TRUE_CALL(data = {"coordinator" : coordinator_ref_new.coordinator_id})
-
-            return JsonResponse(self.data_returned, safe=True)
-
-    @overrides
-    def read(self, incoming_data):
-        self.data_returned['action'] += "-READ"
-        self.clear()
-        try:
-            incoming_data = incoming_data['data']
-            self.token = incoming_data['hash']
-
-        except Exception as ex:
-            return JsonResponse(self.MISSING_KEY(ex), safe=True)
-
+    @api_view(['PUT', ])
+    def edit(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         else:
-            if('user_id' in incoming_data.keys()): # force fetch
-                try:
-                    user_ids = tuple(set(incoming_data["user_id"]))
-                                    
-                except Exception as ex:
-                    return JsonResponse(self.AMBIGUOUS_404(ex), safe=True)
-
-                else:
-                    if(len(user_ids) < 1):
-                        return JsonResponse(self.CUSTOM_FALSE(151, "Empty-Atleast one id required"), safe=True)
-                                        
-                    else:
-                        data = self.check_authorization("user")
-                        # from parent
-                        if(data[0] == False):
-                            return JsonResponse(self.CUSTOM_FALSE(102, "Hash-not USER"), safe=True)
-
-                        else:
-                            self.data_returned['data'] = dict()
-                            temp = dict()
-                                                
-                            if(0 in user_ids):
-                                coordinator_ref_all = Coordinator.objects.all()
-                                if(len(coordinator_ref_all) < 1):
-                                    self.data_returned['data'][0] = self.CUSTOM_FALSE(151, "Empty-Coordinator Tray")
-                                    return JsonResponse(self.data_returned, safe=True)
-
-                                else:
-                                    self.data_returned['data'][0] = list()
-                                    for cordinator in coordinator_ref_all:
-                                        coordinator_serialized_self = Coordinator_Serializer(coordinator, many=False).data
-                                        subject_ref_self = Subject.objects.filter(coordinator_id = coordinator_serialized_self['coordinator_id'])
-                                        subject_serialized_self = Subject_Serializer(subject_ref_self, many=True).data
-                                        subject = list()
-                                        for sub in subject_serialized_self:
-                                            subject.append(sub['subject_id'])
-                                        self.data_returned['data'][0].append({"coordinator" : coordinator_serialized_self, "subject" : subject})
-                                    self.data_returned['data'][0] = self.TRUE_CALL(data = self.data_returned['data'][0])
-
-                            else:
-                                for id in user_ids:
-                                    try:
-                                        coordinator_ref = Coordinator.objects.filter(user_credential_id = int(id))
-                                            
-                                    except Exception as ex:
-                                        self.data_returned['data'][id] = self.CUSTOM_FALSE(408, f"DataType-{str(ex)}")
-
-                                    else:
-                                        if(len(coordinator_ref) < 1):
-                                            self.data_returned['data'][id] = self.CUSTOM_FALSE(103, "Invalid-Coordinate id")
-                                                                
-                                        else:
-                                            coordinator_ref = coordinator_ref[0]
-                                            coordinator_serialized = Coordinator_Serializer(coordinator_ref, many=False).data
-                                            subject_ref_self = Subject.objects.filter(coordinator_id = coordinator_serialized['coordinator_id'])
-                                            subject_serialized_self = Subject_Serializer(subject_ref_self, many=True).data
-                                            subject = list()
-                                            for sub in subject_serialized_self:
-                                                subject.append(sub['subject_id'])
-                                            self.data_returned['data'][id] = self.TRUE_CALL(data = {"coordinator" : coordinator_serialized_self, "subject" : subject})
-                                
-            else: # self fetch
-                data = self.check_authorization("user")
-                if(data[0] == False):
-                    return JsonResponse(self.CUSTOM_FALSE(102, "Hash-not USER"), safe=True)
-                                    
-                else:
-                    coordinator_ref = Coordinator.objects.filter(user_credential_id = int(data[1]))
-                    if(len(coordinator_ref) < 1):
-                        return JsonResponse(self.CUSTOM_FALSE(103, "NotFound-USER not COORDINATOR"), safe=True)
-                                        
-                    else:
-                        coordinator_ref = coordinator_ref[0]
-                        coordinator_serialized = Coordinator_Serializer(coordinator_ref, many=False).data
-                        subject_ref_self = Subject.objects.filter(coordinator_id = coordinator_ref.coordinator_id)
-                        subject_serialized_self = Subject_Serializer(subject_ref_self, many=True).data
-                        subject = list()
-                        for sub in subject_serialized_self:
-                            subject.append(sub['subject_id'])
-                        self.data_returned = self.TRUE_CALL(data = {"coordinator" : coordinator_serialized, "subject" : subject})
-
-            return JsonResponse(self.data_returned, safe=True)
-
-    @overrides
-    def edit(self, incoming_data):
-        self.data_returned['action'] += "-EDIT"
-        self.clear()
-        try:
-            incoming_data = incoming_data['data']
-            self.token = incoming_data['hash']
-
-        except Exception as ex:
-            return JsonResponse(MISSING_KEY(ex), safe=True)
-                    
-        else:
-            data = self.check_authorization("admin", "cagp")
-            if(data[0] == False):
-                return JsonResponse(self.CUSTOM_FALSE(102, f"Hash-{data[1]}"), safe=True)
-                                
+            if(am_I_Authorized(request, "ADMIN") < 2):
+                data['success'] = False
+                data['message'] = "USER does not have required ADMIN PRIVILEGES"
+                return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
             else:
-                if('updates' not in incoming_data.keys()):
-                    return JsonResponse(self.MISSING_KEY('Updates required'), safe=True)
-
-                else:
-                    self.data_returned['data'] = dict()
-                    temp = dict()
-                    updates = tuple(incoming_data['updates'])
-                    if(len(updates) < 1):
-                        self.data_returned['data'] = self.CUSTOM_FALSE(151, "Empty-At least one update required")
-                        return JsonResponse(self.data_returned, safe=True)
-                                    
+                if(do_I_Have_Privilege(request, "CAGP")):
+                    id = request.data['subject']
+                    if(int(id) < 0):
+                        subject_ref = Subject.objects.filter(subject_id = int(id*-1))
                     else:
-                        for update in updates:
-                            try:
-                                key = f"{int(update['coordinator_id'])}_{int(update['subject_id'])}"
-                                if(int(update['subject_id']) < 0):
-                                    update['subject_id'] = int(update['subject_id'])*(-1)
-                                    flag = False
-                                else:
-                                    flag = True
-                                coordinator_ref = Coordinator.objects.filter(coordinator_id = int(update['coordinator_id']))
-                                subject_ref = Subject.objects.filter(subject_id = int(update['subject_id']))
-                                                        
-                            except Exception as ex:
-                                self.data_returned['data'][key] = self.CUSTOM_FALSE(408, "DataType-{str(ex)}")
-                                                        
-                            else:
-                                if(len(coordinator_ref) < 1):
-                                    self.data_returned['data'][key] = self.CUSTOM_FALSE(114, "Invalid-Coordinator id")
-
-                                else:
-                                    if(len(subject_ref) < 1):
-                                        self.data_returned['data'][key] = self.CUSTOM_FALSE(114, "Invalid-Subject id")
-
-                                    else:
-                                        coordinator_ref = coordinator_ref[0]
-                                        subject_ref = subject_ref[0]
-                                        many_to_many_ref = Subject_Coordinator_Int.objects.filter(coordinator_id = coordinator_ref.coordinator_id,
-                                                                                                    subject_id = subject_ref.subject_id)
-                                        if(flag == True): # create pair
-                                            if(len(many_to_many_ref) > 0):
-                                                self.data_returned['data'][key] = self.CUSTOM_FALSE(404, "Pair-Exists Coordinator<=>Subject")
-
-                                            else:
-                                                many_to_many_ref_new = Subject_Coordinator_Int(coordinator_id = coordinator_ref,
-                                                                                                subject_id = subject_ref)
-                                                many_to_many_ref_new.save()
-                                                self.data_returned['data'][key] = self.TRUE_CALL(message = "COORDINATE<=>SUBJECT Created")
-                                                            
-                                        else: # remove pair
-                                            if(len(many_to_many_ref) < 1):
-                                                self.data_returned['data'][key] = self.CUSTOM_FALSE(404, "Pair-Not Exist Coordinator<=>Subject")
-
-                                            else:
-                                                many_to_many_ref = many_to_many_ref[0]
-                                                many_to_many_ref.delete()
-                                                self.data_returned['data'][key] = self.TRUE_CALL(message = "COORDINATE<=>SUBJECT Deleted")
-            
-            return JsonResponse(self.data_returned, safe=True)
-
-    @overrides
-    def delete(self, incoming_data):
-        self.data_returned['action'] += "-DELETE"
-        self.clear()
-        try:
-            incoming_data = incoming_data['data']
-            self.token = incoming_data['hash']
-
-        except Exception as ex:
-            return JsonResponse(self.MISSING_KEY(ex), safe=True)
-
-        else:
-            if('user_id' in incoming_data.keys()): # force delete
-                try:
-                    user_ids = tuple(set(incoming_data["user_id"]))
-                                    
-                except Exception as ex:
-                    return JsonResponse(self.AMBIGUOUS_404(ex), safe=True)
-                                    
-                else:
-                    if(len(user_ids) < 1):
-                        return JsonResponse(self.CUSTOM_FALSE(151, "Empty-Atleast one id reqired"), safe=True)
-
+                        subject_ref = Subject.objects.filter(subject_id = int(id))
+                    if(len(subject_ref) < 1):
+                        data['success'] = False
+                        data['message'] = "SUBJECT id Invalid"
+                        return Response(data = data, status=status.HTTP_404_NOT_FOUND)
                     else:
-                        data = self.check_authorization("admin", "capg") # Coordinators can be removed by admins
-                        if(data[0] == False):
-                            return JsonResponse(self.CUSTOM_FALSE(102, f"Hash-{data[1]}"), safe=True)
-                                            
+                        try:
+                            coordinator_ref = Coordinator.objects.get(coordinator_id = int(pk))
+                        except Coordinator.DoesNotExist:
+                            data['success'] = False
+                            data['message'] = "item invalid"
+                            return Response(data = data, status=status.HTTP_404_NOT_FOUND)
                         else:
-                            self.data_returned['data'] = dict()
-                            temp = dict()
-                            for id in user_ids:
+                            id = int(id)
+                            if(id < 0):
+                                id = id*-1
                                 try:
-                                    coordinator_ref = Coordinator.objects.filter(user_credential_id = int(id))
-
-                                except Exception as ex:
-                                    self.data_returned['data'][id] = self.CUSTOM_FALSE(408, f"DataType-{str(ex)}")
-
+                                    many_to_many = Subject_Coordinator_Int.objects.get(
+                                                        subject_id = id,
+                                                        coordinator_id = int(pk)
+                                                    )
+                                except Subject_Coordinator_Int.DoesNotExist:
+                                    data['success'] = True
+                                    data['message'] = "SUBJECT not belong to COORDINATOR"
+                                    return Response(data = data, status=status.HTTP_202_ACCEPTED)
                                 else:
-                                    if(len(coordinator_ref) < 1):
-                                        self.data_returned['data'][id] = self.CUSTOM_FALSE(103, "Invalid-Coordinate id")
-
-                                    else:
-                                        coordinator_ref = coordinator_ref[0]
-                                        coordinator_ref.delete()
-                                        self.data_returned['data'][id] = self.TRUE_CALL()
-                                
-            else: # self delete
-                data = self.check_authorization("user")
-                if(data[0] == False):
-                    return JsonResponse(self.CUSTOM_FALSE(102, "Hash-not USER"), safe=True)
-                                    
+                                    many_to_many.delete()
+                                    data['success'] = True
+                                    data['message'] = "SUBJECT removed from COORDINATOR"
+                                    return Response(data = data, status=status.HTTP_202_ACCEPTED)
+                            else:
+                                try:
+                                    Subject_Coordinator_Int.objects.get(subject_id = id,coordinator_id = int(pk))
+                                except Subject_Coordinator_Int.DoesNotExist:
+                                    many_to_many = Subject_Coordinator_Int(
+                                                        subject_id = subject_ref[0],
+                                                        coordinator_id = coordinator_ref
+                                                    )
+                                    many_to_many.save()
+                                    data['success'] = True
+                                    data['message'] = "SUBJECT added to COORDINATOR"
+                                    return Response(data = data, status=status.HTTP_202_ACCEPTED)
+                                else:
+                                    data['success'] = True
+                                    data['message'] = "SUBJECT already belong to COORDINATOR"
+                                    return Response(data = data, status=status.HTTP_202_ACCEPTED)
                 else:
-                    coordinator_ref = Coordinator.objects.filter(user_credential_id = int(data[1]))
-                    if(len(coordinator_ref) < 1):
-                        return JsonResponse(self.CUSTOM_FALSE(103, "NotFound-USER not COORDINATOR"), safe=True)
-                                        
-                    else:
-                        coordinator_ref = coordinator_ref[0]
-                        coordinator_ref.delete()
-                        self.data_returned = self.TRUE_CALL()
+                    data['success'] = False
+                    data['message'] = "ADMIN does not have required ADMIN PRIVILEGES"
+                    return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
 
-            return JsonResponse(self.data_returned, safe=True)
-
-class Subject_Api(API_Prime, Authorize):
-    
-    def __init__(self):
-        super().__init__()
-
-    @overrides
-    def method_get(self):
-        self.data_returned['action'] = "GET"
-        subject_ref = Subject.objects.all().exclude(prime=True)
-        if(len(subject_ref) < 1):
-            return JsonResponse(self.CUSTOM_FALSE(151, "Empty-SUBJECT Tray"), safe=True)
-        
+    @api_view(['DELETE', ])
+    def delete(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         else:
-            subject_serialized = Subject_Serializer(subject_ref, many=True).data
-            self.data_returned = self.TRUE_CALL(data = subject_serialized)
-        
-        return JsonResponse(self.data_returned, safe=True)
-
-    @overrides
-    def create(self, incoming_data):
-        self.data_returned['action'] += "-CREATE"
-        self.clear()
-        try:
-            incoming_data = incoming_data['data']
-            self.token = incoming_data['hash']
-            incoming_data = incoming_data['data']
-
-        except Exception as ex:
-            return JsonResponse(self.MISSING_KEY(ex), safe=True)
-                    
-        else:
-            data = self.check_authorization("admin") # admin + coordinators can add or remove subjects
-            if(data[0] == False):
-                return JsonResponse(self.CUSTOM_FALSE(102, "Hash-not ADMIN"), safe=True)
-                                
+            user_id = auth[1]
+            if(am_I_Authorized(request, "ADMIN") < 2):
+                data['success'] = False
+                data['message'] = "USER does not have required ADMIN PRIVILEGES"
+                return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
             else:
-                coordinator_ref = Coordinator.objects.filter(user_credential_id = int(data[1]))
-                if(len(coordinator_ref) < 1):
-                    return JsonResponse(self.CUSTOM_FALSE(103, "NotFound-USER not COORDINATOR"), safe=True)
+                
+                if(do_I_Have_Privilege(request, "CAGP")):
+                    if(int(pk) == 0): #all
+                        Coordinator.objects.all().delete()
+                        data['success'] = True
+                        data['message'] = "All Coordinator(s) deleted"
+                        return Response(data = data, status = status.HTTP_202_ACCEPTED)
+                    else:
+                        try:
+                            coordinator_ref = Coordinator.objects.get(coordinator_id = int(pk))
+                        except Coordinator.DoesNotExist:
+                            data['success'] = False
+                            data['message'] = "item does not exist"
+                            return Response(data = data, status=status.HTTP_404_NOT_FOUND)
+                        else:
+                            coordinator_ref.delete()
+                            data['success'] = True
+                            return Response(data = data, status=status.HTTP_202_ACCEPTED)
+                else:
+                    data['success'] = False
+                    data['message'] = "ADMIN does not have required ADMIN PRIVILEGES"
+                    return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
 
+    # active point
+    data = am_I_Authorized(request, "API")
+    if(data[0] == False):
+        return JsonResponse({"error":"API_KEY_UNAUTHORIZED", "message" : data[1]}, safe=True)
+    else:
+        data = am_I_Authorized(request, "USER")
+        job = job.lower()
+        if(job == 'create'):
+            return create(request, data)
+        elif(job == 'read'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/content/coordinator/read/<id>"}, safe=True)
+            else:
+                return read(request, pk, data)
+        elif(job == 'edit'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/content/coordinator/edit/<id>"}, safe=True)
+            else:
+                return edit(request, pk, data)
+        elif(job == 'delete'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/content/coordinator/delete/<id>"}, safe=True)
+            else:
+                return delete(request, pk, data)
+        else:
+            return JsonResponse({
+                        "create":"api/content/coordinator/create/",
+                        "read":"api/content/coordinator/read/<id>",
+                        "edit":"api/content/coordinator/edit/<id>",
+                        "delete":"api/content/coordinator/delete/<id>",
+                    }, safe=True)
+
+# ------------------------SUBJECT------------------------------
+
+@csrf_exempt
+def api_subject_view(request, job, pk=None):
+
+    @api_view(['POST', ])
+    def create(request, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            coordinator_ref = Coordinator.objects.filter(user_credential_id = auth[1])
+            if(len(coordinator_ref) < 1):
+                data['success'] = False
+                data['message'] = "USER not COORDINATOR"
+                return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+            else:
+                subject_de_serialized = Subject_Serializer(data = request.data)
+                details = " ".join([word.upper() for word in subject_de_serialized.initial_data['subject_name'].split()])
+                subject_ref = Subject.objects.filter(subject_name__icontains = details)
+                if(len(subject_ref) > 0):
+                    data['success'] = True
+                    data['message'] = "SUBJECT already exists"
+                    data['data'] = Subject_Serializer(subject_ref[0], many=False).data
+                    return Response(data = data, status=status.HTTP_201_CREATED)
+                else:
+                    subject_de_serialized.initial_data['subject_name'] = details
+                    if(subject_de_serialized.is_valid()):
+                        subject_de_serialized.save()
+                        data['success'] = True
+                        data['data'] = subject_de_serialized.data
+                        return Response(data = data, status=status.HTTP_201_CREATED)
+                    else:
+                        data['success'] = False
+                        data['message'] = subject_de_serialized.errors
+                        return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
+
+    @api_view(['GET', ])
+    def read(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            user_id = auth[1]
+            if(int(pk) == 0): #all
+                data['success'] = True
+                data['data'] = Subject_Serializer(Subject.objects.all(), many=True).data
+                return Response(data = data, status=status.HTTP_202_ACCEPTED)
+            else:
+                try:
+                    subject_ref = Subject.objects.get(subject_id = int(pk))
+                except Subject.DoesNotExist:
+                    data['success'] = False
+                    data['message'] = "item does not exist"
+                    return Response(data = data, status=status.HTTP_404_NOT_FOUND)
+                else:
+                    data['success'] = True
+                    data['data'] = Subject_Serializer(subject_ref, many=False).data
+                    return Response(data = data, status=status.HTTP_202_ACCEPTED)
+
+    @api_view(['PUT', ])
+    def edit(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            coordinator_ref = Coordinator.objects.filter(user_credential_id = auth[1])
+            if(len(coordinator_ref) < 1):
+                data['success'] = False
+                data['message'] = "USER not COORDINATOR"
+                return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+            else:
+                try:
+                    subject_ref = Subject.objects.get(subject_id = int(pk))
+                except Subject.DoesNotExist:
+                    data['success'] = False
+                    data['message'] = "item does not exist"
+                    return Response(data = data, status=status.HTTP_404_NOT_FOUND)
+                else:
+                    subject_de_serialized = Subject_Serializer(subject_ref, data=request.data)
+                    details = " ".join([word.upper() for word in subject_de_serialized.initial_data['subject_name'].split()])
+                    subject_ref = Subject.objects.filter(subject_name__icontains = details)
+                    if(len(subject_ref) > 0 and subject_ref[0].subject_id != int(pk)):
+                        data['success'] = False
+                        data['message'] = "SUBJECT name already in use"
+                        return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
+                    else:
+                        subject_de_serialized.initial_data['subject_name'] = details
+                        if(subject_de_serialized.is_valid()):
+                            subject_de_serialized.save()
+                            data['success'] = True
+                            data['data'] = subject_de_serialized.data
+                            return Response(data = data, status=status.HTTP_201_CREATED)
+                        else:
+                            data['success'] = False
+                            data['message'] = subject_de_serialized.errors
+                            return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
+
+    @api_view(['DELETE', ])
+    def delete(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            user_id = auth[1]
+            coordinator_ref = Coordinator.objects.filter(user_credential_id = auth[1])
+            if(len(coordinator_ref) < 1):
+                data['success'] = False
+                data['message'] = "USER not COORDINATOR"
+                return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+            else:
+                if(int(pk) == 0): #all
+                    Subject.objects.all().delete()
+                    data['success'] = True
+                    data['message'] = "All SUBJECT(s) deleted"
+                    return Response(data = data, status = status.HTTP_202_ACCEPTED)
                 else:
                     try:
-                        incoming_data['subject_name'] = incoming_data['subject_name'].upper()
-                        incoming_data['subject_description'] = incoming_data['subject_description'].lower()
-                        subject_ref = Subject.objects.filter(subject_name__contains = incoming_data['subject_name'])
-
-                    except Exception as ex:
-                        return JsonResponse(MISSING_KEY(ex), safe=True)
-
+                        subject_ref = Subject.objects.get(subject_id = int(pk))
+                    except Subject.DoesNotExist:
+                        data['success'] = False
+                        data['message'] = "item does not exist"
+                        return Response(data = data, status=status.HTTP_404_NOT_FOUND)
                     else:
-                        if(len(subject_ref) < 1): # new subject
-                            try: # some special job
-                                name = incoming_data['subject_name'].split()
-                                name = [word[0] for word in name]
-                                name = "".join(name)
-                                temp = Subject.objects.filter(subject_name__icontains = name)
-                                if(len(temp) > 0):
-                                    temp = temp[0]
-                                    temp = int(temp.subject_name.split(name)[1]) + 1
-                                else:
-                                    temp = 1
-                                                
-                            except Exception as ex:
-                                print(f"[x] SUBJECT CREATION - NAMING - {str(ex)}")
-                                                
-                            else:
-                                incoming_data['subject_name'] = f"{incoming_data['subject_name']} {name}{temp}"
-                            
-                            subject_de_serialized = Subject_Serializer(data=incoming_data)
-                            if(subject_de_serialized.is_valid()):
-                                subject_de_serialized.save()
-                                subject_ref = Subject.objects.get(subject_id = int(subject_de_serialized.data['subject_id']))
-                                coordinator_ref = coordinator_ref[0]
-                                many_to_many_ref = Subject_Coordinator_Int.objects.filter(subject_id = subject_ref.subject_id, coordinator_id = coordinator_ref.coordinator_id)
-                                if(len(many_to_many_ref) > 0):
-                                    return JsonResponse(self.CUSTOM_FALSE(119, "Pair-Exists Coordinator <=> Subject"), safe=True)
+                        subject_ref.delete()
+                        data['success'] = True
+                        data['message'] = "SUBJECT deleted"
+                        return Response(data = data, status=status.HTTP_202_ACCEPTED)
 
-                                else:
-                                    many_to_many_ref_new = Subject_Coordinator_Int(subject_id = subject_ref, coordinator_id = coordinator_ref)
-                                    many_to_many_ref_new.save()
-                                    self.data_returned = self.TRUE_CALL(data = {"subject" : many_to_many_ref_new.data['subject_id'], "coordinator" : many_to_many_ref_new.data['coordinator_id']})
-
-                            else:
-                                return JsonResponse(self.JSON_PARSER_ERROR(f"{subject_de_serialized.errors}"), safe=True)
-
-                        else: # old subject but maybe new admin coordinator
-                            coordinator_ref = coordinator_ref[0]
-                            subject_ref = subject_ref[0]
-                            many_to_many_ref = Subject_Coordinator_Int.objects.filter(subject_id = subject_ref.subject_id, coordinator_id = coordinator_ref.coordinator_id)
-                            if(len(many_to_many_ref) > 0):
-                                return JsonResponse(self.CUSTOM_FALSE(119, "Pair-Exists Coordinator <=> Subject"), safe=True)
-                                
-                            else:
-                                many_to_many_ref_new = Subject_Coordinator_Int(subject_id = subject_ref, coordinator_id = coordinator_ref)
-                                many_to_many_ref_new.save()
-                                self.data_returned = self.TRUE_CALL(data = {"subject" : many_to_many_ref_new.data['subject_id'], "coordinator" : many_to_many_ref_new.data['coordinator_id']})
-
-            return JsonResponse(self.data_returned, safe=True)
-
-    @overrides
-    def read(self, incoming_data):
-        self.data_returned['action'] += "-READ"
-        self.clear()
-        try:
-            incoming_data = incoming_data['data']
-            self.token = incoming_data['hash']
-            subject_ids = tuple(set(incoming_data['subject_id']))
-
-        except Exception as ex:
-            return JsonResponse(self.MISSING_KEY(ex), safe=True)
-
-        else:
-            if(len(subject_ids) < 1):
-                return JsonResponse(self.CUSTOM_FALSE(151, "Empty-Atleast one id required"), safe=True)
-                                
+    # active point
+    data = am_I_Authorized(request, "API")
+    if(data[0] == False):
+        return JsonResponse({"error":"API_KEY_UNAUTHORIZED", "message" : data[1]}, safe=True)
+    else:
+        data = am_I_Authorized(request, "USER")
+        job = job.lower()
+        if(job == 'create'):
+            return create(request, data)
+        elif(job == 'read'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/content/subject/read/<id>"}, safe=True)
             else:
-                data = self.check_authorization("user") # every one can see subject data
-                if(data[0] == False):
-                    return JsonResponse(self.CUSTOM_FALSE(102, "Hash-not USER"), safe=True)
-
-                else:
-                    self.data_returned['data'] = dict()
-                    temp = dict()
-                    if(0 in subject_ids):
-                        subject_ref = Subject.objects.all()
-                        if(len(subject_ref) < 1):
-                            self.data_returned['data'][0] = self.CUSTOM_FALSE(151, "Empty-SUBJECT Tray")
-                            return JsonResponse(self.data_returned, safe=True)
-                                            
-                        else:
-                            subject_serialized = Subject_Serializer(subject_ref, many=True).data
-                            self.data_returned['data'][0] = self.TRUE_CALL(data = subject_serialized)
-
-                    else:
-                        for id in subject_ids:
-                            try:
-                                subject_ref = Subject.objects.filter(subject_id = int(id))
-                                                
-                            except Exception as ex:
-                                self.data_returned['data'][id] = self.CUSTOM_FALSE(408, "DataType-{str(ex)}")
-
-                            else:
-                                if(len(subject_ref) < 1):
-                                    self.data_returned['data'][id] = self.CUSTOM_FALSE(107, "Invalid-Subject id")
-
-                                else:
-                                    subject_ref = subject_ref[0]
-                                    subject_serialized = Subject_Serializer(subject_ref, many=False).data
-                                    self.data_returned['data'][id] = self.TRUE_CALL(data = subject_serialized)
-
-            return JsonResponse(self.data_returned, safe=True)
-
-    @overrides
-    def edit(self, incoming_data):
-        self.data_returned['action'] += "-EDIT"
-        self.clear()
-        try:
-            incoming_data = incoming_data['data']
-            self.token = incoming_data['hash']
-            incoming_data = incoming_data['data']
-
-        except Exception as ex:
-            return JsonResponse(MISSING_KEY(ex), safe=True)
-
-        else:
-            data = self.check_authorization("admin") # admin + coordinators can add or remove subjects
-            if(data[0] == False):
-                return JsonResponse(self.CUSTOM_FALSE(102, "Hash-not ADMIN"), safe=True)
-                                
+                return read(request, pk, data)
+        elif(job == 'edit'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/content/subject/edit/<id>"}, safe=True)
             else:
-                coordinator_ref = Coordinator.objects.filter(user_credential_id = int(data[1]))
-                if(len(coordinator_ref) < 1):
-                    return JsonResponse(self.CUSTOM_FALSE(103, "NotFound-USER not COORDINATOR"), safe=True)
-                    
-                else:
-                    try:
-                        subject_ref_self = Subject.objects.filter(subject_id = incoming_data['subject_id'])
-                                        
-                    except Exception as ex:
-                        return JsonResponse(self.MISSING_KEY(ex), safe=True)
-
-                    else:
-                        if(len(subject_ref_self) < 1):
-                            return JsonResponse(self.CUSTOM_FALSE(404, "Invalid-Subject id"), safe=True)
-
-                        else:
-                            subject_ref_self = subject_ref_self[0]
-                            try:
-                                incoming_data['subject_name'] = incoming_data['subject_name'].upper()
-                                incoming_data['subject_description'] = incoming_data['subject_description'].lower()
-                                subject_ref = Subject.objects.filter(subject_name__icontains = incoming_data['subject_name'])
-                                        
-                            except Exception as ex:
-                                return JsonResponse(self.MISSING_KEY(ex), safe=True)
-                                        
-                            else:
-                                if(len(subject_ref) < 1):
-                                    pass
-                                                    
-                                else: # old subject renaming
-                                    subject_ref = subject_ref[0]
-                                    if(subject_ref.subject_id != subject_ref_self.subject_id):
-                                        return JsonResponse(self.CUSTOM_FALSE(402, "Found-Subject Name Exists"), safe=True)
-                                                        
-                                    else:
-                                        pass
-                                                    
-                                try: # some special job
-                                    name = incoming_data['subject_name'].split()
-                                    name = [word[0] for word in name]
-                                    name = "".join(name)
-                                    temp = Subject.objects.filter(subject_name__contains = name)
-                                    if(len(temp) > 0):
-                                        temp = temp[0]
-                                        temp = int(temp.subject_name.split(name)[1]) + 1
-                                    else:
-                                        temp = 1
-                                                            
-                                except Exception as ex:
-                                    print(f"[x] SUBJECT CREATION - NAMING - {str(ex)}")
-                                                            
-                                else:
-                                    incoming_data['subject_name'] = f"{incoming_data['subject_name']} {name}{temp}"
-                                    subject_de_serialized = Subject_Serializer(subject_ref_self, data=incoming_data)
-                                    if(subject_de_serialized.is_valid()):
-                                        subject_de_serialized.save()
-                                        self.data_returned = self.TRUE_CALL(data = {"subject" : subject_de_serialized.data['subject_id']})
-
-                                    else:
-                                        return JsonResponse(self.CUSTOM_FALSE(402, f"Serialize-{subject_de_serialized.errors}"), safe=True)
-
-            return JsonResponse(self.data_returned, safe=True)
-
-    @overrides
-    def delete(self, incoming_data):
-        self.data_returned['action'] += "-DELETE"
-        self.clear()
-        try:
-            incoming_data = incoming_data['data']
-            self.token = incoming_data['hash']
-            subject_ids = tuple(set(incoming_data['subject_id']))
-
-        except Exception as ex:
-            return JsonResponse(self.MISSING_KEY(ex), safe=True)
-
-        else:
-            if(len(subject_ids) < 1):
-                return JsonResponse(self.CUSTOM_FALSE(151, "Empty-Atleast one id is required'"), safe=True)
-
+                return edit(request, pk, data)
+        elif(job == 'delete'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/content/subject/delete/<id>"}, safe=True)
             else:
-                data = self.check_authorization("admin", "alpha") # admin + alpha + coordinators can remove subjects
-                if(data[0] == False):
-                    return JsonResponse(self.CUSTOM_FALSE(111, f"Hash-{data[1]}"), safe=True)
-
-                else:
-                    coordinator_ref = Coordinator.objects.filter(user_credential_id = int(data[1]))
-                    if(len(coordinator_ref) < 1):
-                        return JsonResponse(CUSTOM_FALSE(103, "NotFound-ADMIN not COORDINATOR"), safe=True)
-
-                    else:
-                        self.data_returned['data'] = dict()
-                        temp = dict()
-                        for id in subject_ids:
-                            try:
-                                subject_ref = Subject.objects.filter(subject_id = int(id))
-
-                            except Exception as ex:
-                                self.data_returned['data'][id] = self.CUSTOM_FALSE(408, f"DataType-{str(ex)}")
-                                                
-                            else:
-                                if(len(subject_ref) < 1):
-                                    self.data_returned['data'][id] = self.CUSTOM_FALSE(107, "Invalid-Subject id")
-
-                                else:
-                                    subject_ref = subject_ref[0]
-                                    subject_ref.delete()
-                                    self.data_returned['data'][id] = self.TRUE_CALL()
-
-            return JsonResponse(self.data_returned, safe=True)
-
-class Forum_Api(API_Prime, Authorize):
-    
-    def __init__(self):
-        super().__init__()
-
-    @overrides
-    def create(self, incoming_data):
-        self.data_returned['action'] += "-CREATE"
-        self.clear()
-        try:
-            incoming_data = incoming_data['data']
-            self.token = incoming_data['hash']
-            incoming_data = incoming_data['data']
-
-        except Exception as ex:
-            return JsonResponse(self.MISSING_KEY(ex), safe=True)
-
+                return delete(request, pk, data)
         else:
-            data = self.check_authorization("user") # only coordinator can add posts
+            return JsonResponse({
+                        "create":"api/content/subject/create/",
+                        "read":"api/content/subject/read/<id>",
+                        "edit":"api/content/subject/edit/<id>",
+                        "delete":"api/content/subject/delete/<id>",
+                    }, safe=True)
 
-            if(data[0] == False):
-                return JsonResponse(self.CUSTOM_FALSE(102, "Hash-not USER"), safe=True)
+# -----------------------FORUM-------------------------------
 
+@csrf_exempt
+def api_forum_view(request, job, pk=None):
+
+    @api_view(['POST', ])
+    def create(request, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            coordinator_ref = Coordinator.objects.filter(user_credential_id = auth[1])
+            if(len(coordinator_ref) < 1):
+                data['success'] = False
+                data['message'] = "USER not COORDINATOR"
+                return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
             else:
-                coordinator_ref = Coordinator.objects.filter(user_credential_id = int(data[1]))
-                if(len(coordinator_ref) < 1):
-                    return JsonResponse(self.CUSTOM_FALSE(404, "NotFound-USER not COORDINATOR"), safe=True)
-                                    
+                forum_de_serialized = Forum_Serializer(data = request.data)
+                if(forum_de_serialized.is_valid()):
+                    forum_de_serialized.save()
+                    data['success'] = True
+                    data['data'] = forum_de_serialized.data
+                    return Response(data = data, status=status.HTTP_201_CREATED)
                 else:
-                    # coordinator_ref = coordinator_ref[0]
-                    forum_de_serialized = Forum_Serializer(data = incoming_data)
-                    forum_de_serialized.initial_data['made_date'] = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
+                    data['success'] = False
+                    data['message'] = forum_de_serialized.errors
+                    return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
+
+    @api_view(['GET', ])
+    def read(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            user_id = auth[1]
+            if(int(pk) == 0): #all
+                data['success'] = True
+                data['data'] = Forum_Serializer(Forum.objects.all(), many=True).data
+                return Response(data = data, status=status.HTTP_202_ACCEPTED)
+            else:
+                try:
+                    forum_ref = Forum.objects.get(forum_id = int(pk))
+                except Forum.DoesNotExist:
+                    data['success'] = False
+                    data['message'] = "item does not exist"
+                    return Response(data = data, status=status.HTTP_404_NOT_FOUND)
+                else:
+                    data['success'] = True
+                    replies = Reply.objects.filter(forum_id = int(pk))
+                    reply_list = list()
+                    for reply in replies:
+                        reply_list.append(reply.reply_id)
+                    data['data'] = {
+                                        "forum" : Forum_Serializer(forum_ref, many=False).data,
+                                        "reply" : reply_list.copy()
+                                    }
+                    return Response(data = data, status=status.HTTP_202_ACCEPTED)
+
+    @api_view(['PUT', ])
+    def edit(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            coordinator_ref = Coordinator.objects.filter(user_credential_id = auth[1])
+            if(len(coordinator_ref) < 1):
+                data['success'] = False
+                data['message'] = "USER not COORDINATOR"
+                return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+            else:
+                try:
+                    forum_ref = Forum.objects.get(forum_id = int(pk))
+                except Forum.DoesNotExist:
+                    data['success'] = False
+                    data['message'] = "item does not exist"
+                    return Response(data = data, status=status.HTTP_404_NOT_FOUND)
+                else:
+                    forum_de_serialized = Forum_Serializer(forum_ref, data=request.data)
                     if(forum_de_serialized.is_valid()):
                         forum_de_serialized.save()
-                        self.data_returned = self.TRUE_CALL(data ={"forum" : forum_de_serialized.data['forum_id']})
-                                        
+                        data['success'] = True
+                        data['data'] = forum_de_serialized.data
+                        return Response(data = data, status=status.HTTP_201_CREATED)
                     else:
-                        return JsonResponse(self.CUSTOM_FALSE(405, f"Serialize-{forum_de_serialized.errors}"), safe=True)
+                        data['success'] = False
+                        data['message'] = forum_de_serialized.errors
+                        return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
 
-            return JsonResponse(self.data_returned, safe=True)
-
-    @overrides
-    def read(self, incoming_data):
-        self.data_returned['action'] += "-READ"
-        self.clear()
-        try:
-            incoming_data = incoming_data['data']
-            self.token = incoming_data['hash']
-            forum_ids = tuple(set(incoming_data['forum_id']))
-
-        except Exception as ex:
-            return JsonResponse(self.MISSING_KEY(ex), safe=True)
-                    
+    @api_view(['DELETE', ])
+    def delete(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         else:
-            data = self.check_authorization("user")
-            if(len(forum_ids) < 1):
-                return JsonResponse(self.CUSTOM_FALSE(151, 'Empty-Atleast one id required'), safe=True)
-
+            user_id = auth[1]
+            coordinator_ref = Coordinator.objects.filter(user_credential_id = auth[1])
+            if(len(coordinator_ref) < 1):
+                data['success'] = False
+                data['message'] = "USER not COORDINATOR"
+                return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
             else:
-                if(data[0] == False):
-                    return JsonResponse(self.CUSTOM_FALSE(102, "Hash-not USER"), safe=True)
-
-                else:
-                    self.data_returned['data'] = dict()
-                    temp = dict()
-                    for id in forum_ids:
-                        try:
-                            forum_ref = Forum.objects.filter(forum_id = int(id))
-                                            
-                        except Exception as ex:
-                            self.data_returned['data'][id] = self.CUSTOM_FALSE(408, "DataType-{str(ex)}")
-                                            
-                        else:
-                            if(len(forum_ref) < 1):
-                                self.data_returned['data'][id] = self.CUSTOM_FALSE(114, "Invalid-Forum ID")
-
-                            else:
-                                forum_ref = forum_ref[0]
-                                forum_serialized = Forum_Serializer(forum_ref, many=False).data
-                                replies_for_forum = Reply.objects.filter(forum_id = forum_ref.forum_id)
-                                reply_list = list()
-                                if(len(replies_for_forum) > 0):
-                                    for reply in replies_for_forum:
-                                        reply_list.append(reply.reply_id)
-
-                                self.data_returned['data'][id] = self.TRUE_CALL(data = {"forum" : forum_serialized, "reply" : reply_list})
-
-            return JsonResponse(self.data_returned, safe=True)
-
-    @overrides
-    def edit(self, incoming_data):
-        self.data_returned['action'] += "-EDIT"
-        self.clear()
-        try:
-            incoming_data = incoming_data['data']
-            self.token = incoming_data['hash']
-            incoming_data = incoming_data['data']
-
-        except Exception as ex:
-            return JsonResponse(self.MISSING_KEY(ex), safe=True)
-
-        else:
-            data = self.check_authorization("user")
-            if(data[0] == False):
-                return JsonResponse(self.CUSTOM_FALSE(102, "Hash-not USER"), safe=True)
-                                
-            else:
-                coordinator_ref = Coordinator.objects.filter(user_credential_id = int(data[1]))
-                if(len(coordinator_ref) < 1):
-                    return JsonResponse(self.CUSTOM_FALSE(404, "NotFound-USER not COORDINATOR"), safe=True)
-                                    
+                if(int(pk) == 0): #all
+                    Forum.objects.all().delete()
+                    data['success'] = True
+                    data['message'] = "All FORUM(s) deleted"
+                    return Response(data = data, status = status.HTTP_202_ACCEPTED)
                 else:
                     try:
-                        forum_ref = Forum.objects.filter(forum_id = incoming_data['forum_id'])
-                                        
-                    except Exception as ex:
-                        return JsonResponse(self.MISSING_KEY(ex), safe=True)
-                                        
+                        forum_ref = Forum.objects.get(forum_id = int(pk))
+                    except Forum.DoesNotExist:
+                        data['success'] = False
+                        data['message'] = "item does not exist"
+                        return Response(data = data, status=status.HTTP_404_NOT_FOUND)
                     else:
-                        if(len(forum_ref) < 1):
-                            return JsonResponse(self.CUSTOM_FALSE(114, "Invalid-Forum ID"), safe=True)
+                        forum_ref.delete()
+                        data['success'] = True
+                        data['message'] = "FORUM deleted"
+                        return Response(data = data, status=status.HTTP_202_ACCEPTED)
 
-                        else:
-                            forum_ref = forum_ref[0]
-                            forum_de_serialized = Forum_Serializer(forum_ref, data = incoming_data)
-                            if(forum_de_serialized.is_valid()):
-                                forum_de_serialized.save()
-                                self.data_returned = self.TRUE_CALL(data = {"forum" : forum_de_serialized.data['forum_id']})
-                                        
-                            else:
-                                return JsonResponse(self.CUSTOM_FALSE(405, f"Serialize-{forum_de_serialized.errors}"), safe=True)
-                                
-            return JsonResponse(self.data_returned, safe=True)
-
-    @overrides
-    def delete(self, incoming_data):
-        self.data_returned['action'] += "-DELETE"
-        self.clear()
-        try:
-            incoming_data = incoming_data['data']
-            self.token = incoming_data['hash']
-            forum_ids = tuple(set(incoming_data['forum_id']))
-
-        except Exception as ex:
-            return JsonResponse(self.MISSING_KEY(ex), safe=True)
-
-        else:
-            data = self.check_authorization("user")
-            if(data[0] == False):
-                return JsonResponse(self.CUSTOM_FALSE(102, "Hash-not USER"), safe=True)
-
+    # active point
+    data = am_I_Authorized(request, "API")
+    if(data[0] == False):
+        return JsonResponse({"error":"API_KEY_UNAUTHORIZED", "message" : data[1]}, safe=True)
+    else:
+        data = am_I_Authorized(request, "USER")
+        job = job.lower()
+        if(job == 'create'):
+            return create(request, data)
+        elif(job == 'read'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/content/forum/read/<id>"}, safe=True)
             else:
-                coordinator_ref = Coordinator.objects.filter(user_credential_id = int(data[1]))
-                if(len(forum_ids) < 1):
-                    return JsonResponse(self.CUSTOM_FALSE(151, "Empty-Atleast one id required"), safe=True)
+                return read(request, pk, data)
+        elif(job == 'edit'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/content/forum/edit/<id>"}, safe=True)
+            else:
+                return edit(request, pk, data)
+        elif(job == 'delete'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/content/forum/delete/<id>"}, safe=True)
+            else:
+                return delete(request, pk, data)
+        else:
+            return JsonResponse({
+                        "create":"api/content/forum/create/",
+                        "read":"api/content/forum/read/<id>",
+                        "edit":"api/content/forum/edit/<id>",
+                        "delete":"api/content/forum/delete/<id>",
+                    }, safe=True)
 
+# -----------------------REPLY-------------------------------
+
+@csrf_exempt
+def api_reply_view(request, job, pk=None):
+
+    @api_view(['POST', ])
+    def create(request, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            reply_de_serialized = Reply_Serializer(data = request.data)
+            reply_de_serialized.initial_data['user_credential_id'] = auth[1]
+            if(reply_de_serialized.is_valid()):
+                reply_de_serialized.save()
+                data['success'] = True
+                data['data'] = reply_de_serialized.data
+                return Response(data = data, status=status.HTTP_201_CREATED)
+            else:
+                data['success'] = False
+                data['message'] = reply_de_serialized.errors
+                return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
+
+    @api_view(['GET', ])
+    def read(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            user_id = auth[1]
+            if(int(pk) == 0): #all
+                data['success'] = True
+                data['data'] = Reply_Serializer(Reply.objects.all(), many=True).data
+                return Response(data = data, status=status.HTTP_202_ACCEPTED)
+            else:
+                try:
+                    reply_ref = Reply.objects.get(reply_id = int(pk))
+                except Reply.DoesNotExist:
+                    data['success'] = False
+                    data['message'] = "item does not exist"
+                    return Response(data = data, status=status.HTTP_404_NOT_FOUND)
                 else:
-                    if(len(coordinator_ref) < 1):
-                        return JsonResponse(self.CUSTOM_FALSE(404, "NotFound-USER not COORDINATOR"), safe=True)
+                    data['success'] = True
+                    data['data'] = Reply_Serializer(reply_ref, many=False).data
+                    return Response(data = data, status=status.HTTP_202_ACCEPTED)
 
-                    else:
-                        self.data_returned['data'] = dict()
-                        temp = dict()
-                        if(0 in forum_ids): # wholesale delete user+coordinator+admin+alpha
-                            data = self.check_authorization("admin", "alpha") # only for admin + alpha
-                            if(data[0] == False):
-                                return JsonResponse(self.CUSTOM_FALSE(102, "Hash-not ADMIN ALPHA"), safe=True)
-                                                
-                            else:
-                                forum_ref_all = Forum.objects.all()
-                                if(len(forum_ref_all) < 1):
-                                    self.data_returned['data'][0] = self.CUSTOM_FALSE(151, "Operation-Forum tray empty")
-                                    return JsonResponse(self.data_returned, safe=True)
-                                                    
-                                else:
-                                    forum_ref_all.delete()
-                                    self.data_returned['data'][0] = self.TRUE_CALL()
-
-                        else: # id based delete user+coordinator
-                            for id in forum_ids:
-                                try:
-                                    forum_ref = Forum.object.filter(forum_id = int(id))
-                                                        
-                                except Exception as ex:
-                                    self.data_returned['data'][id] = self.CUSTOM_FALSE(408, f"DataType-{str(ex)}")
-
-                                else:
-                                    if(len(forum_ref) < 1):
-                                        self.data_returned['data'][id] = self.CUSTOM_FALSE(114, "Invalid-FORUM id")
-                                                            
-                                    else:
-                                        forum_ref = forum_ref[0]
-                                        forum_ref.delete()
-                                        self.data_returned['data'][id] = self.TRUE_CALL()
-
-            return JsonResponse(self.data_returned, safe=True)
-
-class Reply_Api(API_Prime, Authorize):
-    
-    def __init__(self):
-        super().__init__()
-
-    @overrides
-    def create(self, incoming_data):
-        self.data_returned['action'] += "-CREATE"
-        self.clear()
-        try:
-            incoming_data = incoming_data['data']
-            self.token = incoming_data['hash']
-            incoming_data = incoming_data['data']
-
-        except Exception as ex:
-            return JsonResponse(self.MISSING_KEY(ex), safe=True)
-                    
+    @api_view(['PUT', ])
+    def edit(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         else:
-            data = self.check_authorization("user")
-            if(data[0] == False):
-                return JsonResponse(self.CUSTOM_FALSE(102, "Hash-not USER"), safe=True)
-                                
+            try:
+                reply_ref = Reply.objects.get(reply_id = int(pk), user_credential_id=auth[1])
+            except Reply.DoesNotExist:
+                data['success'] = False
+                data['message'] = "item does not exist or does not belong to user"
+                return Response(data = data, status=status.HTTP_404_NOT_FOUND)
             else:
-                reply_de_serialized = Reply_Serializer(data = incoming_data)
-                user_credential_ref = User_Credential.objects.get(user_credential_id = int(data[1]))
-                reply_de_serialized.initial_data['user_credential_id'] = user_credential_ref.user_credential_id
-                reply_de_serialized.initial_data['made_date'] = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
+                reply_de_serialized = Reply_Serializer(reply_ref, data=request.data)
                 if(reply_de_serialized.is_valid()):
                     reply_de_serialized.save()
-                    self.data_returned = self.TRUE_CALL(data = {"reply" : reply_de_serialized.data['reply_id'], "forum" : reply_de_serialized.data['forum_id']})
-
+                    data['success'] = True
+                    data['data'] = reply_de_serialized.data
+                    return Response(data = data, status=status.HTTP_201_CREATED)
                 else:
-                    return JsonResponse(self.CUSTOM_FALSE(404, f"Serialize-{reply_de_serialized.errors}"), safe=True)
+                    data['success'] = False
+                    data['message'] = reply_de_serialized.errors
+                    return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
 
-            return JsonResponse(self.data_returned, safe=True)
-
-    @overrides
-    def read(self, incoming_data):
-        self.data_returned['action'] += "-READ"
-        self.clear()
-        try:
-            incoming_data = incoming_data['data']
-            self.token = incoming_data['hash']
-            reply_ids = tuple(set(incoming_data['reply_id']))
-
-        except Exception as ex:
-            return JsonResponse(self.MISSING_KEY(ex), safe=True)
-
+    @api_view(['DELETE', ])
+    def delete(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         else:
-            data = self.check_authorization("user")
-            if(data[0] == False):
-                return JsonResponse(self.CUSTOM_FALSE(102, "Hash-not USER"), safe=True)
-                                
-            else:
-                self.data_returned['data'] = dict()
-                temp = dict()
-                for id in reply_ids:
-                    try:
-                        reply_ref = Reply.objects.filter(reply_id = int(id))
-                                        
-                    except Exception as ex:
-                        self.data_returned['data'][id] = self.CUSTOM_FALSE(408, f"DataType-{str(ex)}")
-                                        
-                    else:
-                        if(len(reply_ref) < 1):
-                            self.data_returned['data'][id] = self.CUSTOM_FALSE(114, "Invalid-Reply Id")
-
-                        else:
-                            reply_ref = reply_ref[0]
-                            reply_serialized = Reply_Serializer(reply_ref, many = False).data
-                            self.data_returned['data'][id] = self.TRUE_CALL(data = reply_serialized)
-
-            return JsonResponse(self.data_returned, safe=True)
-
-    @overrides
-    def edit(self, incoming_data):
-        self.data_returned['action'] += "-EDIT"
-        self.clear()
-        try:
-            incoming_data = incoming_data['data']
-            self.token = incoming_data['hash']
-            incoming_data = incoming_data['data']
-
-        except Exception as ex:
-            return JsonResponse(self.MISSING_KEY(ex), safe=True)
-                    
-        else:
-            data = self.check_authorization("user")
-            if(data[0] == False):
-                return JsonResponse(self.CUSTOM_FALSE(102, "ERROR-Hash-not USER"), safe=True)
-
-            else:
-                user_credential_ref = User_Credential.objects.get(user_credential_id = int(data[1]))
-                try:
-                    reply_ref = Reply.objects.filter(user_credential_id = user_credential_ref.user_credential_id,
-                                                    reply_id = int(incoming_data['reply_id']))
-
-                except Exception as ex:
-                    return JsonResponse(self.CUSTOM_FALSE(408, f"DataType-{str(ex)}"), safe=True)
-                                    
-                else:
-                    if(len(reply_ref) < 1):
-                        return JsonResponse(self.CUSTOM_FALSE(404, "Invalid-Reply does not belong to USER"), safe=True)
-                                        
-                    else:
-                        reply_ref = reply_ref[0]
-                        reply_de_serialized = Reply_Serializer(reply_ref, data = incoming_data)
-                        if(reply_de_serialized.is_valid()):
-                            reply_de_serialized.save()
-                            self.data_returned = self.TRUE_CALL(data = {"reply" : reply_de_serialized.data['reply_id'], "forum" : reply_de_serialized.data['forum_id']})
-                                    
-                        else:
-                            return JsonResponse(self.CUSTOM_FALSE(403, f"Serialize-{reply_de_serialized.errors}"), safe=True)
-
-            return JsonResponse(self.data_returned, safe=True)
-
-    @overrides
-    def delete(self, incoming_data):
-        self.data_returned['action'] += "-DELETE"
-        self.clear()
-        try:
-            incoming_data = incoming_data['data']
-            self.token = incoming_data['hash']
-            reply_ids = tuple(set(incoming_data['reply_id']))
-
-        except Exception as ex:
-            return JsonResponse(MISSING_KEY(ex), safe=True)
-                    
-        else:
-            data = self.check_authorization("user")
-            if(data[0] == False):
-                return JsonResponse(self.CUSTOM_FALSE(102, "Hash-not USER"), safe=True)
-                                
-            else:
-                self.data_returned['data'] = dict()
-                temp = dict()
-                for id in reply_ids:
-                    try:
-                        reply_ref = Reply.objects.filter(reply_id = int(id))
-                                        
-                    except Exception as ex:
-                        self.data_returned['data'][id] = self.CUSTOM_FALSE(408, f"DataType-{str(ex)}")
-
-                    else:
-                        if(len(reply_ref) < 1):
-                            self.data_returned['data'][id] = self.CUSTOM_FALSE(404, "Invalid-Reply Id")
-
-                        else:
-                            reply_ref = reply_ref[0]
-                            if(reply_ref.user_credential_id.user_credential_id != int(data[1])):
-                                self.data_returned['data'][id] = self.CUSTOM_FALSE(404, "NotFound-Reply does not belong to USER")
-                                                
-                            else:
-                                reply_ref.delete()
-                                self.data_returned['data'][id] = self.TRUE_CALL()
-
-            return JsonResponse(self.data_returned, safe=True)
-
-class Lecture_Api(API_Prime, Authorize):
-    
-    def __init__(self):
-        super().__init__()
-
-    @overrides
-    def create(self, incoming_data):
-        self.data_returned['action'] += "-CREATE"
-        self.clear()
-        try:
-            incoming_data = incoming_data['data']
-            self.token = incoming_data['hash']
-            incoming_data = incoming_data['data']
-
-        except Exception as ex:
-            return JsonResponse(self.MISSING_KEY(ex), safe=True)
-
-        else:
-            data = self.check_authorization("user") # only coordinator can add lectures
-            if(data[0] == False):
-                return JsonResponse(self.CUSTOM_FALSE(102, "Hash-not USER"), safe=True)
-
-            else:
-                coordinator_ref = Coordinator.objects.filter(user_credential_id = int(data[1]))
+            user_id = auth[1]
+            if(int(pk) == 0): #all
+                coordinator_ref = Coordinator.objects.filter(user_credential_id = auth[1])
                 if(len(coordinator_ref) < 1):
-                    return JsonResponse(self.CUSTOM_FALSE(404, "Invalid-USER not COORDINATOR"), safe=True)
-                                    
+                    data['success'] = False
+                    data['message'] = "USER not COORDINATOR"
+                    return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
                 else:
-                    # coordinator_ref = coordinator_ref[0]
-                    lecture_de_serialized = Lecture_Serializer(data = incoming_data)
-                    lecture_de_serialized.initial_data['made_date'] = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
+                    Reply.objects.all().delete()
+                    data['success'] = True
+                    data['message'] = "All REPL(y/ies) deleted as COORDINATOR"
+                    return Response(data = data, status = status.HTTP_202_ACCEPTED)
+            else:
+                try:
+                    reply_ref = Reply.objects.get(reply_id = int(pk), user_credential_id = auth[1])
+                except Reply.DoesNotExist:
+                    data['success'] = False
+                    data['message'] = "item does not exist or does not belon to user"
+                    return Response(data = data, status=status.HTTP_404_NOT_FOUND)
+                else:
+                    reply_ref.delete()
+                    data['success'] = True
+                    data['message'] = "REPLY deleted"
+                    return Response(data = data, status=status.HTTP_202_ACCEPTED)
+
+    # active point
+    data = am_I_Authorized(request, "API")
+    if(data[0] == False):
+        return JsonResponse({"error":"API_KEY_UNAUTHORIZED", "message" : data[1]}, safe=True)
+    else:
+        data = am_I_Authorized(request, "USER")
+        job = job.lower()
+        if(job == 'create'):
+            return create(request, data)
+        elif(job == 'read'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/content/reply/read/<id>"}, safe=True)
+            else:
+                return read(request, pk, data)
+        elif(job == 'edit'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/content/reply/edit/<id>"}, safe=True)
+            else:
+                return edit(request, pk, data)
+        elif(job == 'delete'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/content/reply/delete/<id>"}, safe=True)
+            else:
+                return delete(request, pk, data)
+        else:
+            return JsonResponse({
+                        "create":"api/content/reply/create/",
+                        "read":"api/content/reply/read/<id>",
+                        "edit":"api/content/reply/edit/<id>",
+                        "delete":"api/content/reply/delete/<id>",
+                    }, safe=True)
+
+# -----------------------LECTURE-------------------------------
+
+@csrf_exempt
+def api_lecture_view(request, job, pk=None):
+
+    @api_view(['POST', ])
+    def create(request, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            coordinator_ref = Coordinator.objects.filter(user_credential_id = auth[1])
+            if(len(coordinator_ref) < 1):
+                data['success'] = False
+                data['message'] = "USER not COORDINATOR"
+                return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+            else:
+                lecture_de_serialized = Lecture_Serializer(data = request.data)
+                if(lecture_de_serialized.is_valid()):
+                    lecture_de_serialized.save()
+                    data['success'] = True
+                    data['data'] = lecture_de_serialized.data
+                    return Response(data = data, status=status.HTTP_201_CREATED)
+                else:
+                    data['success'] = False
+                    data['message'] = lecture_de_serialized.errors
+                    return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
+
+    @api_view(['GET', ])
+    def read(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            user_id = auth[1]
+            if(int(pk) == 0): #all
+                data['success'] = True
+                data['data'] = Lecture_Serializer(Lecture.objects.all(), many=True).data
+                return Response(data = data, status=status.HTTP_202_ACCEPTED)
+            else:
+                try:
+                    lecture_ref = Lecture.objects.get(lecture_id = int(pk))
+                except Lecture.DoesNotExist:
+                    data['success'] = False
+                    data['message'] = "item does not exist"
+                    return Response(data = data, status=status.HTTP_404_NOT_FOUND)
+                else:
+                    data['success'] = True
+                    data['data'] = Lecture_Serializer(lecture_ref, many=False).data
+                    return Response(data = data, status=status.HTTP_202_ACCEPTED)
+
+    @api_view(['PUT', ])
+    def edit(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            coordinator_ref = Coordinator.objects.filter(user_credential_id = auth[1])
+            if(len(coordinator_ref) < 1):
+                data['success'] = False
+                data['message'] = "USER not COORDINATOR"
+                return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+            else:
+                try:
+                    lecture_ref = Lecture.objects.get(lecture_id = int(pk))
+                except Lecture.DoesNotExist:
+                    data['success'] = False
+                    data['message'] = "item does not exist"
+                    return Response(data = data, status=status.HTTP_404_NOT_FOUND)
+                else:
+                    lecture_de_serialized = Lecture_Serializer(lecture_ref, data=request.data)
                     if(lecture_de_serialized.is_valid()):
                         lecture_de_serialized.save()
-                        self.data_returned = self.TRUE_CALL(data = {"lecture" : lecture_de_serialized.data['lecture_id']})
-                                        
+                        data['success'] = True
+                        data['data'] = lecture_de_serialized.data
+                        return Response(data = data, status=status.HTTP_201_CREATED)
                     else:
-                        return JsonResponse(self.CUSTOM_FALSE(404, f"Serialise-{lecture_de_serialized.errors}"), safe=True)
+                        data['success'] = False
+                        data['message'] = lecture_de_serialized.errors
+                        return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
 
-            return JsonResponse(self.data_returned, safe=True)
-
-    @overrides
-    def read(self, incoming_data):
-        self.data_returned['action'] += "-READ"
-        self.clear()
-        try:
-            incoming_data = incoming_data['data']
-            self.token = incoming_data['hash']
-            lecture_ids = tuple(set(incoming_data['lecture_id']))
-
-        except Exception as ex:
-            return JsonResponse(self.MISSING_KEY(ex), safe=True)
-
+    @api_view(['DELETE', ])
+    def delete(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         else:
-            data = self.check_authorization("user")
-            if(data[0] == False):
-                return JsonResponse(self.CUSTOM_FALSE(102, "Hash-not USER"), safe=True)
-                                
+            user_id = auth[1]
+            coordinator_ref = Coordinator.objects.filter(user_credential_id = auth[1])
+            if(len(coordinator_ref) < 1):
+                data['success'] = False
+                data['message'] = "USER not COORDINATOR"
+                return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
             else:
-                if(len(lecture_ids) < 1):
-                    return JsonResponse(self.CUSTOM_FALSE(151, "Empty-Atleast one id required"), safe=True)
-                                    
+                if(int(pk) == 0): #all
+                    Lecture.objects.all().delete()
+                    data['success'] = True
+                    data['message'] = "All LECTURE(s) deleted"
+                    return Response(data = data, status = status.HTTP_202_ACCEPTED)
                 else:
-                    self.data_returned['data'] = dict()
-                    temp = dict()
-                    for id in lecture_ids:
-                        try:
-                            lecture_ref = Lecture.objects.filter(lecture_id = int(id))
-                                            
-                        except Exception as ex:
-                            self.data_returned['data'][id] = self.CUSTOM_FALSE(408, f"DataType-{str(ex)}")
-                                            
-                        else:
-                            if(len(lecture_ref) < 1):
-                                self.data_returned['data'][id] = self.CUSTOM_FALSE(404, "Invalid-Lecture ID")
-                                                
-                            else:
-                                lecture_ref = lecture_ref[0]
-                                lecture_serialized = Lecture_Serializer(lecture_ref, many=False).data
-                                self.data_returned['data'][id] = self.TRUE_CALL(data = lecture_serialized)
-
-            return JsonResponse(self.data_returned, safe=True)
-
-    @overrides
-    def edit(self, incoming_data):
-        self.data_returned['action'] += "-EDIT"
-        self.clear()
-        try:
-            incoming_data = incoming_data['data']
-            self.token = incoming_data['hash']
-            incoming_data = incoming_data['data']
-
-        except Exception as ex:
-            return JsonResponse(self.MISSING_KEY(ex), safe=True)
-                    
-        else:
-            data = self.check_authorization("user")
-            if(data[0] == False):
-                return JsonResponse(self.CUSTOM_FALSE(102, "Hash-not USER"), safe=True)
-
-            else:
-                # user_credential_ref = User_Credential.objects.get(user_credential_id = int(data[1]))
-                try:
-                    lecture_ref = Lecture.objects.filter(lecture_id = int(incoming_data['lecture_id']))
-
-                except Exception as ex:
-                    return JsonResponse(self.CUSTOM_FALSE(408, f"DataType-{str(ex)}"), safe=True)
-
-                else:
-                    if(len(lecture_ref) < 1):
-                        return JsonResponse(self.CUSTOM_FALSE(404, "Invalid-Lecture Id"), safe=True)
-                                        
-                    else:
-                        lecture_ref = lecture_ref[0]
-                        lecture_de_serialized = Lecture_Serializer(lecture_ref, data = incoming_data)
-                        if(lecture_de_serialized.is_valid()):
-                            lecture_de_serialized.save()
-                            self.data_returned = self.TRUE_CALL(data = {"lecture" : lecture_de_serialized.data['lecture_id']})
-
-                        else:
-                            return JsonResponse(self.JSON_PARSER_ERROR(f"{lecture_de_serialized.errors}"), safe=True)
-
-            return JsonResponse(self.data_returned, safe=True)
-
-    @overrides
-    def delete(self, incoming_data):
-        self.data_returned['action'] += "-DELETE"
-        self.clear()
-        try:
-            incoming_data = incoming_data['data']
-            self.token = incoming_data['hash']
-            lecture_ids = tuple(set(incoming_data['lecture_id']))
-
-        except Exception as ex:
-            return JsonResponse(self.MISSING_KEY(ex), safe=True)
-
-        else:
-            data = self.check_authorization("user")
-            if(data[0] == False):
-                return JsonResponse(self.CUSTOM_FALSE(102, "Hash-not USER"), safe=True)
-
-            else:
-                self.data_returned['data'] = dict()
-                temp = dict()
-                for id in lecture_ids:
                     try:
-                        lecture_ref = Lecture.objects.filter(lecture_id = int(id))
-                                        
-                    except Exception as ex:
-                        self.data_returned['data'][id] = self.CUSTOM_FALSE(408, f"DataType-{str(ex)}")
-
+                        lecture_ref = Lecture.objects.get(lecture_id = int(pk))
+                    except Lecture.DoesNotExist:
+                        data['success'] = False
+                        data['message'] = "item does not exist"
+                        return Response(data = data, status=status.HTTP_404_NOT_FOUND)
                     else:
-                        if(len(lecture_ref) < 1):
-                            self.data_returned['data'][id] = self.CUSTOM_FALSE(404, "Invalid-Reply Id")
+                        lecture_ref.delete()
+                        data['success'] = True
+                        data['message'] = "LECTURE deleted"
+                        return Response(data = data, status=status.HTTP_202_ACCEPTED)
 
-                        else:
-                            lecture_ref = lecture_ref[0]
-                            lecture_ref.delete()
-                            self.data_returned['data'][id] = self.TRUE_CALL()
-
-            return JsonResponse(self.data_returned, safe=True)
-
-class Assignment_Api(API_Prime, Authorize):
-    
-    def __init__(self):
-        super().__init__()
-
-    @overrides
-    def create(self, incoming_data):
-        self.data_returned['action'] += "-CREATE"
-        self.clear()
-        try:
-            incoming_data = incoming_data['data']
-            self.token = incoming_data['hash']
-            incoming_data = incoming_data['data']
-
-        except Exception as ex:
-            return JsonResponse(self.MISSING_KEY(ex), safe=True)
-                    
-        else:
-            data = self.check_authorization("user")
-            if(data[0] == False):
-                return JsonResponse(self.CUSTOM_FALSE(102, "Hash-not USER"), safe=True)
-                                
+    # active point
+    data = am_I_Authorized(request, "API")
+    if(data[0] == False):
+        return JsonResponse({"error":"API_KEY_UNAUTHORIZED", "message" : data[1]}, safe=True)
+    else:
+        data = am_I_Authorized(request, "USER")
+        job = job.lower()
+        if(job == 'create'):
+            return create(request, data)
+        elif(job == 'read'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/content/lecture/read/<id>"}, safe=True)
             else:
-                coordinator_ref = Coordinator.objects.filter(user_credential_id = int(data[1]))
-                if(len(coordinator_ref) < 1):
-                    return JsonResponse(self.CUSTOM_FALSE(404, "Invalid-USER not COORDINATOR"), safe=True)
-                                    
+                return read(request, pk, data)
+        elif(job == 'edit'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/content/lecture/edit/<id>"}, safe=True)
+            else:
+                return edit(request, pk, data)
+        elif(job == 'delete'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/content/lecture/delete/<id>"}, safe=True)
+            else:
+                return delete(request, pk, data)
+        else:
+            return JsonResponse({
+                        "create":"api/content/lecture/create/",
+                        "read":"api/content/lecture/read/<id>",
+                        "edit":"api/content/lecture/edit/<id>",
+                        "delete":"api/content/lecture/delete/<id>",
+                    }, safe=True)
+
+# -----------------------ASSIGNMENT-------------------------------
+
+@csrf_exempt
+def api_assignment_view(request, job, pk=None):
+
+    @api_view(['POST', ])
+    def create(request, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            coordinator_ref = Coordinator.objects.filter(user_credential_id = auth[1])
+            if(len(coordinator_ref) < 1):
+                data['success'] = False
+                data['message'] = "USER not COORDINATOR"
+                return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+            else:
+                assignment_de_serialized = Assignment_Serializer(data = request.data)
+                if(assignment_de_serialized.is_valid()):
+                    assignment_de_serialized.save()
+                    data['success'] = True
+                    data['data'] = assignment_de_serialized.data
+                    return Response(data = data, status=status.HTTP_201_CREATED)
                 else:
-                    # coordinator_ref = coordinator_ref[0]
-                    assignment_de_serialized = Assignment_Serializer(data = incoming_data)
-                    assignment_de_serialized.initial_data['made_date'] = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
+                    data['success'] = False
+                    data['message'] = assignment_de_serialized.errors
+                    return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
+
+    @api_view(['GET', ])
+    def read(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            user_id = auth[1]
+            if(int(pk) == 0): #all
+                data['success'] = True
+                assignment_serializer = Assignment_Serializer(Assignment.objects.all(), many=True).data
+                ass_list = list()
+                for ass in assignment_serializer:
+                    sub_list = list()
+                    for sub in Submission.objects.filter(assignment_id = ass['assignment_id']):
+                        sub_list.append(sub.submission_id)
+                    ass_list.append({
+                        "assignment" : ass,
+                        "submission" : sub_list.copy()
+                    })
+                data['data'] = ass_list.copy()
+                return Response(data = data, status=status.HTTP_202_ACCEPTED)
+            else:
+                try:
+                    assignment_ref = Assignment.objects.get(assignment_id = int(pk))
+                except Assignment.DoesNotExist:
+                    data['success'] = False
+                    data['message'] = "item does not exist"
+                    return Response(data = data, status=status.HTTP_404_NOT_FOUND)
+                else:
+                    data['success'] = True
+                    assignment_serializer = Assignment_Serializer(assignment_ref, many=False).data
+                    sub_list = list()
+                    for sub in Submission.objects.filter(assignment_id = assignment_serializer['assignment_id']):
+                        sub_list.append(sub.submission_id)
+                    data['data'] = {
+                        "assignment" : assignment_serializer,
+                        "submission" : sub_list.copy()
+                    }
+                    return Response(data = data, status=status.HTTP_202_ACCEPTED)
+
+    @api_view(['PUT', ])
+    def edit(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            coordinator_ref = Coordinator.objects.filter(user_credential_id = auth[1])
+            if(len(coordinator_ref) < 1):
+                data['success'] = False
+                data['message'] = "USER not COORDINATOR"
+                return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+            else:
+                try:
+                    assignment_ref = Assignment.objects.get(assignment_id = int(pk))
+                except Assignment.DoesNotExist:
+                    data['success'] = False
+                    data['message'] = "item does not exist"
+                    return Response(data = data, status=status.HTTP_404_NOT_FOUND)
+                else:
+                    assignment_de_serialized = Assignment_Serializer(assignment_ref, data=request.data)
                     if(assignment_de_serialized.is_valid()):
                         assignment_de_serialized.save()
-                        self.data_returned = self.TRUE_CALL(data = {"assignment" : assignment_de_serialized.data['assignment_id']})
-                                        
+                        data['success'] = True
+                        data['data'] = assignment_de_serialized.data
+                        return Response(data = data, status=status.HTTP_201_CREATED)
                     else:
-                        return JsonResponse(self.JSON_PARSER_ERROR(f"{assignment_de_serialized.errors}"), safe=True)
-                                
-            return JsonResponse(self.data_returned, safe=True)
+                        data['success'] = False
+                        data['message'] = assignment_de_serialized.errors
+                        return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
 
-    @overrides
-    def read(self, incoming_data):
-        self.data_returned['action'] += "-READ"
-        self.clear()
-        try:
-            incoming_data = incoming_data['data']
-            self.token = incoming_data['hash']
-            assignment_ids = tuple(set(incoming_data['assignment_id']))
-
-        except Exception as ex:
-            return JsonResponse(self.MISSING_KEY(ex), safe=True)
-                    
+    @api_view(['DELETE', ])
+    def delete(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         else:
-            data = self.check_authorization("user")
-            if(data[0] == False):
-                return JsonResponse(self.CUSTOM_FALSE(102, "Hash-not USER"), safe=True)
-                                
+            user_id = auth[1]
+            coordinator_ref = Coordinator.objects.filter(user_credential_id = auth[1])
+            if(len(coordinator_ref) < 1):
+                data['success'] = False
+                data['message'] = "USER not COORDINATOR"
+                return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
             else:
-                if(len(assignment_ids) < 1):
-                    return JsonResponse(self.CUSTOM_FALSE(151, "Empty-Atleast one id required"), safe=True)
-                                    
+                if(int(pk) == 0): #all
+                    Assignment.objects.all().delete()
+                    data['success'] = True
+                    data['message'] = "All ASSIGNMENT(s) deleted"
+                    return Response(data = data, status = status.HTTP_202_ACCEPTED)
                 else:
-                    self.data_returned['data'] = dict()
-                    temp = dict()
-                    for id in assignment_ids:
-                        try:
-                            assignment_ref = Assignment.objects.filter(assignment_id = int(id))
-                                            
-                        except Exception as ex:
-                            self.data_returned['data'][id] = self.CUSTOM_FALSE(408, f"DataType-{str(ex)}")
-
-                        else:
-                            if(len(assignment_ref) < 1):
-                                self.data_returned['data'][id] = self.CUSTOM_FALSE(404, "Invalid-Assignment id")
-                                                
-                            else:
-                                assignment_ref = assignment_ref[0]
-                                assignment_serialized = Assignment_Serializer(assignment_ref, many=False).data
-                                self.data_returned['data'][id] = self.TRUE_CALL(true = assignment_serialized)
-
-            return JsonResponse(self.data_returned, safe=True)
-
-    @overrides
-    def edit(self, incoming_data):
-        self.data_returned['action'] += "-EDIT"
-        self.clear()
-        try:
-            incoming_data = incoming_data['data']
-            self.token = incoming_data['hash']
-            incoming_data = incoming_data['data']
-
-        except Exception as ex:
-            return JsonResponse(self.MISSING_KEY(ex), safe=True)
-                    
-        else:
-            data = self.check_authorization("user")
-            if(data[0] == False):
-                return JsonResponse(self.CUSTOM_FALSE(102, "Hash-not USER"), safe=True)
-                                
-            else:
-                # user_credential_ref = User_Credential.objects.get(user_credential_id = int(data[1]))
-                try:
-                    assignment_ref = Assignment.objects.filter(assignment_id = int(incoming_data['assignment_id']))
-
-                except Exception as ex:
-                    return JsonResponse(self.CUSTOM_FALSE(408, f"DataType-{str(ex)}"), safe=True)
-                                    
-                else:
-                    if(len(assignment_ref) < 1):
-                        return JsonResponse(self.CUSTOM_FALSE(404, "Invalid-Assignment Id"), safe=True)
-                                        
-                    else:
-                        assignment_ref = assignment_ref[0]
-                        assignment_de_serialized = Assignment_Serializer(assignment_ref, data = incoming_data)
-                        if(assignment_de_serialized.is_valid()):
-                            assignment_de_serialized.save()
-                            self.data_returned = self.TRUE_CALL(data = {"assignment" : assignment_de_serialized.data['assignment_id']})
-                                    
-                        else:
-                            return JsonResponse(self.JSON_PARSER_ERROR(f"{assignment_de_serialized.errors}"), safe=True)
-
-            return JsonResponse(self.data_returned, safe=True)
-
-    @overrides
-    def delete(self, incoming_data):
-        self.data_returned['action'] += "-DELETE"
-        self.clear()
-        try:
-            incoming_data = incoming_data['data']
-            self.token = incoming_data['hash']
-            assignment_ids = tuple(set(incoming_data['assignment_id']))
-
-        except Exception as ex:
-            return JsonResponse(self.MISSING_KEY(ex), safe=True)
-                    
-        else:
-            data = self.check_authorization("user")
-            if(data[0] == False):
-                return JsonResponse(self.CUSTOM_FALSE(102, "Hash-not USER"), safe=True)
-                                
-            else:
-                self.data_returned['data'] = dict()
-                temp = dict()
-                for id in assignment_ids:
                     try:
-                        assignment_ref = Assignment.objects.filter(assignment_id = int(id))
-                                        
-                    except Exception as ex:
-                        self.data_returned['data'][id] = self.CUSTOM_FALSE(408, f"DataType-{str(ex)}")
-                                        
+                        assignment_ref = Assignment.objects.get(assignment_id = int(pk))
+                    except Assignment.DoesNotExist:
+                        data['success'] = False
+                        data['message'] = "item does not exist"
+                        return Response(data = data, status=status.HTTP_404_NOT_FOUND)
                     else:
-                        if(len(assignment_ref) < 1):
-                            self.data_returned['data'][id] = self.CUSTOM_FALSE(404, "Invalid-Assignment Id")
-                                            
-                        else:
-                            assignment_ref = assignment_ref[0]
-                            assignment_ref.delete()
-                                                
-                            self.data_returned['data'][id] = self.TRUE_CALL()
-                                    
-            return JsonResponse(self.data_returned, safe=True)
+                        assignment_ref.delete()
+                        data['success'] = True
+                        data['message'] = "ASSIGNMENT deleted"
+                        return Response(data = data, status=status.HTTP_202_ACCEPTED)
 
-class Post_Api(API_Prime, Authorize):
-    
-    def __init__(self):
-        super().__init__()
-    
-    @overrides
-    def method_get(self):
-        post_ref_all = Post.objects.filter(prime=False).order_by('-post_id')
-        if(len(post_ref_all) < 1):
-            return JsonResponse(self.CUSTOM_FALSE(151, "Empty-Post tray"), safe=True)
-        
-        else:
-            post_serialized = Post_Serializer(data = post_ref_all, many=True).data
-            self.data_returned = self.TRUE_CALL(data = post_serialized)
-
-        return JsonResponse(self.data_returned, safe=True)
-
-    @overrides
-    def create(self, incoming_data):
-        self.data_returned['action'] += "-CREATE"
-        self.clear()
-        try:
-            incoming_data = incoming_data['data']
-            self.token = incoming_data['hash']
-            incoming_data = incoming_data['data']
-
-        except Exception as ex:
-            return JsonResponse(self.MISSING_KEY(ex), safe=True)
-                    
-        else:
-            data = self.check_authorization("user")
-            if(data[0] == False):
-                return JsonResponse(self.CUSTOM_FALSE(102, "Hash-not USER"), safe=True)
-                                
+    # active point
+    data = am_I_Authorized(request, "API")
+    if(data[0] == False):
+        return JsonResponse({"error":"API_KEY_UNAUTHORIZED", "message" : data[1]}, safe=True)
+    else:
+        data = am_I_Authorized(request, "USER")
+        job = job.lower()
+        if(job == 'create'):
+            return create(request, data)
+        elif(job == 'read'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/content/assignment/read/<id>"}, safe=True)
             else:
-                coordinator_ref = Coordinator.objects.filter(user_credential_id = int(data[1]))
-                if(len(coordinator_ref) < 1):
-                    return JsonResponse(self.CUSTOM_FALSE(404, "Invalid-USER not COORDINATOR"), safe=True)
-                                    
+                return read(request, pk, data)
+        elif(job == 'edit'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/content/assignment/edit/<id>"}, safe=True)
+            else:
+                return edit(request, pk, data)
+        elif(job == 'delete'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/content/assignment/delete/<id>"}, safe=True)
+            else:
+                return delete(request, pk, data)
+        else:
+            return JsonResponse({
+                        "create":"api/content/assignment/create/",
+                        "read":"api/content/assignment/read/<id>",
+                        "edit":"api/content/assignment/edit/<id>",
+                        "delete":"api/content/assignment/delete/<id>",
+                    }, safe=True)
+
+# -----------------------POST-------------------------------
+
+@csrf_exempt
+def api_post_view(request, job, pk=None):
+
+    @api_view(['POST', ])
+    def create(request, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            coordinator_ref = Coordinator.objects.filter(user_credential_id = auth[1])
+            if(len(coordinator_ref) < 1):
+                data['success'] = False
+                data['message'] = "USER not COORDINATOR"
+                return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+            else:
+                post_de_serialized = Post_Serializer(data = request.data)
+                post_de_serialized.initial_data['user_credential_id'] = auth[1]
+                if(post_de_serialized.is_valid()):
+                    post_de_serialized.save()
+                    # create notification for concerned part(y/ies)
+                    # ---------------------------------------------
+                    message = f"Date : {post_de_serialized.data['made_date'].split('T')[0]}"
+                    message += f"\n\n{Subject_Serializer(Subject.objects.get(subject_id = post_de_serialized.data['subject_id']), many=False).data['subject_name']}\n{post_de_serialized.data['post_name']}\n{post_de_serialized.data['post_body'].split()[:10]}...[Read More]"
+                    try:
+                        serialized = User_Credential_Serializer(User_Credential.objects.get(user_credential_id = post_de_serialized.data['user_credential_id']), many=False).data
+                    except Exception as ex:
+                        print("EX : ", ex)
+                        message += f"\n\nCreated By : Anonymous"
+                    else:
+                        message += f"\n\nCreated By : {serialized['user_f_name']} {serialized['user_l_name']}"
+                    notification_ref_new = Notification(
+                                                post_id = Post.objects.get(post_id = post_de_serialized.data['post_id']),
+                                                notification_body = message
+                                            )
+                    notification_ref_new.save()
+                    many_to_many_enroll = Enroll.objects.filter(subject_id = post_de_serialized.data['subject_id'])
+                    many_to_many_coor_sub = Subject_Coordinator_Int.objects.filter(subject_id = post_de_serialized.data['subject_id'])
+                    if(len(many_to_many_coor_sub) > 0):
+                        for one in many_to_many_coor_sub:
+                            User_Notification_Int(
+                                notification_id = notification_ref_new,
+                                user_credential_id = one.coordinator_id.user_credential_id
+                            ).save()
+                    if(len(many_to_many_enroll) > 0):
+                        for one in many_to_many_enroll:
+                            User_Notification_Int(
+                                notification_id = notification_ref_new,
+                                user_credential_id = one.user_credential_id
+                            ).save()
+                    # ---------------------------------------------
+                    data['success'] = True
+                    data['data'] = post_de_serialized.data
+                    return Response(data = data, status=status.HTTP_201_CREATED)
                 else:
-                    post_de_serialized = Post_Serializer(data = incoming_data)
-                    post_de_serialized.initial_data['user_credential_id'] = int(data[1])
-                    post_de_serialized.initial_data['made_date'] = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
+                    data['success'] = False
+                    data['message'] = post_de_serialized.errors
+                    return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
+
+    @api_view(['GET', ])
+    def read(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            user_id = auth[1]
+            if(int(pk) == 0): #all
+                data['success'] = True
+                data['data'] = Post_Serializer(Post.objects.all(), many=True).data
+                return Response(data = data, status=status.HTTP_202_ACCEPTED)
+            else:
+                try:
+                    post_ref = Post.objects.get(post_id = int(pk))
+                except Post.DoesNotExist:
+                    data['success'] = False
+                    data['message'] = "item does not exist"
+                    return Response(data = data, status=status.HTTP_404_NOT_FOUND)
+                else:
+                    data['success'] = True
+                    data['data'] = Post_Serializer(post_ref, many=False).data
+                    return Response(data = data, status=status.HTTP_202_ACCEPTED)
+
+    @api_view(['PUT', ])
+    def edit(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            coordinator_ref = Coordinator.objects.filter(user_credential_id = auth[1])
+            if(len(coordinator_ref) < 1):
+                data['success'] = False
+                data['message'] = "USER not COORDINATOR"
+                return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+            else:
+                try:
+                    post_ref = Post.objects.get(post_id = int(pk), user_credential_id = auth[1])
+                except Post.DoesNotExist:
+                    data['success'] = False
+                    data['message'] = "item does not exist or does not belong to user"
+                    return Response(data = data, status=status.HTTP_404_NOT_FOUND)
+                else:
+                    post_de_serialized = Post_Serializer(post_ref, data=request.data)
                     if(post_de_serialized.is_valid()):
                         post_de_serialized.save()
-                        post_ref_self = Post.objects.get(post_id = post_de_serialized.data['post_id'])
-                        subject_ref_self = Subject.objects.get(subject_id = post_de_serialized.data['subject_id']) # considering subject not null and true for all post
-                        message = f"POST : {post_de_serialized.data['post_name']} for SUBJECT : {subject_ref_self.subject_name} has been created on {post_de_serialized.initial_data['made_date']}."
-                        message += "You are getting this notification beacuse you have enrolled for the subject."
-                        notification_ref_new = Notification(post_id = post_ref_self,
-                                                            made_date = datetime.now().strftime("%m/%d/%Y %H:%M:%S"),
-                                                            notification_body = message)
-                        notification_ref_new.save()
-                        enroll_ref = Enroll.objects.filter(subject_id = post_de_serialized.data['subject_id']).order_by('-pk') # for students
-                        if(len(enroll_ref) < 1):
-                            pass # do something
-
-                        else:
-                            for enroll in enroll_ref:
-                                user_notification_int_new = User_Notification_Int(user_credential_id = enroll.user_credential_id,
-                                                                                notification_id = notification_ref_new,
-                                                                                made_date = datetime.now().strftime("%m/%d/%Y %H:%M:%S"))
-                                user_notification_int_new.save()
-
-                        subject_coordinator_int_ref = Subject_Coordinator_Int.objects.filter(subject_id = post_de_serialized.data['subject_id']).order_by('-pk') # for teachers
-                        if(len(subject_coordinator_int_ref) < 1):
-                            pass # do something
-
-                        else:
-                            for teacher in subject_coordinator_int_ref:
-                                user_notification_int_new = User_Notification_Int(user_credential_id = teacher.coordinator_id.user_credential_id,
-                                                                                notification_id = notification_ref_new,
-                                                                                made_date = datetime.now().strftime("%m/%d/%Y %H:%M:%S"))
-                                user_notification_int_new.save()
-                        
-                        self.data_returned = self.TRUE_CALL(data = {"post" : post_de_serialized.data['post_id'], "user" : data[1]})
-                                        
+                        data['success'] = True
+                        data['data'] = post_de_serialized.data
+                        return Response(data = data, status=status.HTTP_201_CREATED)
                     else:
-                        return JsonResponse(self.CUSTOM_FALSE(403, f"Serialize-{post_de_serialized.errors}"), safe=True)
-                            
-            return JsonResponse(self.data_returned, safe=True)
+                        data['success'] = False
+                        data['message'] = post_de_serialized.errors
+                        return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
 
-    @overrides
-    def read(self, incoming_data):
-        self.data_returned['action'] += "-READ"
-        self.clear()
-        try:
-            incoming_data = incoming_data['data']
-            self.token = incoming_data['hash']
-            post_ids = tuple(set(incoming_data['post_id']))
-
-        except Exception as ex:
-            return JsonResponse(self.MISSING_KEY(ex), safe=True)
-                    
+    @api_view(['DELETE', ])
+    def delete(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         else:
-            data = self.check_authorization("user")
-            if(data[0] == False):
-                return JsonResponse(self.CUSTOM_FALSE(102, "Hash-not USER"), safe=True)
-                                
+            user_id = auth[1]
+            coordinator_ref = Coordinator.objects.filter(user_credential_id = auth[1])
+            if(len(coordinator_ref) < 1):
+                data['success'] = False
+                data['message'] = "USER not COORDINATOR"
+                return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
             else:
-                if(len(post_ids) < 1):
-                    return JsonResponse(self.CUSTOM_FALSE(151, "Empty-Atleast one id required"), safe=True)
-                                    
-                else:
-                    self.data_returned['data'] = dict()
-                    temp = dict()
-                    if(0 not in post_ids): # selective fetch
-                        for id in post_ids:
-                            try:
-                                post_ref = Post.objects.filter(post_id = int(id))
-                                                
-                            except Exception as ex:
-                                self.data_returned['data'][id] = self.CUSTOM_FALSE(408, f"DataType-{str(ex)}")
-                                                
-                            else:
-                                if(len(post_ref) < 1):
-                                    self.data_returned['data'][id] = self.CUSTOM_FALSE(404, "Invalid-Post id")
-
-                                else:
-                                    post_ref = post_ref[0]
-                                    post_serialized = Post_Serializer(post_ref, many=False).data
-                                    self.data_returned['data'][id] = self.TRUE_CALL(data = post_serialized)
-                                        
-                    else: # fetch all
-                        post_ref = Post.objects.all().order_by('-post_id')
-                        if(len(post_ref) < 1):
-                            self.data_returned['data'][0] = self.CUSTOM_FALSE(151, "Empty-Post Tray")
-                            return JsonResponse(self.data_returned, safe=True)
-                                            
-                        else:
-                            post_serialized = Post_Serializer(post_ref, many=True).data
-                            self.data_returned['data'][0] = self.TRUE_CALL(data = post_serialized)
-
-            return JsonResponse(self.data_returned, safe=True)
-
-    @overrides
-    def edit(self, incoming_data):
-        self.data_returned['action'] += "-EDIT"
-        self.clear()
-        try:
-            incoming_data = incoming_data['data']
-            self.token = incoming_data['hash']
-            incoming_data = incoming_data['data']
-
-        except Exception as ex:
-            return JsonResponse(self.MISSING_KEY(ex), safe=True)
-                    
-        else:
-            data = self.check_authorization("user")
-            if(data[0] == False):
-                return JsonResponse(self.CUSTOM_FALSE(102, "Hash-not USER"), safe=True)
-                                
-            else:
-                coordinator_ref = Coordinator.objects.filter(user_credential_id = int(data[1]))
-                if(len(coordinator_ref) < 1):
-                    return JsonResponse(self.CUSTOM_FALSE(404, "Invalid-USER not COORDINATOR"), safe=True)
-                                    
+                if(int(pk) == 0): #all
+                    Post.objects.all().delete()
+                    data['success'] = True
+                    data['message'] = "All POST(s) deleted"
+                    return Response(data = data, status = status.HTTP_202_ACCEPTED)
                 else:
                     try:
-                        post_ref_self = Post.objects.filter(post_id = int(incoming_data['post_id']))
-                                        
-                    except Exception as ex:
-                        return JsonResponse(self.CUSTOM_FALSE(403, f"DataType-{str(ex)}"), safe=True)
-                                        
+                        post_ref = Post.objects.get(post_id = int(pk), user_credential_id = auth[1])
+                    except Post.DoesNotExist:
+                        data['success'] = False
+                        data['message'] = "item does not exist or does not belong to user"
+                        return Response(data = data, status=status.HTTP_404_NOT_FOUND)
                     else:
-                        if(len(post_ref_self) < 1):
-                            return JsonResponse(self.CUSTOM_FALSE(403, "Invalid-POST id"), safe=True)
-                                            
-                        else:
-                            post_ref_self = post_ref_self[0]
-                            if(post_ref_self.user_credential_id != int(data[1])):
-                                return JsonResponse(self.AMBIGUOUS_404("USER<=>POST not authorized"), safe=True)
-                                                
-                            else:
-                                post_de_serialized = Post_Serializer(post_ref_self, data = incoming_data)
-                                if(post_de_serialized.is_valid()):
-                                    post_de_serialized.save()
-                                    post_ref_self = Post.objects.get(post_id = post_de_serialized.data['post_id'])
-                                    subject_ref_self = Subject.objects.get(subject_id = post_de_serialized.data['subject_id']) # considering subject not null and true for all post
-                                    message = f"POST : {post_de_serialized.data['post_name']} for SUBJECT : {subject_ref_self.subject_name} has been edited on {datetime.now().strftime('%m/%d/%Y %H:%M:%S')}."
-                                    message += "You are getting this notification beacuse you have enrolled for the subject."
-                                    notification_ref_new = Notification(post_id = post_ref_self,
-                                                                        made_date = datetime.now().strftime("%m/%d/%Y %H:%M:%S"),
-                                                                        notification_body = message)
-                                    notification_ref_new.save()
-                                    enroll_ref = Enroll.objects.filter(subject_id = post_de_serialized.data['subject_id']).order_by('-pk') # for students
-                                    if(len(enroll_ref) < 1):
-                                        pass # do something
+                        post_ref.delete()
+                        data['success'] = True
+                        data['message'] = "POST deleted"
+                        return Response(data = data, status=status.HTTP_202_ACCEPTED)
 
-                                    else:
-                                        for enroll in enroll_ref:
-                                            user_notification_int_new = User_Notification_Int(user_credential_id = enroll.user_credential_id,
-                                                                                            notification_id = notification_ref_new,
-                                                                                            made_date = datetime.now().strftime("%m/%d/%Y %H:%M:%S"))
-                                            user_notification_int_new.save()
-
-                                    subject_coordinator_int_ref = Subject_Coordinator_Int.objects.filter(subject_id = post_de_serialized.data['subject_id']).order_by('-pk') # for teachers
-                                    if(len(subject_coordinator_int_ref) < 1):
-                                        pass # do something
-
-                                    else:
-                                        for teacher in subject_coordinator_int_ref:
-                                            user_notification_int_new = User_Notification_Int(user_credential_id = teacher.coordinator_id.user_credential_id,
-                                                                                            notification_id = notification_ref_new,
-                                                                                            made_date = datetime.now().strftime("%m/%d/%Y %H:%M:%S"))
-                                            user_notification_int_new.save()
-                                    
-                                    self.data_returned = self.TRUE_CALL(data = {"post" : post_de_serialized.data['post_id'], "user" : data[1]})
-                                                    
-                                else:
-                                    return JsonResponse(self.CUSTOM_FALSE(403, f"Serialize-{post_de_serialized.errors}"), safe=True)
-                            
-            return JsonResponse(self.data_returned, safe=True)
-
-    @overrides
-    def delete(self, incoming_data):
-        self.data_returned['action'] += "-DELETE"
-        self.clear()
-        try:
-            incoming_data = incoming_data['data']
-            self.token = incoming_data['hash']
-            post_ids = tuple(set(incoming_data['post_id']))
-
-        except Exception as ex:
-            return JsonResponse(self.MISSING_KEY(ex), safe=True)
-                    
-        else:
-            data = self.check_authorization("user")
-            if(data[0] == False):
-                return JsonResponse(self.CUSTOM_FALSE(102, "Hash-not USER"), safe=True)
-                                
+    # active point
+    data = am_I_Authorized(request, "API")
+    if(data[0] == False):
+        return JsonResponse({"error":"API_KEY_UNAUTHORIZED", "message" : data[1]}, safe=True)
+    else:
+        data = am_I_Authorized(request, "USER")
+        job = job.lower()
+        if(job == 'create'):
+            return create(request, data)
+        elif(job == 'read'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/content/post/read/<id>"}, safe=True)
             else:
-                if(len(post_ids) < 1):
-                    return JsonResponse(self.CUSTOM_FALSE(151, "Empty-Atleast one id required"), safe=True)
-                                    
-                else:
-                    self.data_returned['data'] = dict()
-                    temp = dict()
-                    if(0 not in post_ids): # selective fetch only to be done to self or by prime_admin
-                        for id in post_ids:
-                            try:
-                                post_ref = Post.objects.filter(post_id = int(id))
-                                                
-                            except Exception as ex:
-                                self.data_returned['data'][id] = self.CUSTOM_FALSE(408, f"DataType-{str(ex)}")
-                                                
-                            else:
-                                if(len(post_ref) < 1):
-                                    self.data_returned['data'][id] = self.CUSTOM_FALSE(404, "Invalid-Post id")
-
-                                else:
-                                    post_ref = post_ref[0]
-                                    if(post_ref.user_credential_id == int(data[1])):
-                                        flag = True
-                                    else:
-                                        data = self.check_authorization("admin", "alpha")
-                                        if(data[0] == True):
-                                            flag = True
-                                        else:
-                                            self.data_returned['data'][id] = self.CUSTOM_FALSE(404, "Hash-not ADMIN ALPHA")
-                                            flag = False
-                                                        
-                                    if(flag == True):
-                                        if(post_ref.video_id not in (None,"")):
-                                            post_ref.video_id.delete() # more here on video operations
-                                        if(post_ref.forum_id not in (None,"")):
-                                            post_ref.forum_id.delete()
-                                        if(post_ref.lecture_id not in (None,"")):
-                                            post_ref.lecture_id.delete()
-                                        if(post_ref.assignment_id not in (None,"")):
-                                            post_ref.assignment_id.delete()
-                                                            
-                                        post_ref.delete()
-                                        self.data_returned['data'][id] = self.TRUE_CALL()
-
-                    else: # delete all only by admin + alpha
-                        data = self.check_authorization("admin", "alpha")
-                        if(data[0] == True):
-                            post_ref_all = Post.objects.all()
-                            if(len(post_ref_all) < 1):
-                                self.data_returned['data'][0] = self.CUSTOM_FALSE(151, "Empty-Post Tray")
-                                return JsonResponse(self.data_returned, safe=True)
-                                                
-                            else:
-                                for post_ref in post_ref_all:
-                                    if(post_ref.video_id not in (None,"")):
-                                        post_ref.video_id.delete() # more here on video operations
-                                    if(post_ref.forum_id not in (None,"")):
-                                        post_ref.forum_id.delete()
-                                    if(post_ref.lecture_id not in (None,"")):
-                                        post_ref.lecture_id.delete()
-                                    if(post_ref.assignment_id not in (None,"")):
-                                        post_ref.assignment_id.delete()
-                                                            
-                                    post_ref.delete()
-                                    self.data_returned['data'][0] = self.TRUE_CALL()
-
-                        else:
-                            self.data_returned['data'][0] = self.CUSTOM_FALSE(404, "Hash-not ADMIN ALPHA")
-                            return JsonResponse(self.data_returned, safe=True)
-
-            return JsonResponse(self.data_returned, safe=True)
-
-# ----------------------------------------------
-
-coordinator = Coordinator_Api()
-subject = Subject_Api()
-
-forum = Forum_Api()
-reply = Reply_Api()
-lecture = Lecture_Api()
-assignment = Assignment_Api()
-
-post = Post_Api()
+                return read(request, pk, data)
+        elif(job == 'edit'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/content/post/edit/<id>"}, safe=True)
+            else:
+                return edit(request, pk, data)
+        elif(job == 'delete'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/content/post/delete/<id>"}, safe=True)
+            else:
+                return delete(request, pk, data)
+        else:
+            return JsonResponse({
+                        "create":"api/content/post/create/",
+                        "read":"api/content/post/read/<id>",
+                        "edit":"api/content/post/edit/<id>",
+                        "delete":"api/content/post/delete/<id>",
+                    }, safe=True)
 
 # ----------------------------------------------
 

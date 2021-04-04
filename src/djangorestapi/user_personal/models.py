@@ -30,7 +30,7 @@ class Diary(models.Model):
 class Submission(models.Model):
     submission_id = models.AutoField(primary_key=True, null=False, blank=False, unique=True)
 
-    assignment_id = models.ForeignKey(Post, null=False, blank=False, on_delete=models.CASCADE)
+    assignment_id = models.ForeignKey(Assignment, null=False, blank=False, on_delete=models.CASCADE)
     user_credential_id = models.ForeignKey(User_Credential, null=False, blank=False, on_delete=models.CASCADE)
 
     submission_name = models.CharField(max_length=512)
@@ -48,7 +48,8 @@ class Enroll(models.Model):
     subject_id = models.ForeignKey(Subject, null=False, blank=False, on_delete=models.CASCADE)
     user_credential_id = models.ForeignKey(User_Credential, null=False, blank=False, on_delete=models.CASCADE)
 
-    made_date = models.DateTimeField(auto_now=True)
+    made_date = models.DateTimeField(auto_now_add=True)
+
     
     def __str__(self):
         return f"{self.subject_id.subject_name} | {self.user_credential_id.user_f_name}"
@@ -59,7 +60,8 @@ class Notification(models.Model):
     post_id = models.ForeignKey(Post, null=True, blank=True, on_delete=models.CASCADE)
 
     notification_body = models.TextField(null=False, blank=False)
-    made_date = models.DateTimeField(auto_now=True)
+
+    made_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.notification_id} | {' '.join(self.notification_body.split()[:10])}..."
@@ -68,7 +70,8 @@ class User_Notification_Int(models.Model):
     notification_id = models.ForeignKey(Notification, null=False, blank=False, on_delete=models.CASCADE)
     user_credential_id = models.ForeignKey(User_Credential, null=False, blank=False, on_delete=models.CASCADE)
 
-    made_date = models.DateTimeField(auto_now=True)
+    made_date = models.DateTimeField(auto_now_add=True)
+
     prime_1 = models.BooleanField(default=False) # Sent
     prime_2 = models.BooleanField(default=False) # Seen
     
