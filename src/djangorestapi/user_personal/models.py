@@ -49,6 +49,7 @@ class Enroll(models.Model):
     user_credential_id = models.ForeignKey(User_Credential, null=False, blank=False, on_delete=models.CASCADE)
 
     made_date = models.DateTimeField(auto_now_add=True)
+
     
     def __str__(self):
         return f"{self.subject_id.subject_name} | {self.user_credential_id.user_f_name}"
@@ -59,6 +60,7 @@ class Notification(models.Model):
     post_id = models.ForeignKey(Post, null=True, blank=True, on_delete=models.CASCADE)
 
     notification_body = models.TextField(null=False, blank=False)
+
     made_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -69,6 +71,7 @@ class User_Notification_Int(models.Model):
     user_credential_id = models.ForeignKey(User_Credential, null=False, blank=False, on_delete=models.CASCADE)
 
     made_date = models.DateTimeField(auto_now_add=True)
+
     prime_1 = models.BooleanField(default=False) # Sent
     prime_2 = models.BooleanField(default=False) # Seen
     
