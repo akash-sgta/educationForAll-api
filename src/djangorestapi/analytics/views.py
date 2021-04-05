@@ -1,336 +1,363 @@
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
-from rest_framework.parsers import JSONParser
 from django.http.response import JsonResponse
 
-from auth_prime.authorize import Authorize
-from auth_prime.authorize import Cookie
+from rest_framework import status
+from rest_framework.parsers import JSONParser
+from rest_framework.viewsets import ModelViewSet
+from rest_framework.decorators import api_view, renderer_classes
+from rest_framework.response import Response
 
-from auth_prime.important_modules import API_Prime
+#------------------------------------------------------------------
 
-from auth_prime.models import User_Credential
-from auth_prime.models import Api_Token_Table
+from auth_prime.models import (
+        User_Credential,
+        Api_Token_Table
+    )
 
-from analytics.models import Ticket
-from analytics.models import Log
+from auth_prime.serializer import (
+        Api_Token_Serializer
+    )
 
-from analytics.serializer import Ticket_Serializer
-from analytics.serializer import Log_Serializer
+from analytics.models import (
+        Ticket,
+        Log
+    )
+
+from analytics.serializer import (
+        Ticket_Serializer,
+        Log_Serializer
+    )
+
+from auth_prime.important_modules import (
+        am_I_Authorized,
+        do_I_Have_Privilege
+    )
 
 from overrides import overrides
 from datetime import datetime
 
 #------------------------------------------------------------------
-# Create your views here.
 
-class Ticket_Api(API_Prime, Authorize):
-    
-    def __init__(self):
-        super().__init__()
+# -----------------------ASSIGNMENT-------------------------------
 
-    @overrides
-    def create(self, incoming_data):
-        self.data_returned['action'] += "-CREATE"
-        self.clear()
-        try:
-            incoming_data = incoming_data['data']
-            self.token = incoming_data['hash']
-            incoming_data = incoming_data['data']
+@csrf_exempt
+def api_ticket_view(request, job, pk=None):
 
-        except Exception as ex:
-            return JsonResponse(self.MISSING_KEY(ex), safe=True)
-                    
+    @api_view(['POST', ])
+    def create(request, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         else:
-            data = self.check_authorization("user")
-            if(data[0] == False):
-                return JsonResponse(self.CUSTOM_FALSE(102, "Hash-Not USER"), safe=True)
-
+            ticket_de_serialized = Ticket_Serializer(data = request.data)
+            ticket_de_serialized.initial_data['user_credential_id'] = auth[1]
+            if(ticket_de_serialized.is_valid()):
+                ticket_de_serialized.save()
+                data['success'] = True
+                data['data'] = ticket_de_serialized.data
+                return Response(data = data, status=status.HTTP_201_CREATED)
             else:
-                ticket_de_serialized = Ticket_Serializer(data = incoming_data)
-                ticket_de_serialized.initial_data['user_credential_id'] = int(data[1])
-                ticket_de_serialized.initial_data['made_date'] = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
-                if(ticket_de_serialized.is_valid()):
-                    ticket_de_serialized.save()
-                    self.data_returned = self.TRUE_CALL()
-                else:
-                    return JsonResponse(self.CUSTOM_FALSE(666,f'Ticket Not Submitted-{ticket_de_serialized.errors}'), safe=True)
+                data['success'] = False
+                data['message'] = ticket_de_serialized.errors
+                return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
 
-            return JsonResponse(self.data_returned, safe=True)
-
-    @overrides
-    def read(self, incoming_data):
-        self.data_returned['action'] += "-READ"
-        self.clear()
-        try:
-            incoming_data = incoming_data['data']
-            self.token = incoming_data['hash']
-                            
-        except Exception as ex:
-            return JsonResponse(self.MISSING_KEY(ex), safe=True)
-                            
+    @api_view(['GET', ])
+    def read(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         else:
-            if('ticket_id' not in incoming_data.keys()): # self fetch
-                return JsonResponse(self.CUSTOM_FALSE(666, "Ticket Id required"), safe=True)
-
-            else: # fetching as an admin+alpha
-                self.data_returned['data'] = dict()
-                temp = dict()
-                data = self.check_authorization("admin")
-                if(data[0] == False):
-                    return JsonResponse(self.CUSTOM_FALSE(113, f"Hash-{data[1]}"), safe=True)
-
+            # pk    -   0   -   all
+            # pk    -   1   -   unsolved
+            # pk    -   2   -   solved
+            user_id = auth[1]
+            if(am_I_Authorized(request, "admin") > 0):
+                pk = int(pk)
+                if(pk == 0):
+                    data['success'] = True
+                    data['data'] = Ticket_Serializer(Ticket.objects.all(), many=True).data
+                    return Response(data = data, status=status.HTTP_202_ACCEPTED)
+                elif(pk == 1):
+                    data['success'] = True
+                    data['data'] = Ticket_Serializer(Ticket.objects.filter(prime=False), many=True).data
+                    return Response(data = data, status=status.HTTP_202_ACCEPTED)
+                elif(pk == 2):
+                    data['success'] = True
+                    data['data'] = Ticket_Serializer(Ticket.objects.filter(prime=True), many=True).data
+                    return Response(data = data, status=status.HTTP_202_ACCEPTED)
                 else:
-                    ticket_ids = tuple(set(incoming_data['ticket_id']))
-                    if(len(ticket_ids) < 1):
-                        return JsonResponse(self.CUSTOM_FALSE(151, "Empty-At least one id required"), safe=True)
-                                                
-                    else:
-                        if(0 in ticket_ids): # 0 -> fetch all
-                            ticket_ref_all = Ticket.objects.all().order_by("-ticket_id")
-                            if(len(ticket_ids) < 1):
-                                self.data_returned['data'][0] = self.CUSTOM_FALSE(151, "Empty-Ticket tray empty")
-                                return JsonResponse(self.data_returned, safe=True)
-                                            
-                            else:
-                                ticket_serialized_all = Ticket_Serializer(ticket_ref_all, many=True).data
-                                for ticket in ticket_serialized_all:
-                                    key = int(ticket['ticket_id'])
-                                    temp[key] = ticket
-                                self.data_returned[0] = self.TRUE_CALL(temp.copy())
-                                temp.clear()
-                                        
-                        else: # fetch using using ids
-                            for id in ticket_ids:
-                                try:
-                                    ticket_ref = Ticket.objects.filter(user_credential_id = int(id))
-                                                            
-                                except Exception as ex:
-                                    self.data_returned['data'][id] = self.CUSTOM_FALSE(408, f"Formatting-{str(ex)}")
-                                                            
-                                else:
-                                    if(len(ticket_ref) < 1):
-                                        self.data_returned['data'][id] = self.CUSTOM_FALSE(114, "Invalid-Ticket id")
+                    data['success'] = False
+                    data['message'] = "item is invalid, only 0 1 2 allowed"
+                    return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                data['success'] = False
+                data['message'] = "ADMIN_NOT_AUTHORIZED"
+                return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
 
-                                    else:
-                                        ticket_ref = ticket_ref[0]
-                                        ticket_serialized = Ticket_Serializer(ticket_ref, many=False).data
-                                        self.data_returned['data'][id] = self.TRUE_CALL(ticket_ref)
-
-            return JsonResponse(self.data_returned, safe=True)
-
-    @overrides
-    def edit(self, incoming_data):
-        self.data_returned['action'] += "-EDIT"
-        self.clear()
-        try:
-            incoming_data = incoming_data['data']
-            self.token = incoming_data['hash']
-            incoming_data = incoming_data['data']
-                            
-        except Exception as ex:
-            return JsonResponse(self.MISSING_KEY(ex), safe=True)
-                            
+    '''
+    @api_view(['PUT', ])
+    def edit(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         else:
-            data = self.check_authorization("admin") # only admin change applicable for now
-            if(data[0] == False):
-                return JsonResponse(self.CUSTOM_FALSE(102, f"Hash-{data[1]}"), safe=True)
-
+            coordinator_ref = Coordinator.objects.filter(user_credential_id = auth[1])
+            if(len(coordinator_ref) < 1):
+                data['success'] = False
+                data['message'] = "USER not COORDINATOR"
+                return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
             else:
                 try:
-                    ticket_ref = Ticket.objects.filter(ticket_id = int(incoming_data['ticket_id']))
-                
-                except:
-                    return JsonResponse(self.CUSTOM_FALSE(408, f"Formatting-{str(ex)}"), safe=True)
-                
+                    assignment_ref = Assignment.objects.get(assignment_id = int(pk))
+                except Assignment.DoesNotExist:
+                    data['success'] = False
+                    data['message'] = "item does not exist"
+                    return Response(data = data, status=status.HTTP_404_NOT_FOUND)
                 else:
-                    ticket_de_serialized = Ticket_Serializer(ticket_ref, data = incoming_data)
-                    if(ticket_de_serialized.is_valid()):
-                        ticket_de_serialized.save()
-                        self.data_returned = self.TRUE_CALL()
-                        
+                    assignment_de_serialized = Assignment_Serializer(assignment_ref, data=request.data)
+                    if(assignment_de_serialized.is_valid()):
+                        assignment_de_serialized.save()
+                        data['success'] = True
+                        data['data'] = assignment_de_serialized.data
+                        return Response(data = data, status=status.HTTP_201_CREATED)
                     else:
-                        return JsonResponse(self.CUSTOM_FALSE(666, f"Invalid Format-{ticket_de_serialized.errors}"), safe=True)
+                        data['success'] = False
+                        data['message'] = assignment_de_serialized.errors
+                        return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
+    '''
 
-            return JsonResponse(self.data_returned, safe=True)
-
-    @overrides
-    def delete(self, incoming_data):
-        self.data_returned['action'] += "-DELETE"
-        self.clear()
-        try:
-            incoming_data = incoming_data['data']
-            self.token = incoming_data['hash']
-                            
-        except Exception as ex:
-            return JsonResponse(self.MISSING_KEY(ex), safe=True)
-                            
+    @api_view(['DELETE', ])
+    def delete(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         else:
-            if('ticket_id' in incoming_data.keys()): # prime admin deleting others
-                self.data_returned['data'] = dict()
-                data = self.check_authorization("admin")
-                if(data[0] == False):
-                    return JsonResponse(self.CUSTOM_FALSE(111, data[1]), safe=True)
-                                    
+            user_id = auth[1]
+            if(am_I_Authorized(request, "admin") > 0):
+                pk = int(pk)
+                if(pk == 0):
+                    Ticket.objects.all().delete()
+                    data['success'] = True
+                    data['message'] = "All TICKET(s) deleted"
+                    return Response(data = data, status = status.HTTP_202_ACCEPTED)
                 else:
-                    ticket_ids = tuple(set(incoming_data['ticket_id']))
-                    if(0 in ticket_ids): # 0 -> delete all
-                        ticket_ref_all = Ticket.objects.all()
-                        if(len(ticket_ref_all) < 1):
-                            self.data_returned['data'][0] = self.CUSTOM_FALSE(151, "Empty-Ticket Tray empty")
-                            return JsonResponse(self.data_returned, safe=True)
-                                        
-                        else:
-                            ticket_ref_all.delete()
-                            self.data_returned['data'][0] = self.TRUE_CALL()
-                                    
-                    else: # individual id deletes
-                        for id in ticket_ids:
-                            try:
-                                if(int(id) == int(data[1])):
-                                    self.data_returned['data'][id] = self.AMBIGUOUS_404("Empty-Ticket not found")
-
-                                else:
-                                    try:
-                                        ticket_ref = Ticket.objects.filter(ticket_id = int(id))
-                                                    
-                                    except Exception as ex:
-                                        self.data_returned['data'][id] = self.CUSTOM_FALSE(408, f"Data Type-{str(ex)}")
-                                                    
-                                    else:
-                                        if(len(ticket_ref) < 1):
-                                            self.data_returned['data'][id] = self.CUSTOM_FALSE(114, "Invalid-Ticket id")
-                                                        
-                                        else:
-                                            ticket_ref = ticket_ref[0]
-                                            ticket_ref.delete()
-                                            self.data_returned['data'][id] = self.TRUE_CALL()
-                                            
-                            except Exception as ex:
-                                self.data_returned['data'][id] = self.AMBIGUOUS_404(ex)
-                                                        
+                    try:
+                        ticket_ref = Ticket.objects.get(ticket_id = pk)
+                    except Ticket.DoesNotExist:
+                        data['success'] = False
+                        data['message'] = "item does not exist"
+                        return Response(data = data, status=status.HTTP_404_NOT_FOUND)
+                    else:
+                        ticket_ref.delete()
+                        data['success'] = True
+                        data['data'] = "TICKET deleted"
+                        return Response(data = data, status=status.HTTP_202_ACCEPTED)
             else:
-                return JsonResponse(self.CUSTOM_FALSE(666, "Ticket id required"), safe=True)
-            
-            return JsonResponse(self.data_returned, safe=True)
+                data['success'] = False
+                data['message'] = "ADMIN_NOT_AUTHORIZED"
+                return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
 
-class Log_Api(API_Prime, Authorize):
-    
-    def __init__(self):
-        super().__init__()
-
-    @overrides
-    def create(self, incoming_data):
-        self.data_returned['action'] += "-CREATE"
-        self.clear()
-        try:
-            incoming_data = incoming_data['data']
-            self.token = incoming_data['hash']
-            incoming_data = incoming_data['data']
-
-        except Exception as ex:
-            return JsonResponse(self.MISSING_KEY(ex), safe=True)
-                    
+    # active point
+    data = am_I_Authorized(request, "API")
+    if(data[0] == False):
+        return JsonResponse({"error":"API_KEY_UNAUTHORIZED", "message" : data[1]}, safe=True)
+    else:
+        data = am_I_Authorized(request, "USER")
+        job = job.lower()
+        if(job == 'create'):
+            return create(request, data)
+        elif(job == 'read'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/analytics/ticket/read/<id>"}, safe=True)
+            else:
+                return read(request, pk, data)
+        # elif(job == 'edit'):
+        #     if(pk in (None, '')):
+        #         return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/analytics/ticket/edit/<id>"}, safe=True)
+        #     else:
+        #         return edit(request, pk, data)
+        elif(job == 'delete'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/analytics/ticket/delete/<id>"}, safe=True)
+            else:
+                return delete(request, pk, data)
         else:
-            token_ref = Api_Token_Table.filter.objects(user_key_private = self.token)
-            if(len(token_ref) < 1):
-                return JsonResponse(self.CUSTOM_FALSE(666, "Token not present in DB"), safe=True)
+            return JsonResponse({
+                        "create":"api/analytics/ticket/create/",
+                        "read":"api/analytics/ticket/read/<id>",
+                        # "edit":"api/analytics/ticket/edit/<id>",
+                        "delete":"api/analytics/ticket/delete/<id>",
+                    }, safe=True)
 
-            else:
-                token_ref = token_ref[0]
-                log_de_serialized = Log_Serializer(data = incoming_data)
-                log_de_serialized.initial_data['made_date'] = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
-                log_de_serialized.initial_data['api_token_id'] = token_ref.pk
-                if(log_de_serialized.is_valid()):
-                    log_de_serialized.save()
-                    self.data_returned = self.TRUE_CALL()
-                else:
-                    return JsonResponse(self.CUSTOM_FALSE(666,f'Log Not Submitted-{log_de_serialized.errors}'), safe=True)
+# -----------------------ASSIGNMENT-------------------------------
 
-            return JsonResponse(self.data_returned, safe=True)
+@csrf_exempt
+def api_log_view(request, job, date=None):
 
-    @overrides
-    def read(self, incoming_data):
-        self.data_returned['action'] += "-READ"
-        self.clear()
-        try:
-            incoming_data = incoming_data['data']
-            self.token = incoming_data['hash']
-                            
-        except Exception as ex:
-            return JsonResponse(self.MISSING_KEY(ex), safe=True)
-                            
+    '''
+    @api_view(['POST', ])
+    def create(request, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         else:
-            token_ref = Api_Token_Table.filter.objects(user_key_private = self.token)
-            if(len(token_ref) < 1):
-                return JsonResponse(self.CUSTOM_FALSE(666, "Token not present in DB"), safe=True)
-
+            coordinator_ref = Coordinator.objects.filter(user_credential_id = auth[1])
+            if(len(coordinator_ref) < 1):
+                data['success'] = False
+                data['message'] = "USER not COORDINATOR"
+                return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
             else:
-                token_ref = token_ref[0]
-                self_log_ref_all = Log.objects.filter(api_token_id = token_ref.pk).order_by('-pk')
-                if(len(self_log_ref_all) < 1):
-                    return JsonResponse(self.CUSTOM_FALSE(151, "Empty-Log tray empty"), safe=True)
-                                                
+                assignment_de_serialized = Assignment_Serializer(data = request.data)
+                if(assignment_de_serialized.is_valid()):
+                    assignment_de_serialized.save()
+                    data['success'] = True
+                    data['data'] = assignment_de_serialized.data
+                    return Response(data = data, status=status.HTTP_201_CREATED)
                 else:
-                    log_serialized = Log_Serializer(self_log_ref_all, many=True).data
-                    self.data_returned = self.TRUE_CALL(data = log_serialized)
+                    data['success'] = False
+                    data['message'] = assignment_de_serialized.errors
+                    return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
+    '''
 
-            return JsonResponse(self.data_returned, safe=True)
-
-    @overrides
-    def delete(self, incoming_data):
-        self.data_returned['action'] += "-DELETE"
-        self.clear()
-        try:
-            incoming_data = incoming_data['data']
-            self.token = incoming_data['hash']
-                            
-        except Exception as ex:
-            return JsonResponse(self.MISSING_KEY(ex), safe=True)
-                            
+    @api_view(['GET', ])
+    def read(request, date, api, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         else:
-            if('log_id' in incoming_data.keys()): # prime admin deleting others
-                self.data_returned['data'] = dict()
-                token_ref = Api_Token_Table.filter.objects(user_key_private = self.token)
-                if(len(token_ref) < 1):
-                    return JsonResponse(self.CUSTOM_FALSE(666, "Token not present in DB"), safe=True)
+            user_id = auth[1]
+            data['success'] = True
+            date = datetime.strptime(date, '%d-%m-%Y').strftime('%Y-%m-%d').split()[0]
+            print(date)
+            data['date'] = Log_Serializer(Log.objects.filter(made_date__startswith=date, api_token_id=api), many=True).data
+            return Response(data = data, status=status.HTTP_202_ACCEPTED)
 
-                else:
-                    token_ref = token_ref[0]
-                    log_ids = tuple(set(incoming_data['log_id']))
-                    if(0 in log_ids): # 0 -> delete all
-                        log_ref_all = Log.objects.filter(api_token_id = token_ref.pk)
-                        if(len(log_ref_all) < 1):
-                            self.data_returned['data'][0] = self.CUSTOM_FALSE(151, "Empty-Ticket Tray empty")
-                            return JsonResponse(self.data_returned, safe=True)
-                                        
-                        else:
-                            log_ref_all.delete()
-                            self.data_returned['data'][0] = self.TRUE_CALL()
-                                    
-                    else: # individual id deletes
-                        for id in log_ids:
-                            try:
-                                log_ref = Log.objects.filter(log_id = int(id), api_token_id = token_ref.pk)
-                            
-                            except Exception as ex:
-                                self.data_returned['data'][id] = self.CUSTOM_FALSE(666, f"DataType-{str(ex)}")
-                            
-                            else:
-                                if(len(log_ref) < 1):
-                                    self.data_returned['data'][id] = self.AMBIGUOUS_404("Empty-Log not found")
-
-                                else:
-                                    log_ref = log_ref[0]
-                                    log_ref.delete()
-                                    self.data_returned['data'][id] = self.TRUE_CALL()
-                                                        
+    '''
+    @api_view(['PUT', ])
+    def edit(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            coordinator_ref = Coordinator.objects.filter(user_credential_id = auth[1])
+            if(len(coordinator_ref) < 1):
+                data['success'] = False
+                data['message'] = "USER not COORDINATOR"
+                return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
             else:
-                return JsonResponse(self.CUSTOM_FALSE(666, "Log id required"), safe=True)
-            
-            return JsonResponse(self.data_returned, safe=True)
+                try:
+                    assignment_ref = Assignment.objects.get(assignment_id = int(pk))
+                except Assignment.DoesNotExist:
+                    data['success'] = False
+                    data['message'] = "item does not exist"
+                    return Response(data = data, status=status.HTTP_404_NOT_FOUND)
+                else:
+                    assignment_de_serialized = Assignment_Serializer(assignment_ref, data=request.data)
+                    if(assignment_de_serialized.is_valid()):
+                        assignment_de_serialized.save()
+                        data['success'] = True
+                        data['data'] = assignment_de_serialized.data
+                        return Response(data = data, status=status.HTTP_201_CREATED)
+                    else:
+                        data['success'] = False
+                        data['message'] = assignment_de_serialized.errors
+                        return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
+    '''
 
+    '''
+    @api_view(['DELETE', ])
+    def delete(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            user_id = auth[1]
+            coordinator_ref = Coordinator.objects.filter(user_credential_id = auth[1])
+            if(len(coordinator_ref) < 1):
+                data['success'] = False
+                data['message'] = "USER not COORDINATOR"
+                return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+            else:
+                if(int(pk) == 0): #all
+                    Assignment.objects.all().delete()
+                    data['success'] = True
+                    data['message'] = "All ASSIGNMENT(s) deleted"
+                    return Response(data = data, status = status.HTTP_202_ACCEPTED)
+                else:
+                    try:
+                        assignment_ref = Assignment.objects.get(assignment_id = int(pk))
+                    except Assignment.DoesNotExist:
+                        data['success'] = False
+                        data['message'] = "item does not exist"
+                        return Response(data = data, status=status.HTTP_404_NOT_FOUND)
+                    else:
+                        assignment_ref.delete()
+                        data['success'] = True
+                        data['message'] = "ASSIGNMENT deleted"
+                        return Response(data = data, status=status.HTTP_202_ACCEPTED)
+    '''
 
-ticket = Ticket_Api()
-log = Log_Api()
+    # active point
+    api = am_I_Authorized(request, "API")
+    if(api[0] == False):
+        return JsonResponse({"error":"API_KEY_UNAUTHORIZED", "message" : api[1]}, safe=True)
+    else:
+        data = am_I_Authorized(request, "USER")
+        job = job.lower()
+        if(job == 'read'):
+            if(date in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/analytics/log/read/dd-MM-yyyy"}, safe=True)
+            else:
+                return read(request, date, api[1], data)
+        else:
+            return JsonResponse({
+                        # "create":"api/content/assignment/create/",
+                        "read":"api/analytics/log/read/dd-MM-yyyy",
+                        # "edit":"api/content/assignment/edit/<id>",
+                        # "delete":"api/content/assignment/delete/<id>",
+                    }, safe=True)
+        '''
+        if(job == 'create'):
+            return create(request, data)
+        elif(job == 'read'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/analytics/log/read/<id>"}, safe=True)
+            else:
+                return read(request, pk, data)
+        elif(job == 'edit'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/analytics/log/edit/<id>"}, safe=True)
+            else:
+                return edit(request, pk, data)
+        elif(job == 'delete'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/analytics/log/delete/<id>"}, safe=True)
+            else:
+                return delete(request, pk, data)
+        else:
+            return JsonResponse({
+                        "create":"api/content/assignment/create/",
+                        "read":"api/content/assignment/read/<id>",
+                        "edit":"api/content/assignment/edit/<id>",
+                        "delete":"api/content/assignment/delete/<id>",
+                    }, safe=True)
+        '''
 
-#------------------------------------------------------------------
+# ----------------------------------------------------------------

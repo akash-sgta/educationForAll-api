@@ -28,7 +28,7 @@ def am_I_Authorized(request, key):
                     return (False, "API_KEY_UNAUTHORIZED")
                 else:
                     api_token_ref = api_token_ref[0]
-                    return (True, f"USER - {api_token_ref.user_name}")
+                    return (True, api_token_ref.pk)
             else:
                 return (False, "HTTP_Header_Mismatch - Authorization")
         except Exception as ex:

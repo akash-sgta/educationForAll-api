@@ -29,7 +29,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"action\" : \"signup\",\r\n    \"data\" : {\r\n        \"user_f_name\" : \"Akash\",\r\n        \"user_m_name\" : null,\r\n        \"user_l_name\" : \"Sengupta\",\r\n        \"user_email\" : \"testalphatrionakash@gmail.com\",\r\n        \"user_password\" : \"sengupta\",\r\n        \"user_security_question\" : \"Favourite Buttocks\",\r\n        \"user_security_answer\" : \"Abella Danger\"\r\n    }\r\n}",
+									"raw": "{\r\n    \"action\" : \"signup\",\r\n    \"data\" : {\r\n        \"user_f_name\" : \"Akash\",\r\n        \"user_m_name\" : null,\r\n        \"user_l_name\" : \"Sengupta\",\r\n        \"user_email\" : \"alphatrionakash@gmail.com\",\r\n        \"user_password\" : \"sengupta\",\r\n        \"user_security_question\" : \"Favourite Buttocks\",\r\n        \"user_security_answer\" : \"Abella Danger\"\r\n    }\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -37,10 +37,13 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost/api/user/cred/create/",
+									"raw": "http://65.1.64.248/api/user/cred/create/",
 									"protocol": "http",
 									"host": [
-										"localhost"
+										"65",
+										"1",
+										"64",
+										"248"
 									],
 									"path": [
 										"api",
@@ -74,10 +77,13 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost/api/user/cred/create/",
+									"raw": "http://65.1.64.248/api/user/cred/create/",
 									"protocol": "http",
 									"host": [
-										"localhost"
+										"65",
+										"1",
+										"64",
+										"248"
 									],
 									"path": [
 										"api",
@@ -2463,6 +2469,154 @@
 										"enroll",
 										"delete",
 										"5"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "analytics",
+			"item": [
+				{
+					"name": "ticket_api",
+					"item": [
+						{
+							"name": "create",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"ticket_body\" : \"This is a ticket demo\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/api/analytics/ticket/create/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"api",
+										"analytics",
+										"ticket",
+										"create",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "read",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://localhost/api/analytics/ticket/read/2",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"api",
+										"analytics",
+										"ticket",
+										"read",
+										"2"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://localhost/api/analytics/ticket/delete/0",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"api",
+										"analytics",
+										"ticket",
+										"delete",
+										"0"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "log_api",
+					"item": [
+						{
+							"name": "read",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/api/analytics/log/read/05-04-2021",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"api",
+										"analytics",
+										"log",
+										"read",
+										"05-04-2021"
 									]
 								}
 							},

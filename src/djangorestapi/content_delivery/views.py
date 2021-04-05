@@ -34,8 +34,6 @@ from content_delivery.serializer import (
         Post_Serializer
     )
 
-from auth_prime.important_modules import API_Prime
-
 from auth_prime.models import (
         User_Credential,
         User_Profile,

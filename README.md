@@ -9,8 +9,8 @@
  
 
 ### analytics
-##### - Token_API <http://localhost/api/user/ticket/>
-##### - Log_API <http://localhost/api/log/>
+##### - Token_API <http://localhost/api/analytics/ticket//>
+##### - Log_API <http://localhost/api/analytics/log//>
 
  
 

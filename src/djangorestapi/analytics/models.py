@@ -10,7 +10,7 @@ class Ticket(models.Model):
 
     ticket_body = models.TextField(null=False, blank=False)
     user_credential_id = models.ForeignKey(User_Credential, null=False, blank=False, on_delete=models.CASCADE)
-    made_date = models.CharField(default="-", max_length=32)
+    made_date = models.DateTimeField(auto_now_add=True)
     prime = models.BooleanField(default=False) # solved tickets
 
     def __str__(self):
@@ -21,7 +21,7 @@ class Log(models.Model):
 
     log_body = models.TextField(null=False, blank=False)
     api_token_id = models.ForeignKey(Api_Token_Table, blank=False, null=True, on_delete=models.CASCADE)
-    made_date = models.CharField(default="-", max_length=32)
+    made_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.log_id} | {self.log_body.split()[:10]}..."
