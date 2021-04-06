@@ -30,7 +30,6 @@
 								"body": {
 									"mode": "raw",
 									"raw": "{\r\n    \"action\" : \"signup\",\r\n    \"data\" : {\r\n        \"user_f_name\" : \"Akash\",\r\n        \"user_m_name\" : null,\r\n        \"user_l_name\" : \"Sengupta\",\r\n        \"user_email\" : \"alphatrionakash@gmail.com\",\r\n        \"user_password\" : \"sengupta\",\r\n        \"user_security_question\" : \"Favourite Buttocks\",\r\n        \"user_security_answer\" : \"Abella Danger\"\r\n    }\r\n}",
-
 									"options": {
 										"raw": {
 											"language": "json"
@@ -2424,6 +2423,34 @@
 				{
 					"name": "enroll_api",
 					"item": [
+						{
+							"name": "read",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://localhost/api/personal/enroll/read/0",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"api",
+										"personal",
+										"enroll",
+										"read",
+										"0"
+									]
+								}
+							},
+							"response": []
+						},
 						{
 							"name": "read",
 							"request": {

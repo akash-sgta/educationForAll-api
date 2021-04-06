@@ -66,6 +66,8 @@ from auth_prime.important_modules import (
         do_I_Have_Privilege
     )
 
+host = 'localhost'
+
 # ---------------------COORDINATOR---------------------------------
 
 @csrf_exempt
@@ -1107,14 +1109,21 @@ def api_post_view(request, job, pk=None):
                     # create notification for concerned part(y/ies)
                     # ---------------------------------------------
                     message = f"Date : {post_de_serialized.data['made_date'].split('T')[0]}"
-                    message += f"\n\n{Subject_Serializer(Subject.objects.get(subject_id = post_de_serialized.data['subject_id']), many=False).data['subject_name']}\n{post_de_serialized.data['post_name']}\n{post_de_serialized.data['post_body'].split()[:10]}...[Read More]"
+                    message += f'''
+                    \n\n<b>{Subject_Serializer(Subject.objects.get(subject_id = post_de_serialized.data['subject_id']), many=False).data['subject_name']}</b>
+                    \n\n<i>{post_de_serialized.data['post_name']}</i>
+                    \n{' '.join(post_de_serialized.data['post_body'].split()[:10])}...<a href="http://{host}/api/content/post/read/{post_de_serialized.data['post_id']}">[Read More]</a>
+                    '''
                     try:
                         serialized = User_Credential_Serializer(User_Credential.objects.get(user_credential_id = post_de_serialized.data['user_credential_id']), many=False).data
                     except Exception as ex:
                         print("EX : ", ex)
                         message += f"\n\nCreated By : Anonymous"
                     else:
-                        message += f"\n\nCreated By : {serialized['user_f_name']} {serialized['user_l_name']}"
+                        if(serialized['user_profile_id'] in (None, "")):
+                            message += f"\n\nCreated By : {serialized['user_f_name']} {serialized['user_l_name']}"
+                        else:
+                            message += f'''\n\nCreated By : <a href="http://{host}/api/user/prof/read/{serialized['user_profile_id']}">{serialized['user_f_name']} {serialized['user_l_name']}</a>'''
                     notification_ref_new = Notification(
                                                 post_id = Post.objects.get(post_id = post_de_serialized.data['post_id']),
                                                 notification_body = message
