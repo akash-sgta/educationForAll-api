@@ -14,7 +14,7 @@ class Diary(models.Model):
     post_id = models.ForeignKey(Post, null=True, blank=True, on_delete=models.SET_NULL)
     user_credential_id = models.ForeignKey(User_Credential, null=False, blank=False, on_delete=models.CASCADE)
 
-    diary_name = models.CharField(max_length=512)
+    diary_name = models.TextField()
     diary_body = models.TextField()
 
     made_date = models.DateTimeField(auto_now=True)
@@ -33,7 +33,7 @@ class Submission(models.Model):
     assignment_id = models.ForeignKey(Assignment, null=False, blank=False, on_delete=models.CASCADE)
     user_credential_id = models.ForeignKey(User_Credential, null=False, blank=False, on_delete=models.CASCADE)
 
-    submission_name = models.CharField(max_length=512)
+    submission_name = models.TextField()
     submission_body = models.TextField(null=False, blank=False)
     
     submission_external_url_1 = models.URLField(null=True, blank=True)

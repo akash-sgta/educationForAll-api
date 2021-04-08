@@ -19,7 +19,7 @@ class Coordinator(models.Model):
 class Subject(models.Model):
     subject_id = models.AutoField(primary_key=True, null=False, blank=False, unique=True)
 
-    subject_name = models.CharField(max_length=512, null=False, blank=False)
+    subject_name = models.TextField(null=False, blank=False)
     subject_description = models.TextField(null=False, blank=False)
 
     prime = models.BooleanField(default=False) # prime only to be shown to logged in users
@@ -40,7 +40,7 @@ class Subject_Coordinator_Int(models.Model):
 class Video(models.Model):
     video_id = models.AutoField(primary_key=True, null=False, blank=False, unique=True)
 
-    video_name = models.CharField(max_length=512, null=False, blank=False)
+    video_name = models.TextField(null=False, blank=False)
     video_url = models.URLField(max_length=1024, null=False, blank=False)
 
     made_date = models.CharField(default="-", max_length=32)
@@ -51,7 +51,7 @@ class Video(models.Model):
 class Forum(models.Model):
     forum_id = models.AutoField(primary_key=True, null=False, blank=False, unique=True)
 
-    forum_name = models.CharField(max_length=512, null=False, blank=False)
+    forum_name = models.TextField(null=False, blank=False)
 
     made_date = models.DateTimeField(auto_now=True)
 
@@ -79,7 +79,7 @@ class Reply(models.Model):
 class Lecture(models.Model):
     lecture_id = models.AutoField(primary_key=True, null=False, blank=False, unique=True)
 
-    lecture_name = models.CharField(max_length=512, null=False, blank=False)
+    lecture_name = models.TextField(null=False, blank=False)
     lecture_body = models.TextField(default="", null=False, blank=False)
     lecture_external_url_1 = models.URLField(null=True, blank=True)
     lecture_external_url_2 = models.URLField(null=True, blank=True)
@@ -92,7 +92,7 @@ class Lecture(models.Model):
 class Assignment(models.Model):
     assignment_id = models.AutoField(primary_key=True, null=False, blank=False, unique=True)
 
-    assignment_name = models.CharField(max_length=512)
+    assignment_name = models.TextField()
     assignment_body = models.TextField(null=False, blank=False)
     assignment_external_url_1 = models.URLField(null=True, blank=True)
     assignment_external_url_2 = models.URLField(null=True, blank=True)
@@ -114,7 +114,7 @@ class Post(models.Model):
     lecture_id = models.ForeignKey(Lecture, null=True, blank=True, on_delete=models.SET_NULL)
     assignment_id = models.ForeignKey(Assignment, null=True, blank=True, on_delete=models.SET_NULL)
 
-    post_name = models.CharField(max_length=1024)
+    post_name = models.TextField()
     post_body = models.TextField()
     
     post_views = models.PositiveBigIntegerField(default=0)
