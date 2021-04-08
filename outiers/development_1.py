@@ -6,41 +6,25 @@ import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-DB_SETTINGS = {
+'''DB_SETTINGS = {
     'default' : {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME':  os.path.join(BASE_DIR,'test.sqlite3'),
         'USER': '',
         'PASSWORD': '',
         'HOST': '',
-        'PORT': '',
-    },
+        'PORT': ''
+    }
+}'''
 
-    'authDB': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR,'auth.sqlite3'),
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',
-        'PORT': '',
-    },
-
-    'usersDB': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR,'users.sqlite3'),
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',
-        'PORT': '',
-    },
-
-    'contentDB': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR,'content.sqlite3'),
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',
-        'PORT': '',
+DB_SETTINGS = {
+    'default' : {
+        'ENGINE': "django.db.backends.mysql",
+        'NAME':  "projectDB",
+        'USER': "admin",
+        'PASSWORD': "GANDUgandu",
+        'HOST': "projectdatabase1.czbsimzcrcxe.ap-south-1.rds.amazonaws.com",
+        'PORT': "6969"
     }
 }
 
