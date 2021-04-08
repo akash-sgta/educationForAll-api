@@ -657,15 +657,55 @@ def api_admin_cred_view(request, job, pk=None):
             else:
                 privilege = int(request.data['privilege'])
                 user_id = auth[1]
-                if(int(pk) in (0, user_id)):
-                    if(Admin_Credential.objects.get(admin_credential_id = Admin_Credential.objects.get(user_credential_id = user_id).admin_credential_id).prime == False):
-                        data['success'] = False
-                        data['message'] = "Only ADMIN PRIME authorized to change self PRIVILEGES"
-                        return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
-                    else:
+                if(Admin_Credential.objects.get(user_credential_id = user_id).prime == False):
+                    data['success'] = False
+                    data['message'] = "Only ADMIN PRIME authorized to change PRIVILEGES"
+                    return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+                else:
+                    if(int(pk) in (0, user_id)): #self change
                         if(privilege  > 0):
                             many_to_many = Admin_Cred_Admin_Prev_Int.objects.filter(
                                                 admin_credential_id = Admin_Credential.objects.get(user_credential_id = user_id),
+                                                admin_privilege_id = privilege
+                                            )
+                            if(len(many_to_many) > 0):
+                                data['success'] = True
+                                data['message'] = "SELF : ADMIN already has the PRIVILEGE"
+                                return Response(data = data, status=status.HTTP_201_CREATED)
+                            else:
+                                privilege_ref = Admin_Privilege.objects.filter(admin_privilege_id = privilege)
+                                if(len(privilege_ref) < 1):
+                                    data['success'] = False
+                                    data['message'] = "SELF :PRIVILEGE id invalid"
+                                    return Response(data = data, status=status.HTTP_404_NOT_FOUND)
+                                else:
+                                    privilege_ref = privilege_ref[0]
+                                    Admin_Cred_Admin_Prev_Int(
+                                        admin_credential_id = Admin_Credential.objects.get(user_credential_id = user_id),
+                                        admin_privilege_id = privilege_ref
+                                    ).save()
+                                    data['success'] = True
+                                    data['message'] = "SELF : PRIVILEGE granted to ADMIN"
+                                    return Response(data = data, status=status.HTTP_201_CREATED)
+                        else:
+                            privilege = privilege*-1
+                            many_to_many = Admin_Cred_Admin_Prev_Int.objects.filter(
+                                                admin_credential_id = Admin_Credential.objects.get(user_credential_id = user_id),
+                                                admin_privilege_id = privilege
+                                            )
+                            if(len(many_to_many) < 1):
+                                data['success'] = True
+                                data['message'] = "SELF : ADMIN does not the PRIVILEGE"
+                                return Response(data = data, status=status.HTTP_202_ACCEPTED)
+                            else:
+                                many_to_many[0].delete()
+                                data['success'] = True
+                                data['message'] = "SELF : PRIVILEGE revoked from ADMIN"
+                                return Response(data = data, status=status.HTTP_202_ACCEPTED)
+                    else:
+                        if(privilege  > 0):
+                            many_to_many = Admin_Cred_Admin_Prev_Int.objects.filter(
+                                                admin_credential_id = Admin_Credential.objects.get(user_credential_id = int(pk)),
                                                 admin_privilege_id = privilege
                                             )
                             if(len(many_to_many) > 0):
@@ -681,7 +721,7 @@ def api_admin_cred_view(request, job, pk=None):
                                 else:
                                     privilege_ref = privilege_ref[0]
                                     Admin_Cred_Admin_Prev_Int(
-                                        admin_credential_id = Admin_Credential.objects.get(user_credential_id = user_id),
+                                        admin_credential_id = Admin_Credential.objects.get(user_credential_id = int(pk)),
                                         admin_privilege_id = privilege_ref
                                     ).save()
                                     data['success'] = True
@@ -690,7 +730,7 @@ def api_admin_cred_view(request, job, pk=None):
                         else:
                             privilege = privilege*-1
                             many_to_many = Admin_Cred_Admin_Prev_Int.objects.filter(
-                                                admin_credential_id = Admin_Credential.objects.get(user_credential_id = user_id),
+                                                admin_credential_id = Admin_Credential.objects.get(user_credential_id = int(pk)),
                                                 admin_privilege_id = privilege
                                             )
                             if(len(many_to_many) < 1):
