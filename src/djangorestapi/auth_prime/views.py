@@ -704,50 +704,56 @@ def api_admin_cred_view(request, job, pk=None):
                                 return Response(data = data, status=status.HTTP_202_ACCEPTED)
                     else:
                         if(privilege  > 0):
-                            many_to_many = Admin_Cred_Admin_Prev_Int.objects.filter(
-                                                admin_credential_id = Admin_Credential.objects.get(user_credential_id = int(pk)),
-                                                admin_privilege_id = privilege
-                                            )
-                            if(len(many_to_many) > 0):
-                                data['success'] = True
-                                data['message'] = "ADMIN already has the PRIVILEGE"
-                                return Response(data = data, status=status.HTTP_201_CREATED)
+                            try:
+                                many_to_many = Admin_Cred_Admin_Prev_Int.objects.filter(
+                                                    admin_credential_id = Admin_Credential.objects.get(user_credential_id = int(pk)),
+                                                    admin_privilege_id = privilege
+                                                )
+                            except Admin_Credential.DoesNotExist:
+                                data['success'] = False
+                                data['message'] = "item does not exist"
+                                return Response(data = data, status=status.HTTP_404_NOT_FOUND)
                             else:
-                                privilege_ref = Admin_Privilege.objects.filter(admin_privilege_id = privilege)
-                                if(len(privilege_ref) < 1):
-                                    data['success'] = False
-                                    data['message'] = "PRIVILEGE id invalid"
-                                    return Response(data = data, status=status.HTTP_404_NOT_FOUND)
+                                if(len(many_to_many) > 0):
+                                    data['success'] = True
+                                    data['message'] = "ADMIN already has the PRIVILEGE"
+                                    return Response(data = data, status=status.HTTP_201_CREATED)
                                 else:
-                                    privilege_ref = privilege_ref[0]
-                                    try:
+                                    privilege_ref = Admin_Privilege.objects.filter(admin_privilege_id = privilege)
+                                    if(len(privilege_ref) < 1):
+                                        data['success'] = False
+                                        data['message'] = "PRIVILEGE id invalid"
+                                        return Response(data = data, status=status.HTTP_404_NOT_FOUND)
+                                    else:
+                                        privilege_ref = privilege_ref[0]
                                         Admin_Cred_Admin_Prev_Int(
                                             admin_credential_id = Admin_Credential.objects.get(user_credential_id = int(pk)),
                                             admin_privilege_id = privilege_ref
                                         ).save()
-                                    except Admin_Credential.DoesNotExist:
-                                        data['success'] = False
-                                        data['message'] = "item does not exist"
-                                        return Response(data = data, status=status.HTTP_404_NOT_FOUND)
-                                    else:
                                         data['success'] = True
                                         data['message'] = "PRIVILEGE granted to ADMIN"
                                         return Response(data = data, status=status.HTTP_201_CREATED)
                         else:
                             privilege = privilege*-1
-                            many_to_many = Admin_Cred_Admin_Prev_Int.objects.filter(
-                                                admin_credential_id = Admin_Credential.objects.get(user_credential_id = int(pk)),
-                                                admin_privilege_id = privilege
-                                            )
-                            if(len(many_to_many) < 1):
-                                data['success'] = True
-                                data['message'] = "ADMIN does not the PRIVILEGE"
-                                return Response(data = data, status=status.HTTP_202_ACCEPTED)
+                            try:
+                                many_to_many = Admin_Cred_Admin_Prev_Int.objects.filter(
+                                                    admin_credential_id = Admin_Credential.objects.get(user_credential_id = int(pk)),
+                                                    admin_privilege_id = privilege
+                                                )
+                            except Admin_Credential.DoesNotExist:
+                                data['success'] = False
+                                data['message'] = "item does not exist"
+                                return Response(data = data, status=status.HTTP_404_NOT_FOUND)
                             else:
-                                many_to_many[0].delete()
-                                data['success'] = True
-                                data['message'] = "PRIVILEGE revoked from ADMIN"
-                                return Response(data = data, status=status.HTTP_202_ACCEPTED)
+                                if(len(many_to_many) < 1):
+                                    data['success'] = True
+                                    data['message'] = "ADMIN does not the PRIVILEGE"
+                                    return Response(data = data, status=status.HTTP_202_ACCEPTED)
+                                else:
+                                    many_to_many[0].delete()
+                                    data['success'] = True
+                                    data['message'] = "PRIVILEGE revoked from ADMIN"
+                                    return Response(data = data, status=status.HTTP_202_ACCEPTED)
 
     @api_view(['DELETE', ])
     def delete(request, pk, auth):
