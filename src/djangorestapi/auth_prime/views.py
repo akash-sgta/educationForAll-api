@@ -720,13 +720,19 @@ def api_admin_cred_view(request, job, pk=None):
                                     return Response(data = data, status=status.HTTP_404_NOT_FOUND)
                                 else:
                                     privilege_ref = privilege_ref[0]
-                                    Admin_Cred_Admin_Prev_Int(
-                                        admin_credential_id = Admin_Credential.objects.get(user_credential_id = int(pk)),
-                                        admin_privilege_id = privilege_ref
-                                    ).save()
-                                    data['success'] = True
-                                    data['message'] = "PRIVILEGE granted to ADMIN"
-                                    return Response(data = data, status=status.HTTP_201_CREATED)
+                                    try:
+                                        Admin_Cred_Admin_Prev_Int(
+                                            admin_credential_id = Admin_Credential.objects.get(user_credential_id = int(pk)),
+                                            admin_privilege_id = privilege_ref
+                                        ).save()
+                                    except Admin_Credential.DoesNotExist:
+                                        data['success'] = False
+                                        data['message'] = "item does not exist"
+                                        return Response(data = data, status=status.HTTP_404_NOT_FOUND)
+                                    else:
+                                        data['success'] = True
+                                        data['message'] = "PRIVILEGE granted to ADMIN"
+                                        return Response(data = data, status=status.HTTP_201_CREATED)
                         else:
                             privilege = privilege*-1
                             many_to_many = Admin_Cred_Admin_Prev_Int.objects.filter(
