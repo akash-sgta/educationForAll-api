@@ -662,8 +662,8 @@ def api_admin_cred_view(request, job, pk=None):
                     data['message'] = "Only ADMIN PRIME authorized to change PRIVILEGES"
                     return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
                 else:
-                    if(int(pk) in (0, user_id)): #self change
-                        if(privilege  > 0):
+                    if(int(pk) in (0, user_id)): 
+                        if(privilege  > 0): #self change
                             many_to_many = Admin_Cred_Admin_Prev_Int.objects.filter(
                                                 admin_credential_id = Admin_Credential.objects.get(user_credential_id = user_id),
                                                 admin_privilege_id = privilege
@@ -687,7 +687,7 @@ def api_admin_cred_view(request, job, pk=None):
                                     data['success'] = True
                                     data['message'] = "SELF : PRIVILEGE granted to ADMIN"
                                     return Response(data = data, status=status.HTTP_201_CREATED)
-                        else:
+                        else: # change others
                             privilege = privilege*-1
                             many_to_many = Admin_Cred_Admin_Prev_Int.objects.filter(
                                                 admin_credential_id = Admin_Credential.objects.get(user_credential_id = user_id),
