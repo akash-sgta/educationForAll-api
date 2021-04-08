@@ -23,7 +23,7 @@ DB_SETTINGS = {
         'NAME':  "projectDB",
         'USER': "admin",
         'PASSWORD': "GANDUgandu",
-        'HOST': "projectdatabase1.czbsimzcrcxe.ap-south-1.rds.amazonaws.com",
+        'HOST': "172.31.0.0/16",
         'PORT': "6969"
     }
 }
