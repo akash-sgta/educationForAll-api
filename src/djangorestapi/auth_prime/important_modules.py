@@ -1,19 +1,141 @@
 from django.views.decorators.csrf import csrf_exempt
 from django.http.response import JsonResponse
+from django.shortcuts import render
+
 from rest_framework.parsers import JSONParser
 
 from auth_prime.models import (
         Api_Token_Table,
         User_Token_Table,
+        User_Credential,
         Admin_Credential,
         Admin_Privilege,
         Admin_Cred_Admin_Prev_Int
-
     )
 
 from hashlib import sha256
 import string
 import random
+import json
+
+# --------------------------------------------------------
+
+class Cookie(object):
+    
+    def __init__(self, hash=None):
+        super().__init__()
+        self._token = hash
+    
+    @property
+    def token(self):
+        return self._token
+    @token.setter
+    def token(self, data):
+        self._token = data
+    
+    # ------------------------------------------
+    # Cookie Push handle
+    def setCookie(self, request, file_path=None, data=None, **kwargs):
+        
+        key_list = list(kwargs.keys())
+        try:
+            if((file_path == None) or (data == None)):
+                raise Exception('Required Arguments not found.')
+            else:
+                request.session.set_expiry(0)
+                response = render(request, file_path, data)
+                for item in key_list:
+                    if(item not in ('file_path','data')):
+                        if(type(kwargs[item]) == type(dict())):
+                            response.set_cookie(f"{item}", json.dumps(kwargs[item]))
+                        else:
+                            response.set_cookie(f"{item}", kwargs[item])
+
+        except Exception as ex:
+            print(f"[x] SET COOKIE Ex : {str(ex)}")
+            return None
+        else:
+            return response
+    # ------------------------------------------
+    # Cookie Pull handle
+    def getCookie(self, request, *args):
+
+        try:
+            cookies = list()
+            for arg in args:
+                temp = request.COOKIES[str(arg)]
+                cookies.append(temp)
+            return cookies
+        except Exception as ex:
+            print(f"[x] GET COOKIE Ex : {str(ex)}")
+            cookies.append(None)
+            return cookies
+    # ------------------------------------------
+    def make_hash(self, *args):
+
+        try:
+            data = "&".join([str(arg) for arg in args])
+            hashd = str(sha256(data.encode('utf-8')).digest())
+        except Exception as ex:
+            print(f"[x] HASH Ex : {str(ex)}")
+            return None
+        else:
+            return hashd
+    # ------------------------------------------
+    def set_authentication_info(self, request=None, file_path=None, data=None, pk=None):
+        
+        try:
+            if((file_path==None) or (data==None) or (pk==None)):
+                raise Exception("Necessary arguments not passed.")
+            else:
+                user = Api_Token_Table.objects.get(pk=pk)
+                tauth = f"{user.pk}::{self.make_hash(user.user_email, user.user_password)}"
+        except Exception as ex:
+            from django.shortcuts import redirect
+
+            print(f"[x] SET AUTH Ex : {str(ex)}")
+            return redirect('API_TOKEN')
+        else:
+            return self.setCookie(request, file_path=file_path, data=data, tauth=tauth)
+
+    # ------------------------------------------
+    def revoke_authentication_info(self, request, file_path, data):
+        
+        try:
+            if((file_path==None) or (data==None)):
+                raise Exception("Necessary arguments not passed.")
+            else:
+                response = render(request, file_path, data)
+                response.delete_cookie('tauth')
+        except Exception as ex:
+            from django.shortcuts import redirect
+
+            print(f"[x] REVOKE AUTH  Ex : {str(ex)}")
+            return redirect('forum_home')
+        else:
+            return response
+
+    # ------------------------------------------
+    def check_authentication_info(self, request):
+        try:
+            user_credential = self.getCookie(request, 'tauth')
+            # if auth false or not initialized
+            if(user_credential[0] in (None, False, "")):
+                return False, 1
+            else:
+                cookie_user = user_credential[0].split("::")
+                try:
+                    user = Api_Token_Table.objects.get(pk = int(cookie_user[0]))
+                except Api_Token_Table.DoesNotExist:
+                    return False, 2
+                else:
+                    if(cookie_user[1] == self.make_hash(user.user_email, user.user_password)):
+                        return True, user.pk
+                    else:
+                        return False, 3
+        except Exception as ex:
+            print(f"[x] CHECK AUTH Ex : {str(ex)}")
+            return False
 
 # --------------------------------------------------------
 
@@ -114,6 +236,8 @@ def do_I_Have_Privilege(request, key):
     except Exception as ex:
         print("EX : ", ex)
         return False
+
+# --------------------------------------------------------
 
 def create_password_hashed(password):
     sha256_ref = sha256()

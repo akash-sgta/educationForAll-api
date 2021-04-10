@@ -40,14 +40,12 @@ from auth_prime.serializer import (
         Image_Serializer
     )
 
-from auth_prime.authorize import Authorize
-from auth_prime.authorize import Cookie
-
 from auth_prime.important_modules import (
         am_I_Authorized,
         create_password_hashed,
         random_generator,
-        create_token
+        create_token,
+        Cookie
     )
 
 # ------------------------------------------------------------
@@ -1186,7 +1184,6 @@ pinned = [
 ]
 
 def api_token_web(request, word=None):
-    auth = Authorize()
     cookie = Cookie()
     data_returned = dict()
 
@@ -1197,7 +1194,6 @@ def api_token_web(request, word=None):
             if(word.upper() == 'signin'.upper()):
                 type = 'signin'.upper()
             else:
-                auth.clear()
                 type = 'logged'.upper()
         else:
             type = 'signup'.upper()
@@ -1221,10 +1217,8 @@ def api_token_web(request, word=None):
         if(temp['form_type'][0] == 'signup'):
             keys = ('user_f_name', 'user_l_name', 'user_email', 'user_password', 'api_endpoint')
             
-            auth.clear()
             try:
-                auth.user_password = f"{temp[keys[3]][0]}"
-                data = auth.create_password_hashed()
+                data = create_password_hashed(temp['user_password'][0])
             except Exception as ex:
                 messages.add_message(request, messages.INFO, str(ex))
                 data_returned['type'] = 'signup'.upper()
@@ -1238,7 +1232,7 @@ def api_token_web(request, word=None):
                         api_new = Api_Token_Table(user_name = f"{temp[keys[0]][0]} {temp[keys[1]][0]}",
                                                   user_email = f"{temp[keys[2]][0].lower()}",
                                                   user_password = f"{data[1]}",
-                                                  user_key_private = auth.random_generator(),
+                                                  user_key_private = random_generator(),
                                                   api_endpoint = temp[keys[4]][0])
                         api_new.save()
                     except Exception as ex:
@@ -1253,10 +1247,8 @@ def api_token_web(request, word=None):
         elif(temp['form_type'][0] == 'signin'):
             keys = ['user_email', 'user_password']
 
-            auth.clear()
             try:
-                auth.user_password = f"{temp[keys[1]][0]}"
-                data = auth.create_password_hashed()
+                data = create_password_hashed(temp['user_password'][0])
             except Exception as ex:
                 messages.add_message(request, messages.INFO, str(ex))
                 data_returned['type'] = 'signin'.upper()
@@ -1268,7 +1260,7 @@ def api_token_web(request, word=None):
                 else:
                     try:
                         api_ref = Api_Token_Table.objects.filter(user_email = f"{temp[keys[0]][0].lower()}",
-                                                                 user_password = data[1])
+                                                                 user_password = data)
                         if(len(api_ref) < 1):
                             messages.add_message(request, messages.INFO, "Wrong Credentials ! Try again !")
                             data_returned['type'] = 'signin'.upper()
