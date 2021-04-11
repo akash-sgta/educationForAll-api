@@ -5,6 +5,11 @@ import sys
 
 
 def main():
+    if(os.name == 'nt'):
+        os.system('cls')
+    else:
+        os.system('clear')
+
     """Run administrative tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'djangorestapi.settings')
     try:
