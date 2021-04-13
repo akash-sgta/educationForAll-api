@@ -1,4 +1,4 @@
-cronjob / development
+----------------------------cronjob / development--------------------------
 >>>
 import os
 from pathlib import Path
@@ -10,7 +10,7 @@ TG_TOKEN = '1470401355:AAErhMgyyWSAerh_JfN7BkdPwP37D1dl00U'
 DEBUG = True
 <<<
 
-settings / development
+-----------------------------settings / development----------------------
 >>>
 from pathlib import Path
 import os
@@ -18,7 +18,7 @@ import os
 #-------------------------
 
 DJANGO_PROJ_S_KEY = 'i^!7)$$#6f655lfi&o=0^o-yo9-rt1obsujnw*3@lz^0nyc!l6'
-DEBUG_STATUS = True
+DEBUG_STATUS = False
 YT_API_PUBLIC = "AIzaSyBOdQWR5phznYaAOIL6uJQQDzKH3lwWI1o"
 YT_API_USER = None
 HTTP_SECURED = False
@@ -42,7 +42,10 @@ if(DEBUG_STATUS):
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME':  os.path.join(BASE_DIR_,'app.db.sqlite3'),
     }
-    ALLOWED_HOSTS_ = ['*']
+    ALLOWED_HOSTS_ = [
+        '127.0.0.1',
+        'localhost'
+    ]
 else:
     DB_SETTINGS['default'] = {}
     DB_SETTINGS['auth_db'] = {
@@ -67,7 +70,9 @@ else:
         'HOST': "projectdatabase1.czbsimzcrcxe.ap-south-1.rds.amazonaws.com",
         'PORT': "6969"
     }
-    ALLOWED_HOSTS_ = ['*']
+    ALLOWED_HOSTS_ = [
+        '*'
+    ]
 
     if(HTTP_SECURED):
         # HTTPS settings
