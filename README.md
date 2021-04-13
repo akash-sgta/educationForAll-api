@@ -76,8 +76,12 @@
 
     python manage.py makemigrations auth_prime analytics user_personal content_delivery
 
-    python manage.py migrate
+    python manage.py migrate --database=auth_db
 
+    python manage.py createsuperuser --database=auth_db
+    
+    python manage.py migrate --database=app_db
+    
     python manage.py check --deploy
 
 #### Testing
