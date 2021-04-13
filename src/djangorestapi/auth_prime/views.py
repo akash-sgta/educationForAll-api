@@ -13,7 +13,6 @@ from rest_framework.response import Response
 import re
 import json
 import os
-from overrides import overrides
 from datetime import datetime, timedelta
 from hashlib import sha256
 import string
@@ -1224,25 +1223,21 @@ def api_token_web(request, word=None):
                 data_returned['type'] = 'signup'.upper()
                 return render(request, 'auth_prime/api.html', data_returned)
             else:
-                if(data[0] == False):
+                try:
+                    api_new = Api_Token_Table(user_name = f"{temp[keys[0]][0]} {temp[keys[1]][0]}",
+                                                user_email = f"{temp[keys[2]][0].lower()}",
+                                                user_password = data,
+                                                user_key_private = random_generator(),
+                                                api_endpoint = temp[keys[4]][0])
+                    api_new.save()
+                except Exception as ex:
                     print("------------------------------------------------------------------")
-                    print(f"[.] API TOKEN GENERATION : UNSUCCESSFUL : HASHING ERROR.")
+                    print(f"[.] API TOKEN GENERATION : UNSUCCESSFUL")
+                    print(f"[x] Exception : {str(ex)}")
                 else:
-                    try:
-                        api_new = Api_Token_Table(user_name = f"{temp[keys[0]][0]} {temp[keys[1]][0]}",
-                                                  user_email = f"{temp[keys[2]][0].lower()}",
-                                                  user_password = f"{data[1]}",
-                                                  user_key_private = random_generator(),
-                                                  api_endpoint = temp[keys[4]][0])
-                        api_new.save()
-                    except Exception as ex:
-                        print("------------------------------------------------------------------")
-                        print(f"[.] API TOKEN GENERATION : UNSUCCESSFUL")
-                        print(f"[x] Exception : {str(ex)}")
-                    else:
-                        print("------------------------------------------------------------------")
-                        print(f"[.] API TOKEN GENERATION : SUCCESSFUL")
-                        return redirect('API_TOKEN', word='signin')
+                    print("------------------------------------------------------------------")
+                    print(f"[.] API TOKEN GENERATION : SUCCESSFUL")
+                    return redirect('API_TOKEN', word='signin')
         
         elif(temp['form_type'][0] == 'signin'):
             keys = ['user_email', 'user_password']
@@ -1254,25 +1249,21 @@ def api_token_web(request, word=None):
                 data_returned['type'] = 'signin'.upper()
                 return render(request, 'auth_prime/api.html', data_returned)
             else:
-                if(data[0] == False):
-                    print("------------------------------------------------------------------")
-                    print(f"[.] API TOKEN GENERATION : UNSUCCESSFUL : HASHING ERROR.")
-                else:
-                    try:
-                        api_ref = Api_Token_Table.objects.filter(user_email = f"{temp[keys[0]][0].lower()}",
-                                                                 user_password = data)
-                        if(len(api_ref) < 1):
-                            messages.add_message(request, messages.INFO, "Wrong Credentials ! Try again !")
-                            data_returned['type'] = 'signin'.upper()
-                            return render(request, 'auth_prime/api.html', data_returned)
-                        else:
-                            api_ref = api_ref[0]
-                            data_returned['user'] = api_ref
-                            data_returned['type'] = 'logged'.upper()
-                            data_returned['pinned'] = pinned
-                            return cookie.set_authentication_info(request=request, file_path='auth_prime/api.html', data=data_returned, pk=api_ref.pk)
-                    except Exception as ex:
-                        print(f"[x] API KEY LOGIN : {str(ex)}")
+                try:
+                    api_ref = Api_Token_Table.objects.filter(user_email = f"{temp[keys[0]][0].lower()}",
+                                                                user_password = data)
+                    if(len(api_ref) < 1):
+                        messages.add_message(request, messages.INFO, "Wrong Credentials ! Try again !")
+                        data_returned['type'] = 'signin'.upper()
+                        return render(request, 'auth_prime/api.html', data_returned)
+                    else:
+                        api_ref = api_ref[0]
+                        data_returned['user'] = api_ref
+                        data_returned['type'] = 'logged'.upper()
+                        data_returned['pinned'] = pinned
+                        return cookie.set_authentication_info(request=request, file_path='auth_prime/api.html', data=data_returned, pk=api_ref.pk)
+                except Exception as ex:
+                    print(f"[x] API KEY LOGIN : {str(ex)}")
             
             return render(request, 'auth_prime/api.html', data_returned)
         

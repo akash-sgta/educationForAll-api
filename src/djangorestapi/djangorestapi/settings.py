@@ -41,9 +41,7 @@ INSTALLED_APPS = [
 
     'django.contrib.staticfiles',
     
-    'corsheaders',
     'rest_framework',
-    'django_crontab',
     
     'auth_prime',
     'user_personal',
@@ -59,8 +57,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware', #add whitenoise
 ]
 
 ROOT_URLCONF = 'djangorestapi.urls'

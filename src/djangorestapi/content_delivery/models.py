@@ -7,7 +7,7 @@ from auth_prime.models import User_Credential
 # ----------------------------------------------
 
 class Coordinator(models.Model):
-    coordinator_id = models.AutoField(primary_key=True, null=False, blank=False, unique=True)
+    coordinator_id = models.BigAutoField(primary_key=True, null=False, blank=False, unique=True)
 
     user_credential_id = models.ForeignKey(User_Credential, null=False, blank=False, on_delete=models.CASCADE)
 
@@ -17,7 +17,7 @@ class Coordinator(models.Model):
         return f"{self.coordinator_id} | {self.user_credential_id.user_f_name}"
 
 class Subject(models.Model):
-    subject_id = models.AutoField(primary_key=True, null=False, blank=False, unique=True)
+    subject_id = models.BigAutoField(primary_key=True, null=False, blank=False, unique=True)
 
     subject_name = models.TextField(null=False, blank=False)
     subject_description = models.TextField(null=False, blank=False)
@@ -38,7 +38,7 @@ class Subject_Coordinator_Int(models.Model):
 # --------------------------------------------------------------------------------------------
 
 class Video(models.Model):
-    video_id = models.AutoField(primary_key=True, null=False, blank=False, unique=True)
+    video_id = models.BigAutoField(primary_key=True, null=False, blank=False, unique=True)
 
     video_name = models.TextField(null=False, blank=False)
     video_url = models.URLField(max_length=1024, null=False, blank=False)
@@ -49,7 +49,7 @@ class Video(models.Model):
         return f"{self.video_id} | {self.video_name}"
 
 class Forum(models.Model):
-    forum_id = models.AutoField(primary_key=True, null=False, blank=False, unique=True)
+    forum_id = models.BigAutoField(primary_key=True, null=False, blank=False, unique=True)
 
     forum_name = models.TextField(null=False, blank=False)
 
@@ -59,7 +59,7 @@ class Forum(models.Model):
         return f"{self.forum_id} | {self.forum_name}"
 
 class Reply(models.Model):
-    reply_id = models.AutoField(primary_key=True, null=False, blank=False, unique=True)
+    reply_id = models.BigAutoField(primary_key=True, null=False, blank=False, unique=True)
 
     forum_id = models.ForeignKey(Forum, null=True, blank=True, on_delete=models.CASCADE)
     user_credential_id = models.ForeignKey(User_Credential, null=True, blank=True, on_delete=models.SET_NULL)
@@ -77,7 +77,7 @@ class Reply(models.Model):
             return f"{self.reply_id} | {self.forum_id.forum_name} | {self.user_credential_id.user_f_name}"
 
 class Lecture(models.Model):
-    lecture_id = models.AutoField(primary_key=True, null=False, blank=False, unique=True)
+    lecture_id = models.BigAutoField(primary_key=True, null=False, blank=False, unique=True)
 
     lecture_name = models.TextField(null=False, blank=False)
     lecture_body = models.TextField(default="", null=False, blank=False)
@@ -90,7 +90,7 @@ class Lecture(models.Model):
         return f"{self.lecture_id} | {self.lecture_name}"
 
 class Assignment(models.Model):
-    assignment_id = models.AutoField(primary_key=True, null=False, blank=False, unique=True)
+    assignment_id = models.BigAutoField(primary_key=True, null=False, blank=False, unique=True)
 
     assignment_name = models.TextField()
     assignment_body = models.TextField(null=False, blank=False)
@@ -105,7 +105,7 @@ class Assignment(models.Model):
 # --------------------------------------------------------------------------------------------
 
 class Post(models.Model):
-    post_id = models.AutoField(primary_key=True, null=False, blank=False, unique=True)
+    post_id = models.BigAutoField(primary_key=True, null=False, blank=False, unique=True)
 
     user_credential_id = models.ForeignKey(User_Credential, null=True, blank=True, on_delete=models.SET_NULL)
     subject_id = models.ForeignKey(Subject, null=True, blank=True, on_delete=models.SET_NULL)
