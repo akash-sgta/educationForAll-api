@@ -135,7 +135,7 @@ class Cookie(object):
                         return False, 3
         except Exception as ex:
             print(f"[x] CHECK AUTH Ex : {str(ex)}")
-            return False
+            return False, 4
 
 # --------------------------------------------------------
 

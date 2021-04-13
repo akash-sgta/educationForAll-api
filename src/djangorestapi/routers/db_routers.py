@@ -1,4 +1,4 @@
-class Django_Auth_Router:
+class Django_Auth_Router: # auth_db
     def __init__(self):
         self.router_app_lables = {'admin', 'auth', 'contenttypes', 'sessions', 'messages'}
 
@@ -27,7 +27,7 @@ class Django_Auth_Router:
         else:
             return None
 
-class App_Router:
+class App_Router: # app_db
     def __init__(self):
         self.router_app_lables = {'auth_prime', 'user_personal', 'content_delivery', 'analytics'}
 

@@ -10,7 +10,7 @@ import datetime
 # ---------------------------------------------------------------------------------------------------------------------------------------
 
 class Image(models.Model):
-    image_id = models.AutoField(primary_key=True, null=False, blank=False, unique=True)
+    image_id = models.BigAutoField(primary_key=True, null=False, blank=False, unique=True)
 
     image_name = models.CharField(max_length=255, null=False, blank=False)
     image_url = models.TextField(null=False, blank=False)
@@ -21,7 +21,7 @@ class Image(models.Model):
 # ---------------------------------------------------------------------------------------------------------------------------------------
 
 class User_Profile(models.Model):
-    user_profile_id = models.AutoField(primary_key=True, null=False, blank=False, unique=True)
+    user_profile_id = models.BigAutoField(primary_key=True, null=False, blank=False, unique=True)
 
     user_profile_headline = models.TextField(max_length=512, null=False, blank=False)
     user_bio = models.TextField(null=True, blank=True)
@@ -45,7 +45,7 @@ class User_Profile(models.Model):
         return f"{self.user_profile_id} | {self.prime} | {self.user_roll_number}"
 
 class User_Credential(models.Model):
-    user_credential_id = models.AutoField(primary_key=True, null=False, blank=False, unique=True)
+    user_credential_id = models.BigAutoField(primary_key=True, null=False, blank=False, unique=True)
     
     user_profile_id = models.ForeignKey(User_Profile, on_delete=models.SET_NULL, null=True, blank=True)
 
@@ -62,7 +62,7 @@ class User_Credential(models.Model):
         return f"{self.user_credential_id} | {self.user_profile_id} | {self.user_f_name} | {self.user_email} | {self.user_tg_id}"
 
 class User_Token_Table(models.Model):
-    token_id = models.AutoField(primary_key=True)
+    token_id = models.BigAutoField(primary_key=True)
 
     user_credential_id = models.ForeignKey(User_Credential, null=True, blank=True, on_delete=models.CASCADE)
 
@@ -75,7 +75,7 @@ class User_Token_Table(models.Model):
 # ---------------------------------------------------------------------------------------------------------------------------------------
 
 class Admin_Privilege(models.Model):
-    admin_privilege_id = models.AutoField(primary_key=True)
+    admin_privilege_id = models.BigAutoField(primary_key=True)
     
     admin_privilege_name = models.CharField(max_length=32)
     admin_privilege_description = models.TextField()
@@ -84,7 +84,7 @@ class Admin_Privilege(models.Model):
         return f"{self.admin_privilege_id} | {self.admin_privilege_name}"
 
 class Admin_Credential(models.Model):
-    admin_credential_id = models.AutoField(primary_key=True, null=False, blank=False, unique=True)
+    admin_credential_id = models.BigAutoField(primary_key=True, null=False, blank=False, unique=True)
     
     user_credential_id = models.ForeignKey(User_Credential, on_delete=models.CASCADE) # automated referential integrity constraint placed
 

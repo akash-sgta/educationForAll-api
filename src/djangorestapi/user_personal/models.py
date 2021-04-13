@@ -9,7 +9,7 @@ from auth_prime.models import User_Credential
 # Create your models here.
 
 class Diary(models.Model):
-    diary_id = models.AutoField(primary_key=True, null=False, blank=False, unique=True)
+    diary_id = models.BigAutoField(primary_key=True, null=False, blank=False, unique=True)
 
     post_id = models.ForeignKey(Post, null=True, blank=True, on_delete=models.SET_NULL)
     user_credential_id = models.ForeignKey(User_Credential, null=False, blank=False, on_delete=models.CASCADE)
@@ -28,7 +28,7 @@ class Diary(models.Model):
         return f"{self.diary_id} || {post_id} || {self.user_credential_id}"
 
 class Submission(models.Model):
-    submission_id = models.AutoField(primary_key=True, null=False, blank=False, unique=True)
+    submission_id = models.BigAutoField(primary_key=True, null=False, blank=False, unique=True)
 
     assignment_id = models.ForeignKey(Assignment, null=False, blank=False, on_delete=models.CASCADE)
     user_credential_id = models.ForeignKey(User_Credential, null=False, blank=False, on_delete=models.CASCADE)
@@ -55,7 +55,7 @@ class Enroll(models.Model):
         return f"{self.subject_id.subject_name} | {self.user_credential_id.user_f_name}"
 
 class Notification(models.Model):
-    notification_id = models.AutoField(primary_key=True, null=False, blank=False, unique=True)
+    notification_id = models.BigAutoField(primary_key=True, null=False, blank=False, unique=True)
 
     post_id = models.ForeignKey(Post, null=True, blank=True, on_delete=models.CASCADE)
 
