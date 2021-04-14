@@ -1007,8 +1007,6 @@ def api_admin_priv_view(request, job, pk=None):
 @csrf_exempt
 def api_user_prof_image_view(request, job, pk=None):
 
-    IMAGE_PATH = os.path.join(BASE_DIR, 'media', 'uploads', 'image')
-
     @api_view(['POST', ])
     def create(request, auth):
         data = dict()
@@ -1025,13 +1023,7 @@ def api_user_prof_image_view(request, job, pk=None):
                 image_file = request.FILES['image']
                 if(str(image_file.content_type).startswith("image")):
                     if(image_file.size < 5000000):
-                        if not os.path.exists(IMAGE_PATH):
-                            os.makedirs(IMAGE_PATH)
-
-                        fs = FileSystemStorage(IMAGE_PATH)
-                        file_name = fs.save(image_file.name, image_file)
-                        file_url = "/".join(["media", "uploads", "image", file_name])
-                        image_ref = Image(image_url = file_url, image_name = file_name)
+                        image_ref = Image(image = image_file)
                         image_ref.save()
                         data['success'] = True
                         serialized = Image_Serializer(image_ref, many=False).data
@@ -1062,7 +1054,7 @@ def api_user_prof_image_view(request, job, pk=None):
                 return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
             else:
                 data['success'] = True
-                data['data'] = image_ref.image_url
+                data['data'] = image_ref.image.url
                 return Response(data = data, status=status.HTTP_202_ACCEPTED)
 
     @api_view(['PUT', ])
@@ -1092,22 +1084,13 @@ def api_user_prof_image_view(request, job, pk=None):
                             data['message'] = "item does not exist"
                             return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
                         else:
-                            fs = FileSystemStorage(IMAGE_PATH)
-                            if(fs.exists(image_ref.image_name)):
-                                fs.delete(image_ref.image_name)
-                            #cimage_ref.delete()
-                        
-                        # create new
-                        file_name = fs.save(image_file.name, image_file)
-                        file_url = "/".join(["media", "uploads", "image", file_name])
-                        image_ref.image_url = file_url
-                        image_ref.image_name = file_name
-                        image_ref.save()
-                        data['success'] = True
-                        serialized = Image_Serializer(image_ref, many=False).data
-                        data['message'] = "New Image set"
-                        data['data'] = serialized
-                        return Response(data = data, status=status.HTTP_201_CREATED)
+                            image_ref.image = image_file
+                            image_ref.save()
+                            data['success'] = True
+                            serialized = Image_Serializer(image_ref, many=False).data
+                            data['message'] = "New Image set"
+                            data['data'] = serialized
+                            return Response(data = data, status=status.HTTP_201_CREATED)
                     else:
                         data['success'] = False
                         data['message'] = "Image size should be less than 5MB"
@@ -1132,9 +1115,6 @@ def api_user_prof_image_view(request, job, pk=None):
                 data['message'] = "item does not exist"
                 return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
             else:
-                fs = FileSystemStorage(IMAGE_PATH)
-                if(fs.exists(image_ref.image_name)):
-                    fs.delete(image_ref.image_name)
                 image_ref.delete()
                 data['success'] = True
                 data['data'] = "Image deleted"

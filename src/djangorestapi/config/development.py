@@ -6,7 +6,8 @@ import os
 ALLOWED_HOSTS_ = (
     '127.0.0.1',
     'localhost',
-    '0.0.0.0',
+    #'jass.xyx',
+    #'www.jass.xyx',
 )
 
 # -----------DATABASE-------------

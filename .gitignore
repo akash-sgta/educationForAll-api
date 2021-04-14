@@ -133,7 +133,6 @@ migrations/
 *.sqlite3-journal
 .vscode
 staticfiles/
-root/
 media/
 flutterfront/
 YTjs/
