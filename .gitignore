@@ -129,12 +129,11 @@ dmypy.json
 .pyre/
 
 migrations/
-development.py
 *.sqlite3
 *.sqlite3-journal
 .vscode
 staticfiles/
-root/
 media/
 flutterfront/
 YTjs/
+uwsgi-emperor.log

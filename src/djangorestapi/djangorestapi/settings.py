@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 from pathlib import Path
 import os
-from djangorestapi.development import *
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,10 +21,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = DJANGO_PROJ_S_KEY
+with open(os.path.join(BASE_DIR, 'S_KEY.txt'), 'r') as key_file:
+    SECRET_KEY = key_file.read().strip()[:-2]
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = DEBUG_STATUS
+DEBUG = True
+
+if(DEBUG):
+    from config.development import *
+else:
+    from config.production import *
 
 ALLOWED_HOSTS = ALLOWED_HOSTS_
 
@@ -42,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     'rest_framework',
+    'corsheaders',
     
     'auth_prime',
     'user_personal',
@@ -125,10 +131,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'root')
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-]
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+#STATICFILES_DIRS = [
+#    os.path.join(BASE_DIR, 'static'),
+#]
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -136,6 +142,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DATA_UPLOAD_MAX_MEMORY_SIZE = 1048576*10 #10MB
 
 CORS_ORIGIN_ALLOW_ALL = True
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 # CORS_ORIGIN_WHITELIST = ('')
 
 # ---------------------EXPERIMENTAL--------------------------------

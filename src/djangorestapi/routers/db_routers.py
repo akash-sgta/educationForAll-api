@@ -29,7 +29,9 @@ class Django_Auth_Router: # auth_db
 
 class App_Router: # app_db
     def __init__(self):
-        self.router_app_lables = {'auth_prime', 'user_personal', 'content_delivery', 'analytics'}
+        self.router_app_lables = {
+            'auth_prime', 'content_delivery', 'analytics', 'user_personal'
+        }
 
     def db_for_read(self, model, **hints):
         if(model._meta.app_label in self.router_app_lables):

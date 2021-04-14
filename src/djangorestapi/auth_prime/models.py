@@ -12,11 +12,15 @@ import datetime
 class Image(models.Model):
     image_id = models.BigAutoField(primary_key=True, null=False, blank=False, unique=True)
 
-    image_name = models.CharField(max_length=255, null=False, blank=False)
-    image_url = models.TextField(null=False, blank=False)
+    image = models.ImageField(max_length=255, null=True, upload_to ='uploads/%Y/%m/%d/')
+
+    def delete(self, *args, **kwargs):
+        self.image.delete()
+        super().delete(*args, **kwargs)
+
 
     def __str__(self):
-        return f"{self.image_id} | {self.image_name}"
+        return f"{self.image_id} | {self.image}"
 
 # ---------------------------------------------------------------------------------------------------------------------------------------
 

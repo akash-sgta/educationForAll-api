@@ -12,7 +12,7 @@ from datetime import (
     
 #-----------------------------
 
-from development import *
+from config.cron_config import *
 
 #-----------------------------
 

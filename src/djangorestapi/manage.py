@@ -2,15 +2,12 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
-from djangorestapi.development import DEBUG_STATUS
-
 
 def main():
     if(os.name == 'nt'):
         os.system('cls')
     else:
         os.system('clear')
-    print("DEBUG : ", DEBUG_STATUS)
 
     """Run administrative tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'djangorestapi.settings')

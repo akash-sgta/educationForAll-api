@@ -3,6 +3,7 @@ from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.http.response import JsonResponse
 from django.contrib import messages
 from django.core.files.storage import FileSystemStorage
+from django.conf import settings
 
 from rest_framework import status
 from rest_framework.parsers import JSONParser
@@ -48,6 +49,7 @@ from auth_prime.important_modules import (
     )
 
 # ------------------------------------------------------------
+BASE_DIR = settings.BASE_DIR_
 
 # -------------------------USER_CREDENTIAL-----------------------------------
 
@@ -1021,17 +1023,10 @@ def api_user_prof_image_view(request, job, pk=None):
                 image_file = request.FILES['image']
                 if(str(image_file.content_type).startswith("image")):
                     if(image_file.size < 5000000):
-                        if not os.path.exists('media/uploads/images'):
-                            os.makedirs('media/uploads/images')
-
-                        fs = FileSystemStorage('media/uploads/images')
-                        file_name = fs.save(image_file.name, image_file)
-                        file_url = fs.url(file_name)
-                        image_ref = Image(image_url = file_url, image_name = file_name)
+                        image_ref = Image(image = image_file)
                         image_ref.save()
                         data['success'] = True
                         serialized = Image_Serializer(image_ref, many=False).data
-                        serialized['image_url'] = "media/uploads/images/"+"/".join(serialized['image_url'].split("/")[2:])
                         data['data'] = serialized
                         return Response(data = data, status=status.HTTP_201_CREATED)
                     else:
@@ -1059,7 +1054,7 @@ def api_user_prof_image_view(request, job, pk=None):
                 return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
             else:
                 data['success'] = True
-                data['data'] = "media/uploads/images/"+"/".join(image_ref.image_url.split("/")[2:])
+                data['data'] = image_ref.image.url
                 return Response(data = data, status=status.HTTP_202_ACCEPTED)
 
     @api_view(['PUT', ])
@@ -1089,23 +1084,13 @@ def api_user_prof_image_view(request, job, pk=None):
                             data['message'] = "item does not exist"
                             return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
                         else:
-                            fs = FileSystemStorage('media/uploads/images')
-                            if(fs.exists(image_ref.image_name)):
-                                fs.delete(image_ref.image_name)
-                            #cimage_ref.delete()
-                        
-                        # create new
-                        file_name = fs.save(image_file.name, image_file)
-                        file_url = fs.url(file_name)
-                        image_ref.image_url = file_url
-                        image_ref.image_name = file_name
-                        image_ref.save()
-                        data['success'] = True
-                        serialized = Image_Serializer(image_ref, many=False).data
-                        serialized['image_url'] = "media/uploads/images/"+"/".join(serialized['image_url'].split("/")[2:])
-                        data['message'] = "New Image set"
-                        data['data'] = serialized
-                        return Response(data = data, status=status.HTTP_201_CREATED)
+                            image_ref.image = image_file
+                            image_ref.save()
+                            data['success'] = True
+                            serialized = Image_Serializer(image_ref, many=False).data
+                            data['message'] = "New Image set"
+                            data['data'] = serialized
+                            return Response(data = data, status=status.HTTP_201_CREATED)
                     else:
                         data['success'] = False
                         data['message'] = "Image size should be less than 5MB"
@@ -1130,9 +1115,6 @@ def api_user_prof_image_view(request, job, pk=None):
                 data['message'] = "item does not exist"
                 return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
             else:
-                fs = FileSystemStorage('media/uploads/images')
-                if(fs.exists(image_ref.image_name)):
-                    fs.delete(image_ref.image_name)
                 image_ref.delete()
                 data['success'] = True
                 data['data'] = "Image deleted"
