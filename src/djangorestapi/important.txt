@@ -13,29 +13,27 @@ uwsgi --http :8000 --module djangorestapi.wsgi
 Nginx Configs:
 /etc/nginx/sites-available/djangorestapi.conf
 >>>
-upstream django {
-    server  unix:///home/akashsgta/repositories/education-for-all/src/djangorestapi/djangorestapi.sock;
-}
 server {
     listen  80;
+    listen [::]:80;
     charset utf-8;
 
     client_max_body_size    75M;
 
-    location    /media {
-        alias   ///home/akashsgta/repositories/education-for-all/src/djangorestapi/media;
-    }
-    location    /static {
-        alias   ///home/akashsgta/repositories/education-for-all/src/djangorestapi/static;
+    location /media {
+        alias /home/akashsgta/repositories/education-for-all/src/djangorestapi/media;
     }
 
-    location    / {
-        uwsgi_pass  django;
-        include ///home/akashsgta/repositories/education-for-all/src/djangorestapi/uwsgi_params;
+    location /static {
+        alias /home/akashsgta/repositories/education-for-all/src/djangorestapi/static;
     }
 
+    location / {
+        proxy_pass "http://127.0.0.1:8000";
+    }
 }
 <<<
+sudo ln -s /etc/nginx/sites-available/djangorestapi.conf /etc/nginx/sites-enabled/djangorestapi.conf
 sudo /etc/init.d/nginx restart
 
 uwsgi : 
