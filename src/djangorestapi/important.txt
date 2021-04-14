@@ -41,5 +41,8 @@ uwsgi :
 usgi --ini djangorestapi_uwsgi.ini
 <<<
 
-alias run_project_dev="sudo /home/akashsgta/repositories/pyenvs/venv_education_for_all/bin/python3 /home/akashsgta/repositories/education-for-all/src/djangorestapi/manage.py runserver 0.0.0.0:80"
-alias run_project_prod="sudo /home/akashsgta/repositories/pyenvs/venv_education_for_all/bin/uwsgi --ini /home/akashsgta/repositories/education-for-all/src/djangorestapi/djangorestapi_uwsgi.ini"
+alias run_project_dev="sudo /home/akashsgta/repositories/pyenvs/venv_education_for_all/bin/python3 /home/akashsgta/repositories/education-for-all/src/djangorestapi/manage.py runserver 0.0.0.0:8000"
+alias run_project_prod="sudo /home/akashsgta/repositories/pyenvs/venv_education_for_all/bin/uwsgi --ini /home/akashsgta/repositories/education-for-all/src/djangorestapi/djangorestapi_uwsgi_local.ini"
+
+alias run_project_dev="sudo /home/ubuntu/repositories/pyenvs/venv_education_for_all/bin/python3 /home/ubuntu/repositories/education-for-all/src/djangorestapi/manage.py runserver 0.0.0.0:8000"
+alias run_project_prod="sudo /home/ubuntu/repositories/pyenvs/venv_education_for_all/bin/uwsgi --ini /home/ubuntu/repositories/education-for-all/src/djangorestapi/djangorestapi_uwsgi_aws.ini"
