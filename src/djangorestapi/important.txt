@@ -18,9 +18,7 @@ import os
 #-------------------------
 
 DJANGO_PROJ_S_KEY = 'i^!7)$$#6f655lfi&o=0^o-yo9-rt1obsujnw*3@lz^0nyc!l6'
-DEBUG_STATUS = False
-YT_API_PUBLIC = "AIzaSyBOdQWR5phznYaAOIL6uJQQDzKH3lwWI1o"
-YT_API_USER = None
+DEBUG_STATUS = True
 HTTP_SECURED = False
 
 #-------------------------
@@ -32,6 +30,7 @@ DATABASE_ROUTERS = (
     'routers.db_routers.Django_Auth_Router',
     'routers.db_routers.App_Router',
 )
+
 if(DEBUG_STATUS):
     DB_SETTINGS['default'] = {}
     DB_SETTINGS['auth_db'] = {
@@ -85,3 +84,4 @@ else:
         SECURE_HSTS_RELOAD = True
         SECURE_HSTS_INCLUDE_SUBDOMIANS = True
 <<<
+------------------- server setup --------------------------

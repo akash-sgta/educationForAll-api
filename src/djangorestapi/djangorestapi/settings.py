@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     'rest_framework',
+    'corsheaders',
     
     'auth_prime',
     'user_personal',
@@ -136,6 +137,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DATA_UPLOAD_MAX_MEMORY_SIZE = 1048576*10 #10MB
 
 CORS_ORIGIN_ALLOW_ALL = True
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 # CORS_ORIGIN_WHITELIST = ('')
 
 # ---------------------EXPERIMENTAL--------------------------------
