@@ -25,7 +25,7 @@ with open(os.path.join(BASE_DIR, 'S_KEY.txt'), 'r') as key_file:
     SECRET_KEY = key_file.read().strip()[:-2]
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 if(DEBUG):
     from config.development import *
