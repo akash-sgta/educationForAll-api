@@ -23,17 +23,25 @@ server {
     client_max_body_size    75M;
 
     location    /media {
-        alias   /home/akashsgta/repositories/education-for-all/src/djangorestapi/media;
+        alias   ///home/akashsgta/repositories/education-for-all/src/djangorestapi/media;
     }
     location    /static {
-        alias   /home/akashsgta/repositories/education-for-all/src/djangorestapi/static;
+        alias   ///home/akashsgta/repositories/education-for-all/src/djangorestapi/static;
     }
 
     location    / {
         uwsgi_pass  django;
-        include /home/akashsgta/repositories/education-for-all/src/djangorestapi/uwsgi_params;
+        include ///home/akashsgta/repositories/education-for-all/src/djangorestapi/uwsgi_params;
     }
 
 }
 <<<
 sudo /etc/init.d/nginx restart
+
+uwsgi : 
+>>>
+usgi --ini djangorestapi_uwsgi.ini
+<<<
+
+alias run_project_dev="sudo /home/akashsgta/repositories/pyenvs/venv_education_for_all/bin/python3 /home/akashsgta/repositories/education-for-all/src/djangorestapi/manage.py runserver 0.0.0.0:80"
+alias run_project_prod="sudo /home/akashsgta/repositories/pyenvs/venv_education_for_all/bin/uwsgi --ini /home/akashsgta/repositories/education-for-all/src/djangorestapi/djangorestapi_uwsgi.ini"
