@@ -1,0 +1,10 @@
+version: '3'
+
+services: 
+    web:
+        build: .
+        command: 
+            - 'uwsgi --ini djangorestapi_uwsgi_local.ini'
+        ports: 
+            - "8000:8000"
+            - "6969:6969"
