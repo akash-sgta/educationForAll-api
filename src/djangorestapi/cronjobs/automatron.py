@@ -12,7 +12,7 @@ from datetime import (
     
 #-----------------------------
 
-from config.cron_config import *
+from config.ambiguous.cron_config import *
 
 #-----------------------------
 
@@ -62,21 +62,12 @@ class Database(object):
             self.cursor = self.conn.execute(query)
             return self.cursor
 
-class TG_BOT(Bot, Database):
+class TG_BOT(Bot):
 
-    def __init__(self, api_key, db_url):
+    def __init__(self, api_key):
         super().__init__(api_key)
-        self.db = db_url
+        self.API_KEY = api_key
         self.IN_TRANSIT = dict()
-        try:
-            self.get_me()
-        except Exception:
-            print("[x] Network error")
-        else:
-            print("[T] Bot online..")
-            self.updater = Updater(token=api_key, use_context=True)
-            self.dispatcher = self.updater.dispatcher
-            self.add_handlers()
 
     def add_handlers(self):
         self.dispatcher.add_handler(CommandHandler('start', self.start_function))
@@ -195,11 +186,23 @@ class TG_BOT(Bot, Database):
     def send_notifications(self, user_id, text):
         self.send(user_id, text)
 
-    def run(self):
+    def run(self, key=None):
         try:
-            self.updater.start_polling()
+            self.get_me()
         except Exception:
-            print("[x] Network error")
+            return False
+        else:
+            self.updater = Updater(token=self.API_KEY, use_context=True)
+            self.dispatcher = self.updater.dispatcher
+            self.add_handlers()
+        
+        if(key != None):
+            try:
+                self.updater.start_polling()
+            except Exception:
+                return False
+        
+        return True
 
 if __name__ == "__main__":
     bot = TG_BOT(TG_TOKEN, DB_URL)
@@ -207,35 +210,7 @@ if __name__ == "__main__":
 
     while(True):
         try:
-            # notification
-            query = r'''SELECT user_credential_id_id, notification_id_id FROM user_personal_user_notification_int WHERE prime_1 = false;'''
-            bot.connect()
-            data = bot.operation(query).fetchall()
-            if(len(data) < 1):
-                print(f"[N] Notification count\t:\t0")
-            else:
-                print(f"[N] Notification count\t:\t{len(data)}")
-                for notification in data:
-                    query = r'''SELECT user_tg_id FROM auth_prime_user_credential WHERE user_credential_id = {};'''.format(notification[0])
-                    user_tg_id_data = bot.operation(query).fetchall()
-                    query = r'''SELECT notification_body, made_date FROM user_personal_notification WHERE notification_id = {};'''.format(notification[1])
-                    notification_data = bot.operation(query).fetchall()
-                    # print(user_tg_id_data, notification_data)
-                    if(user_tg_id_data[0][0] not in (None, "")):
-                        text = f"{notification_data[0][1]}\n{notification_data[0][0]}"
-                        try:
-                            bot.send(user_tg_id_data[0][0], text)
-                        except:
-                            print("EX : Network error")
-                        else:
-                            query = r'''UPDATE user_personal_user_notification_int SET prime_1 = True WHERE user_credential_id_id = {} and notification_id_id = {};'''.format(notification[0], notification[1])
-                            data = bot.operation(query)
-                    else:
-                        print("[N] TG ID NOT FOUND")
-            bot.commit()
-            bot.disconnect()
-
-            sleep(5)
+            
 
             # token
             now = datetime.now()

@@ -49,7 +49,7 @@ from auth_prime.important_modules import (
     )
 
 # ------------------------------------------------------------
-BASE_DIR = settings.BASE_DIR_
+BASE_DIR = settings.BASE_DIR
 
 # -------------------------USER_CREDENTIAL-----------------------------------
 

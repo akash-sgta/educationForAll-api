@@ -3,8 +3,7 @@ import os
 
 # ----------OTHERS--------------
 
-ALLOWED_HOSTS_ = (
-    "ec2-13-235-0-215.ap-south-1.compute.amazonaws.com",
+ALLOWED_HOSTS = (
     "127.0.0.1",
 )
 
