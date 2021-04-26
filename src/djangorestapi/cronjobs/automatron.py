@@ -9,10 +9,11 @@ from datetime import (
         datetime,
         timedelta
     )
+import os
+from pathlib import Path
     
 #-----------------------------
 
-from config.ambiguous.cron_config import *
 
 #-----------------------------
 
@@ -205,38 +206,18 @@ class TG_BOT(Bot):
         return True
 
 if __name__ == "__main__":
-    bot = TG_BOT(TG_TOKEN, DB_URL)
-    bot.run()
+    BASE_DIR = Path(__file__).resolve().parent.parent
 
-    while(True):
-        try:
-            
+    with open(os.path.join(BASE_DIR, 'config', 'ambiguous', 'TG_KEY.txt'), 'r') as secret:
+        TG_TOKEN = secret.read().strip()[:-2]
+    print(TG_TOKEN)
 
-            # token
-            now = datetime.now()
-            query = '''SELECT token_id, token_start FROM auth_prime_user_token_table LIMIT 10;'''
-            bot.connect()
-            data = bot.operation(query).fetchall()
-            if(len(data) < 1):
-                print('[t] Tokens Present\t:\t0')
-            else:
-                print(f'[t] Tokens Present\t:\t{len(data)}')
-                text = list()
-                for token_data in data:
-                    token_id, token_end = int(token_data[0]), datetime.strptime(token_data[1].split()[0], '%Y-%m-%d')+timedelta(hours=48)
-                    if(now > token_end):
-                        text.append(token_id)
-                        
-                if(len(text) > 0):
-                    query = '''DELETE FROM auth_prime_user_token_table WHERE token_id in ({});'''.format(",".join([str(x) for x in text]))
-                    bot.operation(query)
-                    print(f"[t] Overdue tokens cleared -> {text}")
-                else:
-                    print('[t] Tokens Overdue\t:\t0')
+    import 
+    exit(0)
+    bot = TG_BOT(TG_TOKEN)
+    db = Database()
 
-            bot.commit()
-            bot.disconnect()
-            
-            sleep(5)
-        except KeyboardInterrupt as ex:
-            sys.exit('Keyboard Interrupt')
+    try:
+        bot.run(1)
+    except KeyboardInterrupt as ex:
+        sys.exit('Keyboard Interrupt')

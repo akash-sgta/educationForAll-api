@@ -23,8 +23,6 @@ if(HTTP_SECURED):
 
 # -----------DATABASE-------------
 
-BASE_DIR_ = Path(__file__).resolve().parent.parent
-
 DATABASE_ROUTERS = (
     'routers.db_routers.Django_Auth_Router',
     'routers.db_routers.App_Router',
