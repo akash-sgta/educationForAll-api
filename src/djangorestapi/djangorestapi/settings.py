@@ -21,19 +21,20 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-with open(os.path.join(BASE_DIR, 'S_KEY.txt'), 'r') as key_file:
+with open(os.path.join(BASE_DIR, 'config', 'ambiguous', 'S_KEY.txt'), 'r') as key_file:
     SECRET_KEY = key_file.read().strip()[:-2]
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+with open(os.path.join(BASE_DIR, 'config', 'debug.txt'), 'r') as key_file:
+    DEBUG = bool(key_file.read().strip()[1:-1])
+DEBUG = True
 
 if(DEBUG):
-    from config.development import *
+    from config.development.settings_extended import *
 else:
-    from config.production import *
+    from config.production.settings_extended import *
 
-ALLOWED_HOSTS = ALLOWED_HOSTS_
-
+# ALLOWED_HOSTS in configFile
 
 # Application definition
 
@@ -48,6 +49,7 @@ INSTALLED_APPS = [
     
     'rest_framework',
     'corsheaders',
+    'django_crontab',
     
     'auth_prime',
     'user_personal',
@@ -132,9 +134,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-#STATICFILES_DIRS = [
-#    os.path.join(BASE_DIR, 'static'),
-#]
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, 'static'),
+# ]
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -142,19 +144,13 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DATA_UPLOAD_MAX_MEMORY_SIZE = 1048576*10 #10MB
 
 CORS_ORIGIN_ALLOW_ALL = True
+# CORS_ORIGIN_WHITELIST = (
+#     'http//:localhost:8000',
+# )
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# CORS_ORIGIN_WHITELIST = ('')
-
-# ---------------------EXPERIMENTAL--------------------------------
-
-# useful when run on linux
-
-# python manage.py corntab add
-# python manage.py crontab show
-# python manage.py crontab remove
-
-# CRONJOBS = [
-#     ('*/5 * * * *', 'auth_prime.cronjob.clear_residue_tokens'),
-# ]
+CRONJOBS = [
+    ('*/1 * * * *', 'djangorestapi.cronjobs.cron.telegram_notification', '>> ~/project_scheduled_task.log'), # every 1 minute
+    ('*/1 * * * *', 'djangorestapi.cronjobs.cron.token_cleaner', '>> ~/project_scheduled_task.log') # every 1 minute
+]

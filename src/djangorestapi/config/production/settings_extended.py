@@ -3,8 +3,7 @@ import os
 
 # ----------OTHERS--------------
 
-ALLOWED_HOSTS_ = (
-    "ec2-13-235-0-215.ap-south-1.compute.amazonaws.com",
+ALLOWED_HOSTS = (
     "127.0.0.1",
 )
 
@@ -23,8 +22,6 @@ if(HTTP_SECURED):
     SECURE_HSTS_INCLUDE_SUBDOMIANS = True
 
 # -----------DATABASE-------------
-
-BASE_DIR_ = Path(__file__).resolve().parent.parent
 
 DATABASE_ROUTERS = (
     'routers.db_routers.Django_Auth_Router',

@@ -74,7 +74,7 @@ class User_Token_Table(models.Model):
     token_start = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.token_id} | {self.token_hash}"
+        return f"{self.token_id} | {self.token_start}"
 
 # ---------------------------------------------------------------------------------------------------------------------------------------
 

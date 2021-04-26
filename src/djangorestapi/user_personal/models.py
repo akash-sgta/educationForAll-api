@@ -74,6 +74,8 @@ class User_Notification_Int(models.Model):
 
     prime_1 = models.BooleanField(default=False) # Sent
     prime_2 = models.BooleanField(default=False) # Seen
+
+    tries = models.PositiveBigIntegerField(default=0)
     
     def __str__(self):
         return f"{self.notification_id.notification_id} | {self.user_credential_id.user_f_name} | {self.prime_1} | {self.prime_2}"
