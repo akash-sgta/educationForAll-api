@@ -27,7 +27,6 @@ with open(os.path.join(BASE_DIR, 'config', 'ambiguous', 'S_KEY.txt'), 'r') as ke
 # SECURITY WARNING: don't run with debug turned on in production!
 with open(os.path.join(BASE_DIR, 'config', 'debug.txt'), 'r') as key_file:
     DEBUG = bool(key_file.read().strip()[1:-1])
-DEBUG = True
 
 if(DEBUG):
     from config.development.settings_extended import *
@@ -150,7 +149,9 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+CRON = os.path.join(BASE_DIR, 'cronjo')
 CRONJOBS = [
-    ('*/1 * * * *', 'djangorestapi.cronjobs.cron.telegram_notification', '>> ~/project_scheduled_task.log'), # every 1 minute
-    ('*/1 * * * *', 'djangorestapi.cronjobs.cron.token_cleaner', '>> ~/project_scheduled_task.log') # every 1 minute
+    # ('*/1 * * * *', 'cronjobs.cron.telegram_notification'), # every 1 minute
+    # ('*/1 * * * *', 'cronjobs.cron.token_cleaner'), # every 1 minute
+    ('*/1 * * * *', 'cronjobs.cron.test') # every 1 minute
 ]

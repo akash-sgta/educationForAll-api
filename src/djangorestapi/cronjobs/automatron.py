@@ -204,20 +204,3 @@ class TG_BOT(Bot):
                 return False
         
         return True
-
-if __name__ == "__main__":
-    BASE_DIR = Path(__file__).resolve().parent.parent
-
-    with open(os.path.join(BASE_DIR, 'config', 'ambiguous', 'TG_KEY.txt'), 'r') as secret:
-        TG_TOKEN = secret.read().strip()[:-2]
-    print(TG_TOKEN)
-
-    import 
-    exit(0)
-    bot = TG_BOT(TG_TOKEN)
-    db = Database()
-
-    try:
-        bot.run(1)
-    except KeyboardInterrupt as ex:
-        sys.exit('Keyboard Interrupt')
