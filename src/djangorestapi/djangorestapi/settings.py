@@ -26,8 +26,11 @@ with open(os.path.join(BASE_DIR, 'config', 'ambiguous', 'S_KEY.txt'), 'r') as ke
 
 # SECURITY WARNING: don't run with debug turned on in production!
 with open(os.path.join(BASE_DIR, 'config', 'debug.txt'), 'r') as key_file:
-    DEBUG = bool(key_file.read().strip()[1:-1])
-DEBUG = True
+    DEBUG = key_file.read().strip()[1:-1]
+    if(DEBUG == 'True'):
+        DEBUG = True
+    else:
+        DEBUG = False
 
 if(DEBUG):
     from config.development.settings_extended import *
@@ -150,7 +153,9 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+CRON = os.path.join(BASE_DIR, 'cronjo')
 CRONJOBS = [
-    ('*/1 * * * *', 'djangorestapi.cronjobs.cron.telegram_notification', '>> ~/project_scheduled_task.log'), # every 1 minute
-    ('*/1 * * * *', 'djangorestapi.cronjobs.cron.token_cleaner', '>> ~/project_scheduled_task.log') # every 1 minute
+    ('1 * * * *', 'cronjobs.bot_telegram.main'), # every 1 minute telegram backend
+    ('*/1 * * * *', 'cronjobs.telegram_notificaiton.main'), # every 1 minute notificaition checker
+    ('*/1 * * * *', 'cronjobs.token_checker.main') # every 1 minute user token checker
 ]

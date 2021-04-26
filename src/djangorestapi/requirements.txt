@@ -5,8 +5,10 @@ Django==3.2
 django-cors-headers==3.7.0
 django-crontab==0.7.1
 djangorestframework==3.12.4
+mysql-connector-python==8.0.24
 mysqlclient==2.0.3
 Pillow==8.2.0
+protobuf==3.15.8
 python-telegram-bot==13.4.1
 pytz==2021.1
 six==1.15.0
