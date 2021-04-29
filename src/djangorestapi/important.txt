@@ -16,3 +16,10 @@ alias run_project_prod="sudo /home/ubuntu/repositories/pyenvs/venv_education_for
 sudo /etc/init.d/nginx start
 sudo /etc/init.d/nginx restart
 sudo /etc/init.d/nginx stop
+
+-------------SSL-------------------
+
+not working !! have to buy seperate domain
+sudo apt install python3-certbot-nginx
+sudo ln -s /snap/bin/certbot /usr/bin/certbot
+sudo certbot --nginx
