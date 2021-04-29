@@ -149,9 +149,27 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DATA_UPLOAD_MAX_MEMORY_SIZE = 1048576*10 #10MB
 
 CORS_ORIGIN_ALLOW_ALL = True
-# CORS_ORIGIN_WHITELIST = (
-#     'http//:localhost:8000',
-# )
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+
+    'authorization',
+    'content-type',
+    'uauth',
+]
+
+'''
+CORS_ORIGIN_WHITELIST = [
+    'http://127.0.0.1:8000',
+    'http://127.0.0.1:4200'
+]
+'''
+
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
