@@ -66,31 +66,55 @@
 
 ***
 
+### System
+
+```ubuntu 18.04 LTS```
+
 ### STEPS
 
-    git clone https://github.com/akash-sgta/education-for-all.git
-    
-    cd education-for-all/src/djangorestapi
+```
+git clone https://github.com/akash-sgta/education-for-all.git
 
-    linux only**
-    apt install libmysqlclient-dev build-essential python3-dev gcc nginx
+cd education-for-all/src/djangorestapi
 
-    python -m pip install -r requirements
+linux only**
+apt install python3 python3-pip python3-dev libmysqlclient-dev build-essential gcc nginx
 
-    python manage.py makemigrations auth_prime analytics user_personal content_delivery
+python -m pip install -r requirements
 
-    python manage.py migrate --database=auth_db
+python manage.py makemigrations auth_prime analytics user_personal content_delivery
 
-    python manage.py createsuperuser --database=auth_db
-    
-    python manage.py migrate --database=app_db
-    
-    python manage.py check --deploy
+python manage.py migrate --database=auth_db
 
-#### Testing
+python manage.py createsuperuser --database=auth_db
 
-    python manage.py runserver
+python manage.py migrate --database=app_db
 
-#### Production
+python manage.py check --deploy
 
-    python manage.py runserver 0.0.0.0:80
+python manage.py runserver
+```
+
+### Intermediate
+
+```
+ln -s /home/<user>/repositories/education-for-all/src/djangorestapi/config/<production or development>/djangorestapi_uwsgi_aws.ini /home/<user>/uwsgi.ini
+
+ln -s /home/<user>/repositories/education-for-all/src/djangorestapi/manage.py /home/<user>/manage.py
+```
+
+#### Nginx
+
+```
+---------------nginx------------------
+
+sudo nano /etc/nginx/conf.d/djangoproj.conf
+
+>> paste all from respective *.conf in /config <<
+
+sudo /etc/init.d/nginx start
+
+sudo /etc/init.d/nginx restart
+
+sudo /etc/init.d/nginx stop
+```
