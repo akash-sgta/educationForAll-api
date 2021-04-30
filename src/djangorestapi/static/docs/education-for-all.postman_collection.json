@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "f16581f5-9f92-4387-b642-e22f4c09e25d",
+		"_postman_id": "bf73b490-6d12-4ae6-ad2d-71705ac655b1",
 		"name": "education-for-all",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -17,13 +17,8 @@
 								"method": "POST",
 								"header": [
 									{
-										"key": "Authorization",
-										"value": "Token QvGaXG1CeScETGsnhJolFokaWFl3hEA9v2lI3RlEcXKJngifvcd4K49KciTI8eJm",
-										"type": "text"
-									},
-									{
 										"key": "uauth",
-										"value": "Token 9ge6p89VOuhoYuLWF4mw9ivcSbXKgOGkltOT9YM4FlJyob5ax1Z2xh3Jx4NzjJVX",
+										"value": "Token i4xETbxsVHeA15uNvARSI4uVElYwOaVlS8Z76BsTZj5CX1GMcoRQauNqJER8YLtn",
 										"type": "text"
 									}
 								],
@@ -37,9 +32,9 @@
 									}
 								},
 								"url": {
-									"raw": "{{MAIN_URL}}user/cred/create/",
+									"raw": "{{AWS}}user/cred/create/",
 									"host": [
-										"{{MAIN_URL}}user"
+										"{{AWS}}user"
 									],
 									"path": [
 										"cred",
@@ -57,7 +52,7 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"value": "Token ",
 										"type": "text"
 									}
 								],
@@ -71,9 +66,9 @@
 									}
 								},
 								"url": {
-									"raw": "{{MAIN_URL}}user/cred/create/",
+									"raw": "{{LOCAL}}user/cred/create/",
 									"host": [
-										"{{MAIN_URL}}user"
+										"{{LOCAL}}user"
 									],
 									"path": [
 										"cred",
@@ -256,7 +251,7 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token euiYpDd4QdGEwZtkcchCL1tdA6tYKcOvcAXTGfZXeYACE1WrUxePxN48GswQATil",
+										"value": "Token QR5UY32FHLbXqTzs1kqcyPHceI70LdIOt1UuGhiadFpBdCBrxa3s2czQvlELsK2u",
 										"type": "text"
 									}
 								],
@@ -270,9 +265,9 @@
 									}
 								},
 								"url": {
-									"raw": "{{MAIN_URL}}user/prof/create/",
+									"raw": "{{AWS}}user/prof/create/",
 									"host": [
-										"{{MAIN_URL}}user"
+										"{{AWS}}user"
 									],
 									"path": [
 										"prof",
@@ -334,19 +329,14 @@
 								"method": "PUT",
 								"header": [
 									{
-										"key": "Authorization",
-										"value": "Token QvGaXG1CeScETGsnhJolFokaWFl3hEA9v2lI3RlEcXKJngifvcd4K49KciTI8eJm",
-										"type": "text"
-									},
-									{
 										"key": "uauth",
-										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"value": "Token QR5UY32FHLbXqTzs1kqcyPHceI70LdIOt1UuGhiadFpBdCBrxa3s2czQvlELsK2u",
 										"type": "text"
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"user_profile_headline\" : \"<b>Python Enthuciast</b> | Retro Music | Problem Solving\",\r\n    \"user_bio\" : \"<p>It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).</p>\",\r\n    \"user_english_efficiency\" : 3,\r\n    \"user_git_profile\" : \"https://github.com/akash-sgta\",\r\n    \"user_likedin_profile\" : \"https://www.linkedin.com/in/akash-sengupta-026a66146/\",\r\n    \"user_profile_pic\" : null,\r\n    \"user_roll_number\" : 430117010049,\r\n    \"prime\" : true\r\n}",
+									"raw": "{\r\n    \"user_profile_headline\" : \"<b>Python Enthuciast</b> | Retro Music | Problem Solving\",\r\n    \"user_bio\" : \"<p>It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).</p>\",\r\n    \"user_english_efficiency\" : 3,\r\n    \"user_git_profile\" : \"https://github.com/akash-sgta\",\r\n    \"user_likedin_profile\" : \"https://www.linkedin.com/in/akash-sengupta-026a66146/\",\r\n    \"user_profile_pic\" : 1,\r\n    \"user_roll_number\" : 430117010049,\r\n    \"prime\" : true\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -354,14 +344,11 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost/api/user/prof/edit/0",
-									"protocol": "http",
+									"raw": "{{AWS}}user/prof/edit/0",
 									"host": [
-										"localhost"
+										"{{AWS}}user"
 									],
 									"path": [
-										"api",
-										"user",
 										"prof",
 										"edit",
 										"0"
@@ -424,7 +411,7 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token ZM8uwdbgG87PHqGYeSvG4XkTZmvM49JJrS2pF2aME2smHe0QttJYpl1Z6AErIa7T",
+										"value": "Token QR5UY32FHLbXqTzs1kqcyPHceI70LdIOt1UuGhiadFpBdCBrxa3s2czQvlELsK2u",
 										"type": "text"
 									}
 								],
@@ -435,22 +422,16 @@
 											"key": "image",
 											"contentType": "image/jpeg",
 											"type": "file",
-											"src": "/C:/Users/AKASH SENGUPTA/OneDrive/Pictures/front.jpg"
+											"src": "/E:/DOWNLOADS/Pictures/Abella_Danger_Tux_2017.jpg"
 										}
 									]
 								},
 								"url": {
-									"raw": "http://65.0.72.70/api/user/image/create/",
-									"protocol": "http",
+									"raw": "{{AWS}}user/image/create/",
 									"host": [
-										"65",
-										"0",
-										"72",
-										"70"
+										"{{AWS}}user"
 									],
 									"path": [
-										"api",
-										"user",
 										"image",
 										"create",
 										""
@@ -466,22 +447,19 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"value": "Token AdiNXnOkZIM4krFuMeENrvFjjdpHsEZMDzK5JezYypVthzN7hOfrikDw7WjsMA7Q",
 										"type": "text"
 									}
 								],
 								"url": {
-									"raw": "http://localhost/api/user/image/read/16",
-									"protocol": "http",
+									"raw": "{{MAIN_URL}}user/image/read/2",
 									"host": [
-										"localhost"
+										"{{MAIN_URL}}user"
 									],
 									"path": [
-										"api",
-										"user",
 										"image",
 										"read",
-										"16"
+										"2"
 									]
 								}
 							},
@@ -494,7 +472,7 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"value": "Token bIAmWi7asaRujFHfQBRFRghks5mzItnynaY9UiJZbcceG4lFa8bkeolNrI5bQv1l",
 										"type": "text"
 									}
 								],
@@ -510,14 +488,11 @@
 									]
 								},
 								"url": {
-									"raw": "http://localhost/api/user/image/edit/8",
-									"protocol": "http",
+									"raw": "{{AUXILIARY_URL}}user/image/edit/8",
 									"host": [
-										"localhost"
+										"{{AUXILIARY_URL}}user"
 									],
 									"path": [
-										"api",
-										"user",
 										"image",
 										"edit",
 										"8"
@@ -533,22 +508,19 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"value": "Token bIAmWi7asaRujFHfQBRFRghks5mzItnynaY9UiJZbcceG4lFa8bkeolNrI5bQv1l",
 										"type": "text"
 									}
 								],
 								"url": {
-									"raw": "http://localhost/api/user/image/delete/14",
-									"protocol": "http",
+									"raw": "{{AUXILIARY_URL}}user/image/delete/2",
 									"host": [
-										"localhost"
+										"{{AUXILIARY_URL}}user"
 									],
 									"path": [
-										"api",
-										"user",
 										"image",
 										"delete",
-										"14"
+										"2"
 									]
 								}
 							},
@@ -586,7 +558,7 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token euiYpDd4QdGEwZtkcchCL1tdA6tYKcOvcAXTGfZXeYACE1WrUxePxN48GswQATil",
+										"value": "Token AdiNXnOkZIM4krFuMeENrvFjjdpHsEZMDzK5JezYypVthzN7hOfrikDw7WjsMA7Q",
 										"type": "text"
 									}
 								],
@@ -657,13 +629,13 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token euiYpDd4QdGEwZtkcchCL1tdA6tYKcOvcAXTGfZXeYACE1WrUxePxN48GswQATil",
+										"value": "Token T0PJYESFlrbWJvYRSqLA7dEvPjjZxWIA1rcRthYZBHZAWs8Sc83mR8E4EscFZuWS",
 										"type": "text"
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"privilege\" : 2\r\n}",
+									"raw": "{\r\n    \"privilege\" : 1\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -671,9 +643,9 @@
 									}
 								},
 								"url": {
-									"raw": "{{MAIN_URL}}admin/cred/edit/0",
+									"raw": "{{LOCAL}}admin/cred/edit/0",
 									"host": [
-										"{{MAIN_URL}}admin"
+										"{{LOCAL}}admin"
 									],
 									"path": [
 										"cred",
@@ -730,13 +702,13 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token euiYpDd4QdGEwZtkcchCL1tdA6tYKcOvcAXTGfZXeYACE1WrUxePxN48GswQATil",
+										"value": "Token T0PJYESFlrbWJvYRSqLA7dEvPjjZxWIA1rcRthYZBHZAWs8Sc83mR8E4EscFZuWS",
 										"type": "text"
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"admin_privilege_name\" : \"ALPHA\",\r\n    \"admin_privilege_description\" : \"Superior privileges\"\r\n}",
+									"raw": "{\r\n    \"admin_privilege_name\" : \"CAGP\",\r\n    \"admin_privilege_description\" : \"Coordinator access grantinf privilege\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -744,9 +716,9 @@
 									}
 								},
 								"url": {
-									"raw": "{{MAIN_URL}}admin/prev/create/",
+									"raw": "{{LOCAL}}admin/prev/create/",
 									"host": [
-										"{{MAIN_URL}}admin"
+										"{{LOCAL}}admin"
 									],
 									"path": [
 										"prev",
@@ -820,14 +792,11 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost/api/admin/prev/edit/12",
-									"protocol": "http",
+									"raw": "{{AUXILIARY_URL}}admin/prev/edit/12",
 									"host": [
-										"localhost"
+										"{{AUXILIARY_URL}}admin"
 									],
 									"path": [
-										"api",
-										"admin",
 										"prev",
 										"edit",
 										"12"
@@ -895,13 +864,13 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"value": "Token T0PJYESFlrbWJvYRSqLA7dEvPjjZxWIA1rcRthYZBHZAWs8Sc83mR8E4EscFZuWS",
 										"type": "text"
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"user_id\" : 4\r\n}",
+									"raw": "{\r\n    \"user_id\" : 1\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -909,14 +878,11 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost/api/content/coordinator/create/",
-									"protocol": "http",
+									"raw": "{{LOCAL}}content/coordinator/create/",
 									"host": [
-										"localhost"
+										"{{LOCAL}}content"
 									],
 									"path": [
-										"api",
-										"content",
 										"coordinator",
 										"create",
 										""
@@ -935,7 +901,7 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token 7lXSNTMukklMXdWhjOPQRKGPPKhcBSJIMewt8r51MoFBQg85OimEdHVgqFGJEy7u",
+										"value": "Token pbuBDU2aFCjHSfafJrTy8r5PcdimOaTH8rlfI55i4iRdI76G7biy9m6lBTycRY5J",
 										"type": "text"
 									}
 								],
@@ -949,14 +915,11 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost/api/content/coordinator/read/0",
-									"protocol": "http",
+									"raw": "{{AUXILIARY_URL}}content/coordinator/read/0",
 									"host": [
-										"localhost"
+										"{{AUXILIARY_URL}}content"
 									],
 									"path": [
-										"api",
-										"content",
 										"coordinator",
 										"read",
 										"0"
@@ -972,13 +935,13 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"value": "Token T0PJYESFlrbWJvYRSqLA7dEvPjjZxWIA1rcRthYZBHZAWs8Sc83mR8E4EscFZuWS",
 										"type": "text"
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"subject\" : 5\r\n}",
+									"raw": "{\r\n    \"subject\" : 1\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -986,17 +949,14 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost/api/content/coordinator/edit/3",
-									"protocol": "http",
+									"raw": "{{LOCAL}}content/coordinator/edit/1",
 									"host": [
-										"localhost"
+										"{{LOCAL}}content"
 									],
 									"path": [
-										"api",
-										"content",
 										"coordinator",
 										"edit",
-										"3"
+										"1"
 									]
 								}
 							},
@@ -1051,13 +1011,13 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"value": "Token T0PJYESFlrbWJvYRSqLA7dEvPjjZxWIA1rcRthYZBHZAWs8Sc83mR8E4EscFZuWS",
 										"type": "text"
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"subject_name\" : \"prodedural programming\",\r\n    \"subject_description\" : \"Object-oriented programming (OOP) is a programming paradigm based on the concept of 'objects', which can contain data and code: data in the form of fields (often known as attributes or properties), and code, in the form of procedures (often known as methods).\"\r\n}",
+									"raw": "{\r\n    \"subject_name\" : \"Object-oriented Programming\",\r\n    \"subject_description\" : \"Object-oriented programming (OOP) is a programming paradigm based on the concept of 'objects', which can contain data and code: data in the form of fields (often known as attributes or properties), and code, in the form of procedures (often known as methods).\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1065,14 +1025,11 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost/api/content/subject/create/",
-									"protocol": "http",
+									"raw": "{{LOCAL}}content/subject/create/",
 									"host": [
-										"localhost"
+										"{{LOCAL}}content"
 									],
 									"path": [
-										"api",
-										"content",
 										"subject",
 										"create",
 										""
@@ -1207,13 +1164,13 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"value": "Token T0PJYESFlrbWJvYRSqLA7dEvPjjZxWIA1rcRthYZBHZAWs8Sc83mR8E4EscFZuWS",
 										"type": "text"
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"forum_name\" : \"test\"\r\n}",
+									"raw": "{\r\n    \"forum_name\" : \"Test Post\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1221,14 +1178,11 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost/api/content/forum/create/",
-									"protocol": "http",
+									"raw": "{{LOCAL}}content/forum/create/",
 									"host": [
-										"localhost"
+										"{{LOCAL}}content"
 									],
 									"path": [
-										"api",
-										"content",
 										"forum",
 										"create",
 										""
@@ -1247,7 +1201,7 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"value": "Token pbuBDU2aFCjHSfafJrTy8r5PcdimOaTH8rlfI55i4iRdI76G7biy9m6lBTycRY5J",
 										"type": "text"
 									}
 								],
@@ -1261,17 +1215,14 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost/api/content/forum/read/2",
-									"protocol": "http",
+									"raw": "{{LOCAL}}content/forum/read/1",
 									"host": [
-										"localhost"
+										"{{LOCAL}}content"
 									],
 									"path": [
-										"api",
-										"content",
 										"forum",
 										"read",
-										"2"
+										"1"
 									]
 								}
 							},
@@ -1363,13 +1314,13 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"value": "Token T0PJYESFlrbWJvYRSqLA7dEvPjjZxWIA1rcRthYZBHZAWs8Sc83mR8E4EscFZuWS",
 										"type": "text"
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"forum_id\" : 2,\r\n    \"reply_body\" : \"TEST REPLY BODY\"\r\n}",
+									"raw": "{\r\n    \"forum_id\" : 1,\r\n    \"reply_body\" : \"TEST REPLY TO Forum 1 (TEST).....\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1377,14 +1328,11 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost/api/content/reply/create/",
-									"protocol": "http",
+									"raw": "{{LOCAL}}content/reply/create/",
 									"host": [
-										"localhost"
+										"{{LOCAL}}content"
 									],
 									"path": [
-										"api",
-										"content",
 										"reply",
 										"create",
 										""
@@ -1403,7 +1351,7 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"value": "Token pbuBDU2aFCjHSfafJrTy8r5PcdimOaTH8rlfI55i4iRdI76G7biy9m6lBTycRY5J",
 										"type": "text"
 									}
 								],
@@ -1417,14 +1365,11 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost/api/content/reply/read/1",
-									"protocol": "http",
+									"raw": "{{LOCAL}}content/reply/read/1",
 									"host": [
-										"localhost"
+										"{{LOCAL}}content"
 									],
 									"path": [
-										"api",
-										"content",
 										"reply",
 										"read",
 										"1"
@@ -1510,6 +1455,129 @@
 					]
 				},
 				{
+					"name": "reply2reply_api",
+					"item": [
+						{
+							"name": "create",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token pbuBDU2aFCjHSfafJrTy8r5PcdimOaTH8rlfI55i4iRdI76G7biy9m6lBTycRY5J",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"reply_to_id\" : 6,\r\n    \"reply_body\" : \"R2R\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/reply2reply/create/",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"reply2reply",
+										"create",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "read",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token pbuBDU2aFCjHSfafJrTy8r5PcdimOaTH8rlfI55i4iRdI76G7biy9m6lBTycRY5J",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{LOCAL}}content/reply2reply/read/2",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"reply2reply",
+										"read",
+										"2"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "edit",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token pbuBDU2aFCjHSfafJrTy8r5PcdimOaTH8rlfI55i4iRdI76G7biy9m6lBTycRY5J",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"reply_to_id\" : 1,\r\n    \"reply_body\" : \"R2R\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/reply2reply/edit/1",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"reply2reply",
+										"edit",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token pbuBDU2aFCjHSfafJrTy8r5PcdimOaTH8rlfI55i4iRdI76G7biy9m6lBTycRY5J",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{LOCAL}}content/reply2reply/delete/15",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"reply2reply",
+										"delete",
+										"15"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
 					"name": "lecture_api",
 					"item": [
 						{
@@ -1519,13 +1587,13 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"value": "Token T0PJYESFlrbWJvYRSqLA7dEvPjjZxWIA1rcRthYZBHZAWs8Sc83mR8E4EscFZuWS",
 										"type": "text"
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"lecture_name\" : \"Ulululu\",\r\n    \"lecture_body\" : \"Ulululululululululululu\",\r\n    \"lecture_external_url_1\" : null,\r\n    \"lecture_external_url_2\" : null\r\n}",
+									"raw": "{\r\n    \"lecture_name\" : \"Abela Danger\",\r\n    \"lecture_body\" : \"Learn How to cook a Hoe\",\r\n    \"lecture_external_url_1\" : null,\r\n    \"lecture_external_url_2\" : null\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1533,14 +1601,11 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost/api/content/lecture/create/",
-									"protocol": "http",
+									"raw": "{{LOCAL}}content/lecture/create/",
 									"host": [
-										"localhost"
+										"{{LOCAL}}content"
 									],
 									"path": [
-										"api",
-										"content",
 										"lecture",
 										"create",
 										""
@@ -1675,7 +1740,7 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"value": "Token T0PJYESFlrbWJvYRSqLA7dEvPjjZxWIA1rcRthYZBHZAWs8Sc83mR8E4EscFZuWS",
 										"type": "text"
 									}
 								],
@@ -1689,14 +1754,11 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost/api/content/assignment/create/",
-									"protocol": "http",
+									"raw": "{{LOCAL}}content/assignment/create/",
 									"host": [
-										"localhost"
+										"{{LOCAL}}content"
 									],
 									"path": [
-										"api",
-										"content",
 										"assignment",
 										"create",
 										""
@@ -1818,6 +1880,67 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "editMarks",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token pbuBDU2aFCjHSfafJrTy8r5PcdimOaTH8rlfI55i4iRdI76G7biy9m6lBTycRY5J",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"submission_id\" : 1,\r\n    \"marks\" : 10\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/markAssignment/edit/1/",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"markAssignment",
+										"edit",
+										"1",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "readMarks",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token pbuBDU2aFCjHSfafJrTy8r5PcdimOaTH8rlfI55i4iRdI76G7biy9m6lBTycRY5J",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{LOCAL}}content/markAssignment/read/1/45",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"markAssignment",
+										"read",
+										"1",
+										"45"
+									]
+								}
+							},
+							"response": []
 						}
 					]
 				},
@@ -1831,13 +1954,13 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token 7lXSNTMukklMXdWhjOPQRKGPPKhcBSJIMewt8r51MoFBQg85OimEdHVgqFGJEy7u",
+										"value": "Token T0PJYESFlrbWJvYRSqLA7dEvPjjZxWIA1rcRthYZBHZAWs8Sc83mR8E4EscFZuWS",
 										"type": "text"
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"video_id\" : null,\r\n\r\n    \"forum_id\" : null,\r\n    \"assignment_id\" : null,\r\n    \"lecture_id\" : null,\r\n    \"subject_id\" : 4,\r\n                \r\n    \"post_name\" : \"New Test Post\",\r\n    \"post_body\" : \"Post body Post body Post body Post body Post body Post body Post body Post body\"\r\n}",
+									"raw": "{\r\n    \"video_id\" : null,\r\n\r\n    \"forum_id\" : 2,\r\n    \"assignment_id\" : 1,\r\n    \"lecture_id\" : 1,\r\n    \"subject_id\" : 1,\r\n                \r\n    \"post_name\" : \"New Test Post\",\r\n    \"post_body\" : \"Who Let the dogs out WHO WHO WHo whO WhO..\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1845,14 +1968,11 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost/api/content/post/create/",
-									"protocol": "http",
+									"raw": "{{LOCAL}}content/post/create/",
 									"host": [
-										"localhost"
+										"{{LOCAL}}content"
 									],
 									"path": [
-										"api",
-										"content",
 										"post",
 										"create",
 										""
@@ -1871,7 +1991,7 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"value": "Token pbuBDU2aFCjHSfafJrTy8r5PcdimOaTH8rlfI55i4iRdI76G7biy9m6lBTycRY5J",
 										"type": "text"
 									}
 								],
@@ -1885,17 +2005,14 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost/api/content/post/read/0",
-									"protocol": "http",
+									"raw": "{{LOCAL}}content/post/read/1",
 									"host": [
-										"localhost"
+										"{{LOCAL}}content"
 									],
 									"path": [
-										"api",
-										"content",
 										"post",
 										"read",
-										"0"
+										"1"
 									]
 								}
 							},
@@ -1980,6 +2097,37 @@
 				{
 					"name": "video_api",
 					"item": []
+				},
+				{
+					"name": "votes_api",
+					"item": [
+						{
+							"name": "changeVotes",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token pbuBDU2aFCjHSfafJrTy8r5PcdimOaTH8rlfI55i4iRdI76G7biy9m6lBTycRY5J",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{LOCAL}}content/votes/reply/1/-",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"votes",
+										"reply",
+										"1",
+										"-"
+									]
+								}
+							},
+							"response": []
+						}
+					]
 				}
 			]
 		},
@@ -1996,13 +2144,13 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"value": "Token pbuBDU2aFCjHSfafJrTy8r5PcdimOaTH8rlfI55i4iRdI76G7biy9m6lBTycRY5J",
 										"type": "text"
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"post_id\" : 6,\r\n    \"diary_name\" : \"Diary name\",\r\n    \"diary_body\" : \"Diary Body\"\r\n}",
+									"raw": "{\r\n    \"post_id\" : 1,\r\n    \"diary_name\" : \"Diary name\",\r\n    \"diary_body\" : \"Diary Body\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -2010,14 +2158,11 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost/api/personal/diary/create/",
-									"protocol": "http",
+									"raw": "{{LOCAL}}personal/diary/create/",
 									"host": [
-										"localhost"
+										"{{LOCAL}}personal"
 									],
 									"path": [
-										"api",
-										"personal",
 										"diary",
 										"create",
 										""
@@ -2147,13 +2292,13 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"value": "Token pbuBDU2aFCjHSfafJrTy8r5PcdimOaTH8rlfI55i4iRdI76G7biy9m6lBTycRY5J",
 										"type": "text"
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"assignment_id\" : 5,\r\n    \"submission_name\" : \"name\",\r\n    \"submission_body\" : \"body\",\r\n    \"submission_external_url_1\" : null,\r\n    \"submission_external_url_2\" : null\r\n}",
+									"raw": "{\r\n    \"assignment_id\" : 1,\r\n    \"submission_name\" : \"name\",\r\n    \"submission_body\" : \"body\",\r\n    \"submission_external_url_1\" : null,\r\n    \"submission_external_url_2\" : null\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -2161,14 +2306,11 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost/api/personal/submission/create//",
-									"protocol": "http",
+									"raw": "{{LOCAL}}personal/submission/create//",
 									"host": [
-										"localhost"
+										"{{LOCAL}}personal"
 									],
 									"path": [
-										"api",
-										"personal",
 										"submission",
 										"create",
 										"",
@@ -2188,7 +2330,7 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"value": "Token pbuBDU2aFCjHSfafJrTy8r5PcdimOaTH8rlfI55i4iRdI76G7biy9m6lBTycRY5J",
 										"type": "text"
 									}
 								],
@@ -2202,21 +2344,15 @@
 									}
 								},
 								"url": {
-									"raw": "http://65.0.72.70/api/personal/submission////",
-									"protocol": "http",
+									"raw": "{{LOCAL}}personal/submission/read/0/1/",
 									"host": [
-										"65",
-										"0",
-										"72",
-										"70"
+										"{{LOCAL}}personal"
 									],
 									"path": [
-										"api",
-										"personal",
 										"submission",
-										"",
-										"",
-										"",
+										"read",
+										"0",
+										"1",
 										""
 									]
 								}
@@ -2311,13 +2447,13 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token 7lXSNTMukklMXdWhjOPQRKGPPKhcBSJIMewt8r51MoFBQg85OimEdHVgqFGJEy7u",
+										"value": "Token bNc5zmoPiWLtk6BM3xBrAbHKHCERaCUkSTqQI3d9O1UVKQsEb7pzDoKf6J6zyjPn",
 										"type": "text"
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"subject_id\" : 4\r\n}",
+									"raw": "{\r\n    \"subject_id\" : 1\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -2325,14 +2461,11 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost/api/personal/enroll/create/",
-									"protocol": "http",
+									"raw": "{{MAIN_URL}}personal/enroll/create/",
 									"host": [
-										"localhost"
+										"{{MAIN_URL}}personal"
 									],
 									"path": [
-										"api",
-										"personal",
 										"enroll",
 										"create",
 										""
@@ -2414,7 +2547,7 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"value": "Token bNc5zmoPiWLtk6BM3xBrAbHKHCERaCUkSTqQI3d9O1UVKQsEb7pzDoKf6J6zyjPn",
 										"type": "text"
 									}
 								],
@@ -2428,14 +2561,11 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost/api/analytics/ticket/create/",
-									"protocol": "http",
+									"raw": "{{MAIN_URL}}analytics/ticket/create/",
 									"host": [
-										"localhost"
+										"{{MAIN_URL}}analytics"
 									],
 									"path": [
-										"api",
-										"analytics",
 										"ticket",
 										"create",
 										""
@@ -2515,7 +2645,7 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"value": "Token bNc5zmoPiWLtk6BM3xBrAbHKHCERaCUkSTqQI3d9O1UVKQsEb7pzDoKf6J6zyjPn",
 										"type": "text"
 									}
 								],
@@ -2529,14 +2659,11 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost/api/analytics/log/read/05-04-2021",
-									"protocol": "http",
+									"raw": "{{MAIN_URL}}analytics/log/read/05-04-2021",
 									"host": [
-										"localhost"
+										"{{MAIN_URL}}analytics"
 									],
 									"path": [
-										"api",
-										"analytics",
 										"log",
 										"read",
 										"05-04-2021"
@@ -2555,7 +2682,7 @@
 		"apikey": [
 			{
 				"key": "value",
-				"value": "Token PMoLnCYT7tzVDe8HSXbPLSoDjwkqdJYLwzcG5ZqcMGBhmGfk4tzKVRXe8XGLzmJ9",
+				"value": "Token 9Yw5jfWzFAntxydK2oqnMPuvGgNap18MLPg7RSDPOxImtFPDGDc6fiYh3D91P7Ux",
 				"type": "string"
 			},
 			{
@@ -2587,7 +2714,7 @@
 	],
 	"variable": [
 		{
-			"id": "8f39aa0f-2f03-4935-9274-45f5a52abf81",
+			"id": "7b7cdee6-7b39-4f41-b243-43d0e4913085",
 			"key": "json",
 			"value": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"8jX6Kl2yPRS8kdjd9h14uM15tLxBr5F7ZKv2Bp6eNBa3PYWKvOtoWmZuVvJKznTf\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"create\",\r\n        \"data\" : {\r\n            \"hash\": \"M8cNY3qBLF6G7aiINCQvhpG3qykwWNrW04LxxIEQVALR1nKtvrK9SZX91zwbeEs6\",\r\n            \"data\" : {\r\n                \"lecture_name\" : \"Ulululu\",\r\n                \"lecture_body_1\" : \"Ulululululululululululu\",\r\n                \"lecture_body_2\" : null,\r\n                \"lecture_external_url\" : null\r\n            }\r\n        }\r\n    }\r\n}"
 		}
