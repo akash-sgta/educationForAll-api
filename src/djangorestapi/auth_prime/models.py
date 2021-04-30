@@ -3,7 +3,7 @@ from django.db import models
 from django.core.validators import RegexValidator
 
 
-import datetime
+from datetime import datetime, timedelta
 
 # Create your models here.
 
@@ -20,12 +20,18 @@ class Image(models.Model):
 
 
     def __str__(self):
-        return f"{self.image_id} | {self.image}"
+        data = '''I [{}, {}]'''.format(
+            self.image_id,
+            self.image
+        )
+        return data
 
 # ---------------------------------------------------------------------------------------------------------------------------------------
 
 class User_Profile(models.Model):
     user_profile_id = models.BigAutoField(primary_key=True, null=False, blank=False, unique=True)
+
+    user_profile_pic = models.ForeignKey(Image, blank=True, null=True, on_delete=models.SET_NULL)
 
     user_profile_headline = models.TextField(max_length=512, null=False, blank=False)
     user_bio = models.TextField(null=True, blank=True)
@@ -39,14 +45,12 @@ class User_Profile(models.Model):
                 code='invalid_roll_number'
             )
         ], null=True, blank=True)
-    
     prime = models.BooleanField(default=True) # is student ?
     made_date = models.DateTimeField(auto_now_add=True)
 
-    user_profile_pic = models.ForeignKey(Image, blank=True, null=True, on_delete=models.SET_NULL)
-
     def __str__(self):
-        return f"{self.user_profile_id} | {self.prime} | {self.user_roll_number}"
+        data = '''UP [{}]'''.format(self.user_profile_id)
+        return data
 
 class User_Credential(models.Model):
     user_credential_id = models.BigAutoField(primary_key=True, null=False, blank=False, unique=True)
@@ -63,7 +67,12 @@ class User_Credential(models.Model):
     user_security_answer = models.TextField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.user_credential_id} | {self.user_profile_id} | {self.user_f_name} | {self.user_email} | {self.user_tg_id}"
+        data = '''U [{}, {}] | {}'''.format(
+            self.user_credential_id,
+            self.user_f_name,
+            self.user_profile_id
+        )
+        return data
 
 class User_Token_Table(models.Model):
     token_id = models.BigAutoField(primary_key=True)
@@ -74,7 +83,12 @@ class User_Token_Table(models.Model):
     token_start = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.token_id} | {self.token_start}"
+        data = '''UTT [{}, {}, {}]'''.format(
+            self.token_id,
+            self.token_start,
+            self.token_start+timedelta(hours=48)
+        )
+        return data
 
 # ---------------------------------------------------------------------------------------------------------------------------------------
 
@@ -85,7 +99,11 @@ class Admin_Privilege(models.Model):
     admin_privilege_description = models.TextField()
 
     def __str__(self):
-        return f"{self.admin_privilege_id} | {self.admin_privilege_name}"
+        data = '''AP [{}, {}]'''.format(
+            self.admin_privilege_id,
+            self.admin_privilege_name
+        )
+        return data
 
 class Admin_Credential(models.Model):
     admin_credential_id = models.BigAutoField(primary_key=True, null=False, blank=False, unique=True)
@@ -95,17 +113,23 @@ class Admin_Credential(models.Model):
     prime = models.BooleanField(default=False) # is super admin ?
     
     def __str__(self):
-        return f'''{self.admin_credential_id} | 
-                   {self.user_credential_id.user_credential_id} | 
-                   {self.user_credential_id.user_f_name} | 
-                   {self.prime}'''
+        data = '''AC [{}] | {}'''.format(
+            self.admin_credential_id,
+            self.user_credential_id,
+            self.prime
+        )
+        return data
 
 class Admin_Cred_Admin_Prev_Int(models.Model):
     admin_credential_id = models.ForeignKey(Admin_Credential, on_delete=models.CASCADE)
     admin_privilege_id = models.ForeignKey(Admin_Privilege, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.admin_credential_id} | {self.admin_privilege_id}"
+        data = '''{} || {}'''.format(
+            self.admin_credential_id,
+            self.admin_privilege_id
+        )
+        return data
 
 # ---------------------------------------------------------------------------------------------------------------------------------------
 
@@ -118,6 +142,11 @@ class Api_Token_Table(models.Model):
     api_endpoint = models.PositiveSmallIntegerField(choices=((1,"Web Development"), (2,"Android App Development"), (3,"Apple App Development"), (4,"Windows Software Development"), (5,"Linux Software Development"), (6,"Others")), default=1)
 
     def __str__(self):
-        return f'{self.user_name} | {self.user_email}'
+        data = '''API [{}, {}, {}]'''.format(
+            self.pk,
+            self.user_name,
+            self.api_endpoint
+        )
+        return data
 
 # ---------------------------------------------------------------------------------------------------------------------------------------

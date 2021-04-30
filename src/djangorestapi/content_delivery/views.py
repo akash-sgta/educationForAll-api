@@ -18,6 +18,7 @@ from content_delivery.models import (
         Subject_Coordinator_Int,
         Forum,
         Reply,
+        ReplyToReply,
         Lecture,
         Assignment,
         Post
@@ -28,6 +29,7 @@ from content_delivery.serializer import (
         Subject_Serializer,
         Forum_Serializer,
         Reply_Serializer,
+        ReplyToReply_Serializer,
         Lecture_Serializer,
         Assignment_Serializer,
         Post_Serializer
@@ -50,14 +52,16 @@ from user_personal.models import (
         Notification,
         User_Notification_Int,
         Enroll,
-        Submission
+        Submission,
+        Assignment_Submission_Int
     )
 
 from user_personal.serializer import (
         Notification_Serializer,
         User_Notification_Int_Serializer,
         Enroll_Serializer,
-        Submission_Serializer
+        Submission_Serializer,
+        Assignment_Submission_Int_Serializer
     )
 
 from auth_prime.important_modules import (
@@ -761,6 +765,145 @@ def api_reply_view(request, job, pk=None):
                         "delete":"api/content/reply/delete/<id>",
                     }, safe=True)
 
+@csrf_exempt
+def api_reply2reply_view(request, job, pk=None):
+
+    @api_view(['POST', ])
+    def create(request, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            reply_de_serialized = ReplyToReply_Serializer(data = request.data)
+            reply_de_serialized.initial_data['user_credential_id'] = auth[1]
+            if(reply_de_serialized.is_valid()):
+                reply_de_serialized.save()
+                data['success'] = True
+                data['data'] = reply_de_serialized.data
+                return Response(data = data, status=status.HTTP_201_CREATED)
+            else:
+                data['success'] = False
+                data['message'] = reply_de_serialized.errors
+                return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
+
+    @api_view(['GET', ])
+    def read(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            user_id = auth[1]
+            if(int(pk) == 0):
+                data['success'] = False
+                data['message'] = "item does not exist"
+                return Response(data = data, status=status.HTTP_404_NOT_FOUND)
+            else:
+                try:
+                    reply_ref = ReplyToReply.objects.filter(reply_to_id = int(pk))
+                except Reply.DoesNotExist:
+                    data['success'] = False
+                    data['message'] = "item does not exist"
+                    return Response(data = data, status=status.HTTP_404_NOT_FOUND)
+                else:
+                    data['success'] = True
+                    data['data'] = ReplyToReply_Serializer(reply_ref, many=True).data
+                    return Response(data = data, status=status.HTTP_202_ACCEPTED)
+
+    @api_view(['PUT', ])
+    def edit(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            try:
+                reply_ref = ReplyToReply.objects.get(reply_to_id = int(pk), user_credential_id=auth[1])
+            except Reply.DoesNotExist:
+                data['success'] = False
+                data['message'] = "item does not exist or does not belong to user"
+                return Response(data = data, status=status.HTTP_404_NOT_FOUND)
+            else:
+                reply_de_serialized = ReplyToReply_Serializer(reply_ref, data=request.data)
+                if(reply_de_serialized.is_valid()):
+                    reply_de_serialized.save()
+                    data['success'] = True
+                    data['data'] = reply_de_serialized.data
+                    return Response(data = data, status=status.HTTP_201_CREATED)
+                else:
+                    data['success'] = False
+                    data['message'] = reply_de_serialized.errors
+                    return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
+
+    @api_view(['DELETE', ])
+    def delete(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            user_id = auth[1]
+            if(int(pk) == 0): #all
+                coordinator_ref = Coordinator.objects.filter(user_credential_id = auth[1])
+                if(len(coordinator_ref) < 1):
+                    data['success'] = False
+                    data['message'] = "USER not COORDINATOR"
+                    return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+                else:
+                    ReplyToReply.objects.all().delete()
+                    data['success'] = True
+                    data['message'] = "All DEEP REPL(y/ies) deleted as COORDINATOR"
+                    return Response(data = data, status = status.HTTP_202_ACCEPTED)
+            else:
+                try:
+                    reply_ref = ReplyToReply.objects.get(reply_id = int(pk), user_credential_id = auth[1])
+                except ReplyToReply.DoesNotExist:
+                    data['success'] = False
+                    data['message'] = "item does not exist or does not belong to user"
+                    return Response(data = data, status=status.HTTP_404_NOT_FOUND)
+                else:
+                    reply_ref.delete()
+                    data['success'] = True
+                    data['message'] = "DEEP REPLY deleted"
+                    return Response(data = data, status=status.HTTP_202_ACCEPTED)
+
+    # active point
+    data = am_I_Authorized(request, "API")
+    if(data[0] == False):
+        return JsonResponse({"error":"API_KEY_UNAUTHORIZED", "message" : data[1]}, safe=True)
+    else:
+        data = am_I_Authorized(request, "USER")
+        job = job.lower()
+        if(job == 'create'):
+            return create(request, data)
+        elif(job == 'read'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/content/reply2reply/read/<id>"}, safe=True)
+            else:
+                return read(request, pk, data)
+        elif(job == 'edit'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/content/reply2reply/edit/<id>"}, safe=True)
+            else:
+                return edit(request, pk, data)
+        elif(job == 'delete'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/content/reply2reply/delete/<id>"}, safe=True)
+            else:
+                return delete(request, pk, data)
+        else:
+            return JsonResponse({
+                        "create":"api/content/reply2reply/create/",
+                        "read":"api/content/reply2reply/read/<id>",
+                        "edit":"api/content/reply2reply/edit/<id>",
+                        "delete":"api/content/reply2reply/delete/<id>",
+                    }, safe=True)
+
 # -----------------------LECTURE-------------------------------
 
 @csrf_exempt
@@ -958,8 +1101,8 @@ def api_assignment_view(request, job, pk=None):
                 ass_list = list()
                 for ass in assignment_serializer:
                     sub_list = list()
-                    for sub in Submission.objects.filter(assignment_id = ass['assignment_id']):
-                        sub_list.append(sub.submission_id)
+                    for one in Assignment_Submission_Int.objects.filter(assignment_id = ass['assignment_id']):
+                        sub_list.append(one.submission_id.submission_id)
                     ass_list.append({
                         "assignment" : ass,
                         "submission" : sub_list.copy()
@@ -977,8 +1120,8 @@ def api_assignment_view(request, job, pk=None):
                     data['success'] = True
                     assignment_serializer = Assignment_Serializer(assignment_ref, many=False).data
                     sub_list = list()
-                    for sub in Submission.objects.filter(assignment_id = assignment_serializer['assignment_id']):
-                        sub_list.append(sub.submission_id)
+                    for one in Assignment_Submission_Int.objects.filter(assignment_id = assignment_serializer['assignment_id']):
+                        sub_list.append(one.subject_id.submission_id)
                     data['data'] = {
                         "assignment" : assignment_serializer,
                         "submission" : sub_list.copy()
@@ -1082,6 +1225,99 @@ def api_assignment_view(request, job, pk=None):
                         "delete":"api/content/assignment/delete/<id>",
                     }, safe=True)
 
+@csrf_exempt
+def mark_assignment_view(request, job, pk, pkk):
+
+    @api_view(['GET', ])
+    def read(request, pk, pkk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            try:
+                one_ref = Assignment_Submission_Int.objects.get(assignment_id = int(pk), submission_id = int(pkk))
+            except Assignment_Submission_Int.DoesNotExist:
+                data['success'] = False
+                data['message'] = "item does not exist"
+                return Response(data = data, status=status.HTTP_404_NOT_FOUND)
+            except ValueError or TypeError:
+                data['success'] = False
+                data['message'] = "INVALID_ID"
+                return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                one_serialized = Assignment_Submission_Int_Serializer(one_ref).data
+                data['success'] = True
+                data['data'] = one_serialized
+                return Response(data = data, status=status.HTTP_202_ACCEPTED)
+
+    @api_view(['PUT', ])
+    def edit(request, pk, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            coordinator_ref = Coordinator.objects.filter(user_credential_id = auth[1])
+            if(len(coordinator_ref) < 1):
+                data['success'] = False
+                data['message'] = "USER not COORDINATOR"
+                return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+            else:
+                try:
+                    user_data = request.data
+                    user_data["assignment_id"] = pk
+                    if("submission_id" not in user_data.keys() or "marks" not in user_data.keys()):
+                        data['success'] = False
+                        data['message'] = "KEY_VALUE_MISSING_JSON"
+                        return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
+                    else:
+                        one_ref = Assignment_Submission_Int.objects.get(assignment_id = int(pk), submission_id = int(user_data["submission_id"]))
+                except Assignment_Submission_Int.DoesNotExist:
+                    data['success'] = False
+                    data['message'] = "item does not exist"
+                    return Response(data = data, status=status.HTTP_404_NOT_FOUND)
+                except ValueError or TypeError:
+                    data['success'] = False
+                    data['message'] = "INVALID_DATA_JSON"
+                    return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    one_serialized = Assignment_Submission_Int_Serializer(one_ref, data=user_data)
+                    if(one_serialized.is_valid()):
+                        one_serialized.save()
+                        data['success'] = True
+                        data['data'] = one_serialized.data
+                        return Response(data = data, status=status.HTTP_201_CREATED)
+                    else:
+                        data['success'] = False
+                        data['message'] = one_serialized.error
+                        return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
+
+    # active point
+    data = am_I_Authorized(request, "API")
+    if(data[0] == False):
+        return JsonResponse({"error":"API_KEY_UNAUTHORIZED", "message" : data[1]}, safe=True)
+    else:
+        data = am_I_Authorized(request, "USER")
+        job = job.lower()
+        if(job == 'edit'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/content/markAssignment/edit/<id>/"}, safe=True)
+            else:
+                return edit(request, pk, data)
+        elif(job == 'read'):
+            if(pk in (None, '')):
+                return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/content/markAssignment/read/<id>/<idd>"}, safe=True)
+            else:
+                return read(request, pk, pkk, data)
+        else:
+            return JsonResponse({
+                        "read":"api/content/assignment/read/<id>/<idd>",
+                        "edit":"api/content/assignment/edit/<id>/",
+                    }, safe=True)
+
 # -----------------------POST-------------------------------
 
 @csrf_exempt
@@ -1172,6 +1408,8 @@ def api_post_view(request, job, pk=None):
                     data['message'] = "item does not exist"
                     return Response(data = data, status=status.HTTP_404_NOT_FOUND)
                 else:
+                    post_ref.post_views += 1
+                    post_ref.save()
                     data['success'] = True
                     data['data'] = Post_Serializer(post_ref, many=False).data
                     return Response(data = data, status=status.HTTP_202_ACCEPTED)
@@ -1272,6 +1510,60 @@ def api_post_view(request, job, pk=None):
                         "edit":"api/content/post/edit/<id>",
                         "delete":"api/content/post/delete/<id>",
                     }, safe=True)
+
+@csrf_exempt
+def api_votes_view(request, word, pk=None, control=None):
+
+    @api_view(['GET', ])
+    def read(request, word, pk, control, auth):
+        data = dict()
+        if(auth[0] == False):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{auth[1]}"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            if(word.lower() == "post"):
+                try:
+                    ref = Post.objects.get(post_id = int(pk))
+                except Post.DoesNotExist:
+                    data['success'] = False
+                    data['message'] = "post does not exist"
+                    return Response(data = data, status=status.HTTP_404_NOT_FOUND)
+            elif(word.lower() == "reply"):
+                try:
+                    ref = Reply.objects.get(reply_id = int(pk))
+                except Reply.DoesNotExist:
+                    data['success'] = False
+                    data['message'] = "reply does not exist"
+                    return Response(data = data, status=status.HTTP_404_NOT_FOUND)
+            else:
+                try:
+                    ref = ReplyToReply.objects.get(reply_id = int(pk))
+                except Post.DoesNotExist:
+                    data['success'] = False
+                    data['message'] = "deep reply does not exist"
+                    return Response(data = data, status=status.HTTP_404_NOT_FOUND)
+            
+            if(control == '+'):
+                ref.upvote += 1
+                data['data'] = f"{type(ref)} : upvotes changed"
+            if(control == '-'):
+                ref.downvote += 1
+                data['data'] = f"{type(ref)} : downvotes changed"
+            ref.save()
+            data['success'] = True
+            return Response(data = data, status=status.HTTP_202_ACCEPTED)
+
+    # active point
+    data = am_I_Authorized(request, "API")
+    if(data[0] == False):
+        return JsonResponse({"error":"API_KEY_UNAUTHORIZED", "message" : data[1]}, safe=True)
+    else:
+        data = am_I_Authorized(request, "USER")
+        if((word.lower() not in ('post', 'reply', 'replyd')) or (pk in (None, '')) or (control not in ('+', '-'))):
+            return JsonResponse({"error":"URL_FORMAT_ERROR","message":"api/content/votes/<post/reply/replyd>/<id>/<+/->"}, safe=True)
+        else:
+            return read(request, word, pk, control, data)
 
 # ----------------------------------------------
 

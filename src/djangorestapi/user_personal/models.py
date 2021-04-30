@@ -16,33 +16,48 @@ class Diary(models.Model):
 
     diary_name = models.TextField()
     diary_body = models.TextField()
-
     made_date = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        if(self.post_id == None):
-            post_id = 'NULL'
-        else:
-            post_id = self.post_id
-
-        return f"{self.diary_id} || {post_id} || {self.user_credential_id}"
+        data = '''{} || D [{}, {}]'''.format(
+            self.post_id,
+            self.diary_id,
+            self.diary_name
+        )
+        return data
 
 class Submission(models.Model):
     submission_id = models.BigAutoField(primary_key=True, null=False, blank=False, unique=True)
 
-    assignment_id = models.ForeignKey(Assignment, null=False, blank=False, on_delete=models.CASCADE)
     user_credential_id = models.ForeignKey(User_Credential, null=False, blank=False, on_delete=models.CASCADE)
 
     submission_name = models.TextField()
     submission_body = models.TextField(null=False, blank=False)
-    
     submission_external_url_1 = models.URLField(null=True, blank=True)
     submission_external_url_2 = models.URLField(null=True, blank=True)
-
     made_date = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.submission_id} || {self.assignment_id} || {self.user_credential_id}"
+        data = '''SUB [{}, {}] || {}'''.format(
+            self.submission_id,
+            self.submission_name,
+            self.user_credential_id
+        )
+        return data
+
+class Assignment_Submission_Int(models.Model):
+    assignment_id = models.ForeignKey(Assignment, null=False, blank=False, on_delete=models.CASCADE)
+    submission_id = models.ForeignKey(Submission, null=False, blank=False, on_delete=models.CASCADE)
+
+    marks = models.PositiveSmallIntegerField(default=0)
+
+    def __str__(self):
+        data = '''{} || {} || {}'''.format(
+            self.assignment_id,
+            self.submission_id,
+            self.marks
+        )
+        return data
 
 class Enroll(models.Model):
     subject_id = models.ForeignKey(Subject, null=False, blank=False, on_delete=models.CASCADE)
@@ -52,7 +67,11 @@ class Enroll(models.Model):
 
     
     def __str__(self):
-        return f"{self.subject_id.subject_name} | {self.user_credential_id.user_f_name}"
+        data = '''{} || {}'''.format(
+            self.subject_id,
+            self.user_credential_id
+        )
+        return data
 
 class Notification(models.Model):
     notification_id = models.BigAutoField(primary_key=True, null=False, blank=False, unique=True)
@@ -60,22 +79,28 @@ class Notification(models.Model):
     post_id = models.ForeignKey(Post, null=True, blank=True, on_delete=models.CASCADE)
 
     notification_body = models.TextField(null=False, blank=False)
-
     made_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.notification_id} | {' '.join(self.notification_body.split()[:10])}..."
+        data = '''N [{}] || {}'''.format(
+            self.notification_id,
+            self.post_id
+        )
+        return data
 
 class User_Notification_Int(models.Model):
     notification_id = models.ForeignKey(Notification, null=False, blank=False, on_delete=models.CASCADE)
     user_credential_id = models.ForeignKey(User_Credential, null=False, blank=False, on_delete=models.CASCADE)
 
     made_date = models.DateTimeField(auto_now_add=True)
-
     prime_1 = models.BooleanField(default=False) # Sent
     prime_2 = models.BooleanField(default=False) # Seen
-
     tries = models.PositiveBigIntegerField(default=0)
     
     def __str__(self):
-        return f"{self.notification_id.notification_id} | {self.user_credential_id.user_f_name} | {self.prime_1} | {self.prime_2}"
+        data = '''{} || {} || UNI[{}]'''.format(
+            self.notification_id,
+            self.user_credential_id,
+            self.tries
+        )
+        return data

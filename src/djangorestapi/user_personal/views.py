@@ -17,6 +17,7 @@ from user_personal.models import (
         Submission,
         Notification,
         User_Notification_Int,
+        Assignment_Submission_Int,
         Enroll,
     )
 
@@ -36,6 +37,7 @@ from content_delivery.models import (
         Post,
         Coordinator,
         Subject,
+        Assignment,
         Subject_Coordinator_Int
     )
 
@@ -188,15 +190,29 @@ def api_submission_view(request, job, pk=None, pkk=None):
             user_id = auth[1]
             submission_serialized = Submission_Serializer(data = request.data)
             submission_serialized.initial_data['user_credential_id'] = int(auth[1])
-            if(submission_serialized.is_valid()):
-                submission_serialized.save()
-                data['success'] = True
-                data['data'] = submission_serialized.data
-                return Response(data=data, status=status.HTTP_201_CREATED)
-            else:
+            try:
+                assignment_id = submission_serialized.initial_data['assignment_id']
+                assignment_ref = Assignment.objects.get(assignment_id = assignment_id)
+            except Assignment.DoesNotExist:
                 data['success'] = False
-                data['message'] = f"error:SERIALIZING_ERROR, message:{submission_serialized.errors}"
-                return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
+                data['message'] = "INVALID_ASSIGNMENT_ID"
+                return Response(data=data, status=status.HTTP_404_NOT_FOUND)
+            else:
+                if(submission_serialized.is_valid()):
+                    submission_serialized.save()
+                    submission_ref = Submission.objects.get(submission_id = submission_serialized.data['submission_id'])
+                    many_to_many_new = Assignment_Submission_Int(
+                        assignment_id = assignment_ref,
+                        submission_id = submission_ref
+                    )
+                    many_to_many_new.save()
+                    data['success'] = True
+                    data['data'] = submission_serialized.data
+                    return Response(data=data, status=status.HTTP_201_CREATED)
+                else:
+                    data['success'] = False
+                    data['message'] = f"error:SERIALIZING_ERROR, message:{submission_serialized.errors}"
+                    return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
 
     @api_view(['GET', ])
     def read(request, pk, pkk, auth):
@@ -213,23 +229,39 @@ def api_submission_view(request, job, pk=None, pkk=None):
                 # pk - 0, pkk - x       ->  Coordiantor demanding all submission under assignment [x]
                 # pk - x, pkk - None    ->  User demanding for submission [x]
                 if(int(pk) == 0):
-                    if(pkk not in (None, "")):
+                    if(pkk not in (None, "")): # Coordiantor demanding all submission under assignment [x]
                         coordinator_ref = Coordinator.objects.filter(user_credential_id = auth[1])
                         if(len(coordinator_ref) < 1):
                             data['success'] = False
                             data['message'] = "USER not COORDINATOR"
                             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
                         else:
-                            submission_ref = Submission.objects.filter(assignment_id = int(pkk))
-                            submission_serialized = Submission_Serializer(submission_ref, many=True)
+                            many_to_many_ref = Assignment_Submission_Int.objects.filter(assignment_id = int(pkk))
+                            temp = list()
+                            for one in many_to_many_ref:
+                                submission_ref = Submission.objects.get(submission_id = one.submission_id.submission_id)
+                                submission_serialized = Submission_Serializer(submission_ref, many=False).data
+                                temp.append({
+                                    "assignment_id" : None if(one.assignment_id == None) else one.assignment_id.assignment_id,
+                                    "submission" : submission_serialized,
+                                    "marks" : one.marks
+                                })
                             data['success'] = True
-                            data['data'] = submission_serialized.data
+                            data['data'] = temp.copy()
                             return Response(data=data, status=status.HTTP_202_ACCEPTED)
                     else:
                         submission_ref = Submission.objects.filter(user_credential_id = auth[1])
-                        submission_serialized = Submission_Serializer(submission_ref, many=True)
+                        submission_serialized = Submission_Serializer(submission_ref, many=True).data
+                        temp = list()
+                        for subS in submission_serialized:
+                            intermediate = Assignment_Submission_Int.objects.get(submission_id = subS['submission_id'])
+                            temp.append({
+                                "assignment_id" : None if(intermediate.assignment_id == None) else intermediate.assignment_id.assignment_id,
+                                "submission" : subS,
+                                "marks" : intermediate.marks
+                            })
                         data['success'] = True
-                        data['data'] = submission_serialized.data
+                        data['data'] = temp.copy()
                         return Response(data=data, status=status.HTTP_202_ACCEPTED)
                 else:
                     try:
@@ -239,9 +271,14 @@ def api_submission_view(request, job, pk=None, pkk=None):
                         data['message'] = "item does not exist or does not belong to user"
                         return Response(data = data, status=status.HTTP_404_NOT_FOUND)
                     else:
-                        submission_serialized = Submission_Serializer(submission_ref, many=False)
+                        submission_serialized = Submission_Serializer(submission_ref, many=False).data
+                        intermediate = Assignment_Submission_Int.objects.get(submission_id = submission_serialized['submission_id'])
                         data['success'] = True
-                        data['data'] = submission_serialized.data
+                        data['data'] = {
+                            "assignment_id" : None if(intermediate.assignment_id == None) else intermediate.assignment_id.assignment_id,
+                            "submission" : submission_serialized,
+                            "marks" : intermediate.marks
+                        }
                         return Response(data=data, status=status.HTTP_202_ACCEPTED)
             except Exception as ex:
                 print("EX : ", ex)
