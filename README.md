@@ -73,10 +73,7 @@
     cd education-for-all/src/djangorestapi
 
     linux only**
-    apt install libmysqlclient-dev
-    apt install build-essential python3-dev
-    apt install gcc
-    apt install nginx
+    apt install libmysqlclient-dev build-essential python3-dev gcc nginx
 
     python -m pip install -r requirements
 
