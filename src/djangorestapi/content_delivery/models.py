@@ -14,7 +14,12 @@ class Coordinator(models.Model):
     prime = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.coordinator_id} | {self.user_credential_id.user_f_name}"
+        data = '''C [{}] | U [{} , {}]'''.format(
+            self.coordinator_id,
+            self.user_credential_id.user_credential_id,
+            self.user_credential_id.user_f_name,
+        )
+        return data
 
 class Subject(models.Model):
     subject_id = models.BigAutoField(primary_key=True, null=False, blank=False, unique=True)
@@ -25,7 +30,11 @@ class Subject(models.Model):
     prime = models.BooleanField(default=False) # prime only to be shown to logged in users
 
     def __str__(self):
-        return f"{self.subject_id} | {self.subject_name}"
+        data = '''S [{}, {}]'''.format(
+            self.subject_id,
+            self.subject_name
+        )
+        return data
 
 class Subject_Coordinator_Int(models.Model):
 
@@ -33,7 +42,13 @@ class Subject_Coordinator_Int(models.Model):
     coordinator_id = models.ForeignKey(Coordinator, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.subject_id} || {self.coordinator_id}"
+        data = '''S [{}, {}] | C [{}, {}]'''.format(
+            self.subject_id.subject_id,
+            self.subject_id.subject_name,
+            self.coordinator_id.coordinator_id,
+            self.coordinator_id.user_credential_id.user_f_name
+        )
+        return data
 
 # --------------------------------------------------------------------------------------------
 
@@ -42,21 +57,27 @@ class Video(models.Model):
 
     video_name = models.TextField(null=False, blank=False)
     video_url = models.URLField(max_length=1024, null=False, blank=False)
-
-    made_date = models.CharField(default="-", max_length=32)
+    made_date = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.video_id} | {self.video_name}"
+        data = '''V [{}, {}]'''.format(
+            self.video_id,
+            self.video_name
+        )
+        return data
 
 class Forum(models.Model):
     forum_id = models.BigAutoField(primary_key=True, null=False, blank=False, unique=True)
 
     forum_name = models.TextField(null=False, blank=False)
-
     made_date = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.forum_id} | {self.forum_name}"
+        data = '''F [{}, {}]'''.format(
+            self.forum_id,
+            self.forum_name
+        )
+        return data
 
 class Reply(models.Model):
     reply_id = models.BigAutoField(primary_key=True, null=False, blank=False, unique=True)
@@ -65,16 +86,50 @@ class Reply(models.Model):
     user_credential_id = models.ForeignKey(User_Credential, null=True, blank=True, on_delete=models.SET_NULL)
 
     reply_body = models.TextField()
-    reply_upvote = models.IntegerField(default=0, null=True, blank=True)
-    reply_downvote = models.IntegerField(default=0, null=True, blank=True)
+    upvote = models.IntegerField(default=0, null=True, blank=True)
+    downvote = models.IntegerField(default=0, null=True, blank=True)
 
     made_date = models.DateTimeField(auto_now=True)
 
     def __str__(self):
+        data = '''R [{}] | F [{}, {}]'''.format(
+            self.reply_id,
+            self.forum_id.forum_id,
+            self.forum_id.forum_name
+        )
         if(self.user_credential_id == None):
-            return f"{self.reply_id} | {self.forum_id.forum_name} | NULL"
+            data += ''' | U [Null, Anonymous]'''
         else:
-            return f"{self.reply_id} | {self.forum_id.forum_name} | {self.user_credential_id.user_f_name}"
+            data += ''' | U [{}, {}]'''.format(
+                self.user_credential_id.user_credential_id,
+                self.user_credential_id.user_f_name
+            )
+        return data
+
+class ReplyToReply(models.Model):
+    reply_id = models.BigAutoField(primary_key=True, null=False, blank=False, unique=True)
+
+    reply_to_id = models.ForeignKey(Reply, null=True, blank=True, on_delete=models.CASCADE)
+    user_credential_id = models.ForeignKey(User_Credential, null=True, blank=True, on_delete=models.SET_NULL)
+
+    reply_body = models.TextField()
+    upvote = models.IntegerField(default=0, null=True, blank=True)
+    downvote = models.IntegerField(default=0, null=True, blank=True)
+    made_date = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        data = '''R [{}] | R2 [{}]'''.format(
+            self.reply_id,
+            self.reply_to_id.reply_id
+        )
+        if(self.user_credential_id == None):
+            data += ''' | U [Null, Anonymous]'''
+        else:
+            data += ''' | U [{}, {}]'''.format(
+                self.user_credential_id.user_credential_id,
+                self.user_credential_id.user_f_name
+            )
+        return data
 
 class Lecture(models.Model):
     lecture_id = models.BigAutoField(primary_key=True, null=False, blank=False, unique=True)
@@ -83,11 +138,14 @@ class Lecture(models.Model):
     lecture_body = models.TextField(default="", null=False, blank=False)
     lecture_external_url_1 = models.URLField(null=True, blank=True)
     lecture_external_url_2 = models.URLField(null=True, blank=True)
-
     made_date = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.lecture_id} | {self.lecture_name}"
+        data = '''L [{}, {}]'''.format(
+            self.lecture_id,
+            self.lecture_name
+        )
+        return data
 
 class Assignment(models.Model):
     assignment_id = models.BigAutoField(primary_key=True, null=False, blank=False, unique=True)
@@ -96,11 +154,15 @@ class Assignment(models.Model):
     assignment_body = models.TextField(null=False, blank=False)
     assignment_external_url_1 = models.URLField(null=True, blank=True)
     assignment_external_url_2 = models.URLField(null=True, blank=True)
-
+    score = models.PositiveSmallIntegerField(default=100)
     made_date = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.assignment_id} | {self.assignment_name}"
+        data = '''A [{}, {}]'''.format(
+            self.assignment_id,
+            self.assignment_name
+        )
+        return data
 
 # --------------------------------------------------------------------------------------------
 
@@ -116,46 +178,28 @@ class Post(models.Model):
 
     post_name = models.TextField()
     post_body = models.TextField()
-    
     post_views = models.PositiveBigIntegerField(default=0)
-    post_upvote = models.IntegerField(default=0)
-    post_downvote = models.IntegerField(default=0)
-
+    upvote = models.IntegerField(default=0)
+    downvote = models.IntegerField(default=0)
     made_date = models.DateTimeField(auto_now=True)
-
     prime = models.BooleanField(default=False, null=False, blank=False)
 
     def __str__(self):
-        if(self.user_credential_id == None):
-            user_credential_id = 'NULL'
+        data = '''P [{}, {}]'''.format(
+            self.post_id,
+            self.post_name
+        )
+        if(self.user_credential_id in (None, "")):
+            data += '''| U [{}, {}]'''.format("Null", "Abmiguous")
         else:
-            user_credential_id = self.user_credential_id.user_credential_id
-        
-        if(self.subject_id == None):
-            subject_id = 'NULL'
-        else:
-            subject_id = self.subject_id.subject_id
-        
-        if(self.video_id == None):
-            video_id = 'NULL'
-        else:
-            video_id = self.video_id.video_id
-        
-        if(self.forum_id == None):
-            forum_id = 'NULL'
-        else:
-            forum_id = self.forum_id.forum_id
-        
-        if(self.assignment_id == None):
-            assignment_id = 'NULL'
-        else:
-            assignment_id = self.assignment_id.assignment_id
-        
-        if(self.lecture_id == None):
-            lecture_id = 'NULL'
-        else:
-            lecture_id = self.lecture_id.lecture_id
-        
-        return f"{self.post_id} || {user_credential_id} || {subject_id} || {video_id} || {forum_id} || {lecture_id} || {assignment_id}"
+            data += '''| U [{}, {}]'''.format(self.user_credential_id.user_credential_id, self.user_credential_id.user_f_name)
+        data += ''' || {} || {} || {} || {} || {}'''.format(
+            self.subject_id,
+            self.video_id,
+            self.forum_id,
+            self.lecture_id,
+            self.assignment_id
+        )
+        return data
 
 # --------------------------------------------------------------------------------------------

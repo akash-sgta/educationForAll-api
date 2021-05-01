@@ -1,7 +1,12 @@
 from django.db import models
 
-from auth_prime.models import User_Credential
-from auth_prime.models import Api_Token_Table
+from auth_prime.models import (
+        User_Credential
+    )
+
+from auth_prime.models import (
+        Api_Token_Table
+    )
 
 # Create your models here.
 
@@ -14,7 +19,11 @@ class Ticket(models.Model):
     prime = models.BooleanField(default=False) # solved tickets
 
     def __str__(self):
-        return f"{self.ticket_id} | {self.ticket_body.split()[:10]}..."
+        data = '''T [{}] || {}'''.format(
+            self.ticket_id,
+            self.user_credential_id
+        )
+        return data
 
 class Log(models.Model):
     log_id = models.BigAutoField(primary_key=True, null=False, blank=False, unique=True)
@@ -24,4 +33,8 @@ class Log(models.Model):
     made_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.log_id} | {self.log_body.split()[:10]}..."
+        data = '''L [{}] || {}'''.format(
+            self.log_id,
+            self.api_token_id
+        )
+        return data

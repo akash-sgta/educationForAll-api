@@ -2,49 +2,40 @@ from rest_framework import serializers
 
 # ------------------------------------------------------------------
 
-from user_personal.models import Diary
-from user_personal.models import Submission
-from user_personal.models import Notification
-from user_personal.models import Enroll
-from user_personal.models import User_Notification_Int
+from user_personal.models import (
+        Diary,
+        Submission,
+        Notification,
+        Enroll,
+        User_Notification_Int,
+        Assignment_Submission_Int
+    )
 
 # ------------------------------------------------------------------
 
 class Diary_Serializer(serializers.ModelSerializer):
     class Meta:
         model = Diary
-        fields = (
-            'diary_id',
-            'post_id',
-            'diary_name',
-            'diary_body',
-            "made_date",
-            "user_credential_id"
-        )
+        fields = "__all__"
 
 class Submission_Serializer(serializers.ModelSerializer):
     class Meta:
         model = Submission
+        fields = "__all__"
+
+class Assignment_Submission_Int_Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = Assignment_Submission_Int
         fields = (
-            'submission_id',
-            'assignment_id',
-            'user_credential_id',
-            'submission_name',
-            'submission_body',
-            "submission_external_url_1",
-            "submission_external_url_2",
-            'made_date',
+            "marks",
+            "assignment_id",
+            "submission_id"
         )
 
 class Notification_Serializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
-        fields = (
-            'notification_id',
-            'post_id',
-            'notification_body',
-            'made_date',
-        )
+        fields = "__all__"
 
 class Enroll_Serializer(serializers.ModelSerializer):
     class Meta:
@@ -59,9 +50,10 @@ class User_Notification_Int_Serializer(serializers.ModelSerializer):
     class Meta:
         model = User_Notification_Int
         fields = (
-            'post_id',
+            'notification_id',
             'user_credential_id',
             'made_date',
             'prime_1',
             'prime_2',
+            'tries'
         )
