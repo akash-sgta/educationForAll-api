@@ -30,6 +30,13 @@ class User_Credential_View(APIView):
     
     def post(self, request, pk=None):
         data = dict()
+        
+        isAuthorizedAPI = am_I_Authorized(request, "API")
+        if(not isAuthorizedAPI[0]):
+            data['success'] = False
+            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        
         isAuthorizedUSER = am_I_Authorized(request, "USER")
         if(request.data['action'].lower() == 'signin'):
             if(isAuthorizedUSER[0]):
@@ -82,9 +89,15 @@ class User_Credential_View(APIView):
                         data['message'] = user_cred_de_serialized.errors
                         return Response(data = data, status = status.HTTP_400_BAD_REQUEST)
 
-
     def get(self, request, pk=None):
         data = dict()
+
+        isAuthorizedAPI = am_I_Authorized(request, "API")
+        if(not isAuthorizedAPI[0]):
+            data['success'] = False
+            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+
         if(pk not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(isAuthorizedUSER[0] == False):
@@ -134,6 +147,13 @@ class User_Credential_View(APIView):
 
     def put(self, request, pk=None):
         data = dict()
+
+        isAuthorizedAPI = am_I_Authorized(request, "API")
+        if(not isAuthorizedAPI[0]):
+            data['success'] = False
+            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+
         if(pk not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(isAuthorizedUSER[0] == False):
@@ -175,6 +195,13 @@ class User_Credential_View(APIView):
     
     def delete(self, request, pk=None):
         data = dict()
+
+        isAuthorizedAPI = am_I_Authorized(request, "API")
+        if(not isAuthorizedAPI[0]):
+            data['success'] = False
+            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+            
         if(pk not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(isAuthorizedUSER[0] == False):
@@ -234,4 +261,60 @@ class User_Credential_View(APIView):
             }
             return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
 
+    def options(self, request, pk=None):
+        data = dict()
 
+        isAuthorizedAPI = am_I_Authorized(request, "API")
+        if(not isAuthorizedAPI[0]):
+            data['success'] = False
+            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+            
+        temp = dict()
+
+        data["Allow"] = "POST GET PUT DELETE OPTIONS".split()
+        
+        temp["Content-Type"] = "application/json"
+        temp["Authorization"] = "Token JWT"
+        temp["uauth"] = "Token JWT"
+        data["HEADERS"] = temp.copy()
+        temp.clear()
+        
+        data["name"] = "User_Credential"
+        
+        temp["POST"] = (
+            {
+                "action" : "signup",
+                "data" : {
+                    "user_f_name" : "String",
+                    "user_m_name" : "String/null",
+                    "user_l_name" : "String",
+                    "user_email" : "Email",
+                    "user_password" : "String[min 8 char]",
+                    "user_security_question" : "String",
+                    "user_security_answer" : "String"
+                },
+            },
+            {
+                "action" : "signin",
+                "data" : {
+                    "email" : "Email",
+                    "password" : "String"
+                }
+            }
+        )
+        temp["GET"] = None
+        temp["PUT"] = {
+                "user_f_name" : "String",
+                "user_m_name" : "String",
+                "user_l_name" : "String",
+                "user_email" : "Email",
+                "user_password" : "String",
+                "user_security_question" : "String",
+                "user_security_answer" : "String"
+            }
+        temp["DELETE"] = None
+        data["method"] = temp.copy()
+        temp.clear()
+
+        return Response(data=data, status=status.HTTP_200_OK)

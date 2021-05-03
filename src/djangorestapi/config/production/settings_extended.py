@@ -30,12 +30,11 @@ DATABASE_ROUTERS = (
 
 # -----------------------------------------------
 
-HOST = (
-    "jcgbvpw0pv.czbsimzcrcxe.ap-south-1.rds.amazonaws.com",
-    "3306"
-)
-
-# -----------------------------------------------
+BASE_DIR = Path(__file__).resolve().parent.parent
+with open(os.path.join(BASE_DIR, 'ambiguous', 'DB_KEY.txt'), 'r') as db:
+    text = db.readlines()
+    for i in range(len(text)):
+        text[i] = text[i].strip()[1:-2]
 
 DB_SETTINGS = dict()
 DB_SETTINGS['default'] = {}
@@ -44,20 +43,20 @@ DB_SETTINGS['auth_db'] = {
     'OPTIONS': {
         'sql_mode': 'traditional',
     },
-    'NAME':  "JCGbVPW0pV1",
-    'USER': "JCGbVPW0pV",
-    'PASSWORD': "wyJF99q5ym",
-    'HOST': HOST[0],
-    'PORT': HOST[1]
+    'NAME':  text[0]+"1",
+    'USER': text[0],
+    'PASSWORD': text[1],
+    'HOST': text[2],
+    'PORT': text[3]
 }
 DB_SETTINGS['app_db'] = {
     'ENGINE': "django.db.backends.mysql",
     'OPTIONS': {
         'sql_mode': 'traditional',
     },
-    'NAME':  "JCGbVPW0pV2",
-    'USER': "JCGbVPW0pV",
-    'PASSWORD': "wyJF99q5ym",
-    'HOST': HOST[0],
-    'PORT': HOST[1]
+    'NAME':  text[0]+"2",
+    'USER': text[0],
+    'PASSWORD': text[1],
+    'HOST': text[2],
+    'PORT': text[3]
 }

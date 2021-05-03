@@ -35,6 +35,13 @@ class Assignment_2_View(APIView):
     
     def get(self, request, pk_a=None, pk_s=None):
         data = dict()
+        
+        isAuthorizedAPI = am_I_Authorized(request, "API")
+        if(not isAuthorizedAPI[0]):
+            data['success'] = False
+            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        
         if(pk_a not in (None, "") and pk_s not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(isAuthorizedUSER[0] == False):
@@ -69,6 +76,13 @@ class Assignment_2_View(APIView):
     
     def put(self, request, pk_a=None, pk_s=None):
         data = dict()
+        
+        isAuthorizedAPI = am_I_Authorized(request, "API")
+        if(not isAuthorizedAPI[0]):
+            data['success'] = False
+            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        
         if(pk_a not in (None, "") and pk_s not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(isAuthorizedUSER[0] == False):
@@ -118,3 +132,37 @@ class Assignment_2_View(APIView):
                 'URL_FORMAT' : '/api/content/mark/<assignent_id>?<submission_id>'
             }
             return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
+
+    def options(self, request, pk=None):
+        data = dict()
+
+        isAuthorizedAPI = am_I_Authorized(request, "API")
+        if(not isAuthorizedAPI[0]):
+            data['success'] = False
+            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+            
+        temp = dict()
+
+        data["Allow"] = "POST GET PUT DELETE OPTIONS".split()
+        
+        temp["Content-Type"] = "application/json"
+        temp["Authorization"] = "Token JWT"
+        temp["uauth"] = "Token JWT"
+        data["HEADERS"] = temp.copy()
+        temp.clear()
+        
+        data["name"] = "Assignment_Mark"
+        
+        temp["POST"] = {
+                "marks" : "Number"
+            }
+        temp["GET"] = None
+        temp["PUT"] = {
+                "marks" : "Number"
+            }
+        temp["DELETE"] = None
+        data["method"] = temp.copy()
+        temp.clear()
+
+        return Response(data=data, status=status.HTTP_200_OK)

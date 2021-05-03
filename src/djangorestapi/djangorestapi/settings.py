@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 with open(os.path.join(BASE_DIR, 'config', 'ambiguous', 'S_KEY.txt'), 'r') as key_file:
-    SECRET_KEY = key_file.read().strip()[:-2]
+    SECRET_KEY = key_file.read().strip()[1:-2]
 
 # SECURITY WARNING: don't run with debug turned on in production!
 with open(os.path.join(BASE_DIR, 'config', 'debug.txt'), 'r') as key_file:
@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'django_crontab',
+    'drf_yasg',
     
     'auth_prime',
     'user_personal',
@@ -149,6 +150,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DATA_UPLOAD_MAX_MEMORY_SIZE = 1048576*10 #10MB
 
 CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = [
     'accept',
     'accept-encoding',
@@ -163,13 +165,20 @@ CORS_ALLOW_HEADERS = [
     'uauth',
 ]
 
-'''
-CORS_ORIGIN_WHITELIST = [
-    'http://127.0.0.1:8000',
-    'http://127.0.0.1:4200'
-]
-'''
-
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        "API Token eg [Bearer (Token JWT) ]": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        },
+        "User Token eg [Bearer (Token JWT) ]": {
+            "type": "apiKey",
+            "name": "uauth",
+            "in": "header"
+        }
+    }
+}
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

@@ -25,9 +25,16 @@ class Log_View(APIView):
 
     def __init__(self):
         super().__init__()
-  
+
     def get(self, request, date=None):
         data = dict()
+        
+        isAuthorizedAPI = am_I_Authorized(request, "API")
+        if(not isAuthorizedAPI[0]):
+            data['success'] = False
+            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        
         if(date not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(not isAuthorizedUSER[0]):
@@ -52,4 +59,31 @@ class Log_View(APIView):
                 'URL_FORMAT' : '/api/analytics/log/<dd-mm-yyyy>'
             }
             return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
+
+    def options(self, request, pk=None):
+        data = dict()
+
+        isAuthorizedAPI = am_I_Authorized(request, "API")
+        if(not isAuthorizedAPI[0]):
+            data['success'] = False
+            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+            
+        temp = dict()
+
+        data["Allow"] = "GETOPTIONS".split()
+        
+        temp["Content-Type"] = "application/json"
+        temp["Authorization"] = "Token JWT"
+        temp["uauth"] = "Token JWT"
+        data["HEADERS"] = temp.copy()
+        temp.clear()
+        
+        data["name"] = "Log"
+        
+        temp["GET"] = None
+        data["method"] = temp.copy()
+        temp.clear()
+
+        return Response(data=data, status=status.HTTP_200_OK)
 

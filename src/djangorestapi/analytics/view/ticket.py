@@ -24,9 +24,16 @@ class Ticket_View(APIView):
 
     def __init__(self):
         super().__init__()
-    
+
     def post(self, request, pk=None):
         data = dict()
+        
+        isAuthorizedAPI = am_I_Authorized(request, "API")
+        if(not isAuthorizedAPI[0]):
+            data['success'] = False
+            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        
         isAuthorizedUSER = am_I_Authorized(request, "USER")
         if(isAuthorizedUSER[0] == False):
             data['success'] = False
@@ -47,6 +54,13 @@ class Ticket_View(APIView):
     
     def get(self, request, pk=None):
         data = dict()
+        
+        isAuthorizedAPI = am_I_Authorized(request, "API")
+        if(not isAuthorizedAPI[0]):
+            data['success'] = False
+            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        
         if(pk not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(not isAuthorizedUSER[0]):
@@ -74,7 +88,7 @@ class Ticket_View(APIView):
                         return Response(data = data, status=status.HTTP_202_ACCEPTED)
                     else:
                         data['success'] = False
-                        data['message'] = "item is invalid, only 0 1 2 allowed"
+                        data['message'] = "item is invalid, only 0(all) 1(solved) 2(unsolved) allowed"
                         return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
                 else:
                     data['success'] = False
@@ -90,6 +104,13 @@ class Ticket_View(APIView):
    
     def delete(self, request, pk=None):
         data = dict()
+        
+        isAuthorizedAPI = am_I_Authorized(request, "API")
+        if(not isAuthorizedAPI[0]):
+            data['success'] = False
+            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        
         if(pk not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(isAuthorizedUSER[0] == False):
@@ -128,5 +149,36 @@ class Ticket_View(APIView):
                 'URL_FORMAT' : '/api/analytics/ticket/<id>'
             }
             return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
+
+    def options(self, request, pk=None):
+        data = dict()
+
+        isAuthorizedAPI = am_I_Authorized(request, "API")
+        if(not isAuthorizedAPI[0]):
+            data['success'] = False
+            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+            
+        temp = dict()
+
+        data["Allow"] = "POST GET DELETE OPTIONS".split()
+        
+        temp["Content-Type"] = "application/json"
+        temp["Authorization"] = "Token JWT"
+        temp["uauth"] = "Token JWT"
+        data["HEADERS"] = temp.copy()
+        temp.clear()
+        
+        data["name"] = "Token"
+        
+        temp["POST"] = {
+                "ticket_body" : "String"
+            }
+        temp["GET"] = None
+        temp["DELETE"] = None
+        data["method"] = temp.copy()
+        temp.clear()
+
+        return Response(data=data, status=status.HTTP_200_OK)
 
 

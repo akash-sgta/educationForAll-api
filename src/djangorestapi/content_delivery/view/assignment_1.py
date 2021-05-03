@@ -32,6 +32,13 @@ class Assignment_1_View(APIView):
     
     def post(self, request, pk=None):
         data = dict()
+        
+        isAuthorizedAPI = am_I_Authorized(request, "API")
+        if(not isAuthorizedAPI[0]):
+            data['success'] = False
+            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        
         isAuthorizedUSER = am_I_Authorized(request, "USER")
         if(isAuthorizedUSER[0] == False):
             data['success'] = False
@@ -57,6 +64,13 @@ class Assignment_1_View(APIView):
     
     def get(self, request, pk=None):
         data = dict()
+        
+        isAuthorizedAPI = am_I_Authorized(request, "API")
+        if(not isAuthorizedAPI[0]):
+            data['success'] = False
+            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        
         if(pk not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(isAuthorizedUSER[0] == False):
@@ -106,6 +120,13 @@ class Assignment_1_View(APIView):
     
     def put(self, request, pk=None):
         data = dict()
+        
+        isAuthorizedAPI = am_I_Authorized(request, "API")
+        if(not isAuthorizedAPI[0]):
+            data['success'] = False
+            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        
         if(pk not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(isAuthorizedUSER[0] == False):
@@ -146,6 +167,13 @@ class Assignment_1_View(APIView):
     
     def delete(self, request, pk=None):
         data = dict()
+        
+        isAuthorizedAPI = am_I_Authorized(request, "API")
+        if(not isAuthorizedAPI[0]):
+            data['success'] = False
+            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        
         if(pk not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(isAuthorizedUSER[0] == False):
@@ -183,4 +211,43 @@ class Assignment_1_View(APIView):
                 'URL_FORMAT' : '/api/content/assignment/<id>'
             }
             return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
+
+    def options(self, request, pk=None):
+        data = dict()
+
+        isAuthorizedAPI = am_I_Authorized(request, "API")
+        if(not isAuthorizedAPI[0]):
+            data['success'] = False
+            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
             
+        temp = dict()
+
+        data["Allow"] = "POST GET PUT DELETE OPTIONS".split()
+        
+        temp["Content-Type"] = "application/json"
+        temp["Authorization"] = "Token JWT"
+        temp["uauth"] = "Token JWT"
+        data["HEADERS"] = temp.copy()
+        temp.clear()
+        
+        data["name"] = "Assignment"
+        
+        temp["POST"] = {
+                "assignment_name" : "String",
+                "assignment_body" : "String",
+                "assignment_external_url_1" : "URL/null",
+                "assignment_external_url_2" : "URL/null"
+            }
+        temp["GET"] = None
+        temp["PUT"] = {
+                "assignment_name" : "String",
+                "assignment_body" : "String",
+                "assignment_external_url_1" : "URL/null",
+                "assignment_external_url_2" : "URL/null"
+            }
+        temp["DELETE"] = None
+        data["method"] = temp.copy()
+        temp.clear()
+
+        return Response(data=data, status=status.HTTP_200_OK)

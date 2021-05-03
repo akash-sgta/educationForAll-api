@@ -1,7 +1,8 @@
 from django.views.decorators.csrf import csrf_exempt
 from django.http.response import JsonResponse
 from django.shortcuts import render
-
+from rest_framework import status
+from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
 
 from auth_prime.models import (
@@ -270,3 +271,4 @@ def logger(api_key, message):
     import logging
     logging.basicConfig(filename="api_access.log", filemode="w", format='%(asctime)s | %(message)s')
     logging.warning(f"{api_key} -> {message}")
+           

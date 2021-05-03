@@ -26,6 +26,13 @@ class Votes_View(APIView):
     
     def get(self, request, word=None, pk=None, control=None):
         data = dict()
+        
+        isAuthorizedAPI = am_I_Authorized(request, "API")
+        if(not isAuthorizedAPI[0]):
+            data['success'] = False
+            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        
         if(word not in (None, "") and pk not in (None, "") and control not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(not isAuthorizedUSER[0]):
@@ -73,3 +80,30 @@ class Votes_View(APIView):
                 'URL_FORMAT' : '/api/content/votes/<post/reply/replyD>-<id>-<+/->'
             }
             return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
+
+    def options(self, request, pk=None):
+        data = dict()
+
+        isAuthorizedAPI = am_I_Authorized(request, "API")
+        if(not isAuthorizedAPI[0]):
+            data['success'] = False
+            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+            
+        temp = dict()
+
+        data["Allow"] = "GET OPTIONS".split()
+        
+        temp["Content-Type"] = "application/json"
+        temp["Authorization"] = "Token JWT"
+        temp["uauth"] = "Token JWT"
+        data["HEADERS"] = temp.copy()
+        temp.clear()
+        
+        data["name"] = "Vote"
+        
+        temp["POST"] = None
+        data["method"] = temp.copy()
+        temp.clear()
+
+        return Response(data=data, status=status.HTTP_200_OK)

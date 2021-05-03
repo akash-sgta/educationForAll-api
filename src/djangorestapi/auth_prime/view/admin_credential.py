@@ -27,9 +27,16 @@ class Admin_Credential_View(APIView):
 
     def __init__(self):
         super().__init__()
-    
+
     def post(self, request, pk=None):
         data = dict()
+        
+        isAuthorizedAPI = am_I_Authorized(request, "API")
+        if(not isAuthorizedAPI[0]):
+            data['success'] = False
+            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        
         isAuthorizedUSER = am_I_Authorized(request, "USER")
         if(isAuthorizedUSER[0] == False):
             data['success'] = False
@@ -74,6 +81,13 @@ class Admin_Credential_View(APIView):
     
     def get(self, request, pk=None):
         data = dict()
+                
+        isAuthorizedAPI = am_I_Authorized(request, "API")
+        if(not isAuthorizedAPI[0]):
+            data['success'] = False
+            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        
         if(pk not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(isAuthorizedUSER[0] == False):
@@ -87,8 +101,8 @@ class Admin_Credential_View(APIView):
                     return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
                 else:
                     try:
-                        if(int(pk) == 0 or int(pk) == user_id): #self
-                            admin_cred_ref = Admin_Credential.objects.get(user_credential_id = user_id)
+                        if(int(pk) == 0 or int(pk) == isAuthorizedUSER[1]): #self
+                            admin_cred_ref = Admin_Credential.objects.get(user_credential_id = isAuthorizedUSER[1])
                             privileges = Admin_Cred_Admin_Prev_Int.objects.filter(admin_credential_id = admin_cred_ref.admin_credential_id)
                             priv_list = list()
                             for priv in privileges:
@@ -151,6 +165,13 @@ class Admin_Credential_View(APIView):
 
     def put(self, request, pk=None):
         data = dict()
+
+        isAuthorizedAPI = am_I_Authorized(request, "API")
+        if(not isAuthorizedAPI[0]):
+            data['success'] = False
+            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+
         if(pk not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(isAuthorizedUSER[0] == False):
@@ -272,6 +293,13 @@ class Admin_Credential_View(APIView):
     
     def delete(self, request, pk=None):
         data = dict()
+
+        isAuthorizedAPI = am_I_Authorized(request, "API")
+        if(not isAuthorizedAPI[0]):
+            data['success'] = False
+            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+
         if(pk not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(isAuthorizedUSER[0] == False):
@@ -324,3 +352,37 @@ class Admin_Credential_View(APIView):
                 'URL_FORMAT' : '/api/admin/cred/<id>'
             }
             return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
+
+    def options(self, request, pk=None):
+        data = dict()
+
+        isAuthorizedAPI = am_I_Authorized(request, "API")
+        if(not isAuthorizedAPI[0]):
+            data['success'] = False
+            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+            
+        temp = dict()
+
+        data["Allow"] = "POST GET PUT DELETE OPTIONS".split()
+        
+        temp["Content-Type"] = "application/json"
+        temp["Authorization"] = "Token JWT"
+        temp["uauth"] = "Token JWT"
+        data["HEADERS"] = temp.copy()
+        temp.clear()
+        
+        data["name"] = "Admin_Credential"
+        
+        temp["POST"] = {
+                "user_id" : "Number"
+            }
+        temp["GET"] = None
+        temp["PUT"] = {
+                "privilege" : "Number"
+            }
+        temp["DELETE"] = None
+        data["method"] = temp.copy()
+        temp.clear()
+
+        return Response(data=data, status=status.HTTP_200_OK)
