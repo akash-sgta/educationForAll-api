@@ -10,35 +10,35 @@
 base_api
     │
     ├ analytics
-    │    ├ Token
-    │    └ Log
+    │    ├ Token  <analytics/ticket/>
+    │    └ Log    <analytics/log/>
     │
     ├ auth_prime
-    │    ├ User_Credential
-    │    ├ User_Profile
-    │    ├ Admin_Credential
-    │    ├ Admin_Privilege
-    │    └ Image
+    │    ├ User_Credential  <user/cred/>
+    │    ├ User_Profile <user/prof/>
+    │    ├ Admin_Credential <admin/cred/>  
+    │    ├ Admin_Privilege  <admin/priv/>
+    │    └ Image    <user/image/>
     │
     ├ content_delivery
-    │    ├ Coordinator
-    │    ├ Subject
-    │    ├ Forum
-    │    ├ Reply <nested>
-    │    ├ Lecture
-    │    ├ Assignment
-    │    ├ Video
-    │    └ Post
+    │    ├ Coordinator  <content/cordinator/>
+    │    ├ Subject  <content/subject/>
+    │    ├ Forum  <content/forum/>
+    │    ├ Reply <nested>  <content/reply/>  <content/reply2reply/>
+    │    ├ Lecture  <content/lecture/>
+    │    ├ Assignment  <content/assignment/> <content/mark/>
+    │    ├ Video  <content/video/>
+    │    └ Post  <content/post/>
     │
     ├ cronjobs
     │    ├ Notification*
     │    └ Token_Cleaner*
     │
     └ user_personal
-        ├ Submission
-        ├ Diary
-        ├ Enroll
-        └ Notification
+        ├ Submission  <personal/submission/>
+        ├ Diary  <personal/diary/>
+        ├ Enroll  <personal/enroll/>
+        └ Notification  <personal/notification/>
 ```
 
 ***
@@ -51,7 +51,12 @@ base_api
 
 ### System
 
-```ubuntu 18.04 LTS```
+```
+ubuntu 18.04 LTS
+nginx 1.14.0
+python 3.6.9
+gcc 7.5.0
+```
 
 ***
 

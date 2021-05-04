@@ -10,7 +10,7 @@ urlpatterns = [
     url(r'api/admin/cred/(?P<pk>\d*)', views.acView.as_view(), name="Admin_Cred_View"),
     url(r'api/admin/prev/(?P<pk>\d*)', views.apView.as_view(), name="Admin_Prev_View"),
 
-    url(r'web/api/(?P<word>\w*)/', views.api_token_web, name="API_TOKEN"),
-    url(r'web/api/', views.api_token_web, name="API_TOKEN"),
+    url(r'web/api/(?P<word>\w*)', views.apiView.as_view(), name="API_TOKEN"),
+    url(r'web/api/', views.apiView.as_view(), name="API_TOKEN")
 
 ]

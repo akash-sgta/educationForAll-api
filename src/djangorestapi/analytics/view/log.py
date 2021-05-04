@@ -42,16 +42,10 @@ class Log_View(APIView):
                 data['message'] = f"error:USER_NOT_AUTHORIZED, message:{isAuthorizedUSER[1]}"
                 return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
             else:
-                isAuthorizedAPI = am_I_Authorized(request, "API")
-                if(not isAuthorizedAPI):
-                    data['success'] = False
-                    data['message'] = f"error:API_NOT_AUTHORIZED, message:{isAuthorizedAPI[1]}"
-                    return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
-                else:
-                    data['success'] = True
-                    date = datetime.strptime(date, '%d-%m-%Y').strftime('%Y-%m-%d').split()[0]
-                    data['date'] = Log_Serializer(Log.objects.filter(made_date__startswith=date, api_token_id=isAuthorizedAPI[1]).order_by('-log_id'), many=True).data
-                    return Response(data = data, status=status.HTTP_202_ACCEPTED)
+                data['success'] = True
+                date = datetime.strptime(date, '%d-%m-%Y').strftime('%Y-%m-%d').split()[0]
+                data['date'] = Log_Serializer(Log.objects.filter(made_date__startswith=date, api_token_id=isAuthorizedAPI[1]).order_by('-log_id'), many=True).data
+                return Response(data = data, status=status.HTTP_202_ACCEPTED)
         else:
             data['success'] = False
             data['message'] = {
@@ -62,13 +56,13 @@ class Log_View(APIView):
 
     def options(self, request, pk=None):
         data = dict()
-
+        
         isAuthorizedAPI = am_I_Authorized(request, "API")
         if(not isAuthorizedAPI[0]):
             data['success'] = False
             data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
-            
+        
         temp = dict()
 
         data["Allow"] = "GETOPTIONS".split()
