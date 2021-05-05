@@ -143,7 +143,8 @@ class Database(object):
             try:
                 cursor = self.conn.cursor()
                 cursor.execute(query)
-            except Exception as ex:
+            # except Exception as ex:
+            except ValueError as ex:
                 print(f"[x] {ex}")
                 data = None
             else:

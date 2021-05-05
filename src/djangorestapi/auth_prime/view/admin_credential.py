@@ -62,7 +62,8 @@ class Admin_Credential_View(APIView):
                         admin_cred_ref = Admin_Credential.objects.get(user_credential_id = id)
                     except Admin_Credential.DoesNotExist:
                         data['success'] = True
-                        admin_cred_ref_new = Admin_Credential(user_credential_id = user_cred_ref).save()
+                        admin_cred_ref_new = Admin_Credential(user_credential_id = user_cred_ref)
+                        admin_cred_ref_new.save()
                         data['data'] = Admin_Credential_Serializer(admin_cred_ref_new, many=False).data
                         return Response(data = data, status=status.HTTP_201_CREATED)
                     else:
@@ -95,7 +96,7 @@ class Admin_Credential_View(APIView):
                 data['message'] = f"error:USER_NOT_AUTHORIZED, message:{isAuthorizedUSER[1]}"
                 return Response(data = data)
             else:
-                if(am_I_Authorized(request, "ADMIN") < 3):
+                if(am_I_Authorized(request, "ADMIN") < 1):
                     data['success'] = False
                     data['message'] = "USER does not have required ADMIN PRIVILEGES"
                     return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)

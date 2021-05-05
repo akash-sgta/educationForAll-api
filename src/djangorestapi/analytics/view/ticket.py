@@ -101,7 +101,42 @@ class Ticket_View(APIView):
                 'URL_FORMAT' : '/api/analytics/ticket/<id>'
             }
             return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
-   
+    
+    def put(self, request, pk=None):
+        data = dict()
+        
+        isAuthorizedAPI = am_I_Authorized(request, "API")
+        if(not isAuthorizedAPI[0]):
+            data['success'] = False
+            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        
+        isAuthorizedADMIN = am_I_Authorized(request, "ADMIN")
+        if(isAuthorizedADMIN < 1):
+            data['success'] = False
+            data['message'] = f"error:USER_NOT_ADMIN"
+            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            try:
+                ticket_ref = Ticket.objects.get(ticket_id = int(pk))
+            except Ticket.DoesNotExist:
+                data['success'] = False
+                data['message'] = 'id does not exist'
+                return Response(data = data, status=status.HTTP_404_NOT_FOUND)
+            else:
+                try:
+                    ticket_ref.prime = request.data['solved']
+                    ticket_ref.save()
+                except Exception as ex:
+                    print("::", ex)
+                    data['success'] = False
+                    data['message'] = 'invalid data in json'
+                    return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    data['success'] = True
+                    data['data'] = Ticket_Serializer(ticket_ref, many=False).data
+                    return Response(data = data, status=status.HTTP_201_CREATED)
+
     def delete(self, request, pk=None):
         data = dict()
         
@@ -161,7 +196,7 @@ class Ticket_View(APIView):
             
         temp = dict()
 
-        data["Allow"] = "POST GET DELETE OPTIONS".split()
+        data["Allow"] = "POST GET PUT DELETE OPTIONS".split()
         
         temp["Content-Type"] = "application/json"
         temp["Authorization"] = "Token JWT"
@@ -172,9 +207,12 @@ class Ticket_View(APIView):
         data["name"] = "Token"
         
         temp["POST"] = {
-                "ticket_body" : "String"
+                "prime" : "Boolean"
             }
         temp["GET"] = None
+        temp["POST"] = {
+                "ticket_body" : "String"
+            }
         temp["DELETE"] = None
         data["method"] = temp.copy()
         temp.clear()

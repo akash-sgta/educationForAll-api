@@ -84,8 +84,9 @@ class Notification(models.Model):
     prime = models.BooleanField(default=False) # pinned Notification
 
     def __str__(self):
-        data = '''N [{}] || {}'''.format(
+        data = '''N [{},{}] || {}'''.format(
             self.notification_id,
+            self.prime,
             self.post_id
         )
         return data

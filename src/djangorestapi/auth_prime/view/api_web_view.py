@@ -41,7 +41,6 @@ class API_Web_View(View):
                 data_returned['pinned'] = Notification_Serializer(Notification.objects.filter(prime=True).order_by('-notification_id'), many=True).data
                 return render(request, 'auth_prime/index.html', data_returned)
             else:
-                print("------------------")
                 return render(request, 'auth_prime/signin.html')
         elif(word.lower() == 'signup'):
             isAuthorizedAPI = cookie.check_authentication_info(request)

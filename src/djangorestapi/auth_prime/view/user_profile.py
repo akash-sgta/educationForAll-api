@@ -11,7 +11,8 @@ from auth_prime.important_modules import (
 
 from auth_prime.models import (
         User_Credential,
-        User_Profile
+        User_Profile,
+        Image
     )
 from auth_prime.serializer import (
         User_Profile_Serializer
@@ -201,15 +202,18 @@ class User_Profile_View(APIView):
                             data['message'] = "User Profile Not found"
                             return Response(data = data, status = status.HTTP_202_ACCEPTED)
                         else:
+                            if(usr.user_profile_id.user_profile_pic != None):
+                                usr.user_profile_id.user_profile_pic.delete()
                             usr.user_profile_id.delete()
                             data['success'] = True
                             data['message'] = "User Profile Deleted"
                             return Response(data = data, status = status.HTTP_202_ACCEPTED)
                     else:
                         isAuthorizedADMIN = am_I_Authorized(request, 'ADMIN')
-                        if(isAuthorizedADMIN > 0):
+                        if(isAuthorizedADMIN > 2):
                             if(int(pk) == 666):
                                 User_Profile.objects.all().delete()
+                                Image.objects.all().delete()
                                 data['success'] = True
                                 data['message'] = "All User Profile(s) Deleted"
                                 return Response(data = data, status = status.HTTP_202_ACCEPTED)
@@ -226,6 +230,8 @@ class User_Profile_View(APIView):
                                         data['message'] = "User Profile Not found"
                                         return Response(data = data, status = status.HTTP_202_ACCEPTED)
                                     else:
+                                        if(usr.user_profile_id.user_profile_pic != None):
+                                            usr.user_profile_id.user_profile_pic.delete()
                                         usr.user_profile_id.delete()
                                         data['success'] = True
                                         data['message'] = "User Profile Deleted by ADMIN"

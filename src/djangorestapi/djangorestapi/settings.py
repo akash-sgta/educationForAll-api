@@ -182,7 +182,6 @@ SWAGGER_SETTINGS = {
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CRON = os.path.join(BASE_DIR, 'cronjo')
 CRONJOBS = [
     ('1 * * * *', 'cronjobs.bot_telegram.main'), # every 1 minute telegram backend
     ('*/1 * * * *', 'cronjobs.telegram_notificaiton.main'), # every 1 minute notificaition checker

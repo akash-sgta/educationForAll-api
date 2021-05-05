@@ -13,7 +13,9 @@ from auth_prime.important_modules import (
 
 from auth_prime.models import (
         User_Credential,
-        User_Token_Table
+        User_Profile,
+        User_Token_Table,
+        Image
     )
 from auth_prime.serializer import (
         User_Credential_Serializer
@@ -77,12 +79,15 @@ class User_Credential_View(APIView):
                     return Response(data = data, status = status.HTTP_403_FORBIDDEN)
                 else:
                     user_cred_de_serialized.initial_data['user_password'] = create_password_hashed(user_cred_de_serialized.initial_data['user_password'])
-                    # print(f"::{user_cred_de_serialized.initial_data['user_password']}")
                     if(user_cred_de_serialized.is_valid()):
                         user_cred_de_serialized.save()
                         data['success'] = True
                         user_cred_ref = User_Credential.objects.get(user_credential_id = user_cred_de_serialized.data['user_credential_id'])
-                        data['data'] = create_token(user_cred_ref)
+                        data['data'] = {
+                                "AWT" : create_token(user_cred_ref),
+                                "cred" : user_cred_de_serialized.data
+                            }
+                        data['data']['cred']['user_password'] = "■ ■ ■ ■ ■ ■ ■"
                         return Response(data = data, status=status.HTTP_201_CREATED)
                     else:
                         data['success'] = False
@@ -114,7 +119,7 @@ class User_Credential_View(APIView):
                     else:
                         isAuthorizedADMIN = am_I_Authorized(request, "ADMIN")
                         if(isAuthorizedADMIN > 0):
-                            if(int(pk) == 666):
+                            if(int(pk) == 54673257461630679457):
                                 user_cred_ref = User_Credential.objects.all()
                                 data['success'] = True
                                 data['data'] = User_Credential_Serializer(user_cred_ref, many=True).data
@@ -129,6 +134,7 @@ class User_Credential_View(APIView):
                                 else:
                                     data['success'] = True
                                     data['data'] = User_Credential_Serializer(user_cred_ref, many=False).data
+                                    data['data']['user_password'] = "■ ■ ■ ■ ■ ■ ■"
                                     return Response(data = data, status = status.HTTP_202_ACCEPTED)
                         else:
                             data['success'] = False
@@ -211,11 +217,16 @@ class User_Credential_View(APIView):
             else:
                 try:
                     if(int(pk) == 0 or int(pk) == isAuthorizedUSER[1]): #self
-                        User_Credential.objects.get(user_credential_id = isAuthorizedUSER[1]).delete()
+                        user_cred_ref = User_Credential.objects.get(user_credential_id = isAuthorizedUSER[1])
+                        if(user_cred_ref.user_profile_id != None):
+                            if(user_cred_ref.user_profile_id.user_profile_pic != None):
+                                user_cred_ref.user_profile_id.user_profile_pic.delete()
+                            user_cred_ref.user_profile_id.delete()
+                        user_cred_ref.delete()
                         data['success'] = True
                         data['message'] = "User Deleted"
                         return Response(data = data, status = status.HTTP_202_ACCEPTED)
-                    elif(int(pk) == 666): # logout ----------------------------------------LOGOUT HERE
+                    elif(int(pk) == 48112959837082048697): # logout ----------------------------------------LOGOUT HERE
                         try:
                             user_token_ref = User_Token_Table.objects.get(user_credential_id = isAuthorizedUSER[1])
                         except User_Token_Table.DoesNotExist:
@@ -229,8 +240,11 @@ class User_Credential_View(APIView):
                             return Response(data = data, status = status.HTTP_202_ACCEPTED)
                     else:
                         if(am_I_Authorized(request, 'ADMIN') > 0):
-                            if(int(pk) == 666):
+                            if(int(pk) == 54673257461630679457):
                                 User_Credential.objects.all().exclude(user_credential_id = isAuthorizedUSER[1]).delete()
+                                user_cred = User_Credential.objects.get(user_credential_id = isAuthorizedUSER[1])
+                                if(user_cred.user_profile_id != None):
+                                    User_Profile.objects.all().exclude(user_profile_id = user_cred.user_profile_id.user_profile_id).delete()
                                 data['success'] = True
                                 data['message'] = "All User(s) Deleted"
                                 return Response(data = data, status = status.HTTP_202_ACCEPTED)

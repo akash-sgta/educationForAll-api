@@ -171,6 +171,7 @@ class Post(models.Model):
 
     user_credential_id = models.ForeignKey(User_Credential, null=True, blank=True, on_delete=models.SET_NULL)
     subject_id = models.ForeignKey(Subject, null=True, blank=True, on_delete=models.SET_NULL)
+    
     video_id = models.ForeignKey(Video, null=True, blank=True, on_delete=models.SET_NULL)
     forum_id = models.ForeignKey(Forum, null=True, blank=True, on_delete=models.SET_NULL)
     lecture_id = models.ForeignKey(Lecture, null=True, blank=True, on_delete=models.SET_NULL)

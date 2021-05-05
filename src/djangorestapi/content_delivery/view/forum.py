@@ -42,7 +42,7 @@ class Forum_View(APIView):
             data['message'] = f"error:USER_NOT_AUTHORIZED, message:{isAuthorizedUSER[1]}"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         else:
-            coordinator_ref = Coordinator.objects.filter(user_credential_id = auth[1])
+            coordinator_ref = Coordinator.objects.filter(user_credential_id = isAuthorizedUSER[1])
             if(len(coordinator_ref) < 1):
                 data['success'] = False
                 data['message'] = "USER not COORDINATOR"

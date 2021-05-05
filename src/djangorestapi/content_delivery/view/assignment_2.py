@@ -144,7 +144,7 @@ class Assignment_2_View(APIView):
             
         temp = dict()
 
-        data["Allow"] = "POST GET PUT DELETE OPTIONS".split()
+        data["Allow"] = "GET PUT OPTIONS".split()
         
         temp["Content-Type"] = "application/json"
         temp["Authorization"] = "Token JWT"

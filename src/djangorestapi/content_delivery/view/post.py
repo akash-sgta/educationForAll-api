@@ -20,7 +20,13 @@ from content_delivery.models import (
         Coordinator,
         Subject,
         Subject_Coordinator_Int,
-        Post
+        Post,
+        Assignment,
+        Lecture,
+        Forum,
+        Reply,
+        ReplyToReply,
+        Video
     )
 from content_delivery.serializer import (
         Subject_Serializer,
@@ -135,7 +141,7 @@ class Post_View(APIView):
                     enroll_ref_list = Enroll.objects.filter(user_credential_id = isAuthorizedUSER[1]).values('subject_id')
                     temp = list()
                     for sub_id in enroll_ref_list:
-                        temp.extend(Post_Serializer(Post.objects.all().order_by('-pk'), many=True).data)
+                        temp.extend(Post_Serializer(Post.objects.filter(subject_id = sub_id['subject_id']).order_by('-pk'), many=True).data)
                     data['success'] = True
                     data['data'] = temp.copy()
                     return Response(data = data, status=status.HTTP_202_ACCEPTED)
@@ -230,6 +236,10 @@ class Post_View(APIView):
                     return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
                 else:
                     if(int(pk) == 0): #all
+                        Video.objects.all().delete()
+                        Forum.objects.all().delete()
+                        Lecture.objects.all().delete()
+                        Assignment.objects.all.delete()
                         Post.objects.all().delete()
                         data['success'] = True
                         data['message'] = "All POST(s) deleted"
@@ -242,6 +252,14 @@ class Post_View(APIView):
                             data['message'] = "item does not exist or does not belong to user"
                             return Response(data = data, status=status.HTTP_404_NOT_FOUND)
                         else:
+                            if(post_ref.video_id != None):
+                                post_ref.video_id.delete()
+                            if(post_ref.lecture_id != None):
+                                post_ref.lecture_id.delete()
+                            if(post_ref.forum_id != None):
+                                post_ref.forum_id.delete()
+                            if(post_ref.assignment_id != None):
+                                post_ref.assignment_id.delete()
                             post_ref.delete()
                             data['success'] = True
                             data['message'] = "POST deleted"
@@ -253,7 +271,6 @@ class Post_View(APIView):
                 'URL_FORMAT' : '/api/content/post/<id>'
             }
             return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
-
 
     def options(self, request, pk=None):
         data = dict()
