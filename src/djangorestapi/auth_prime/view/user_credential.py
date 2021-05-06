@@ -62,7 +62,9 @@ class User_Credential_View(APIView):
                         return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
                     else:
                         data['success'] = True
-                        data['data'] = create_token(user_cred_ref)
+                        data['data'] = {
+                                "JWT" : create_token(user_cred_ref)
+                            }
                         return Response(data = data, status=status.HTTP_201_CREATED)
         
         elif(request.data['action'].lower() == 'signup'):
@@ -84,7 +86,7 @@ class User_Credential_View(APIView):
                         data['success'] = True
                         user_cred_ref = User_Credential.objects.get(user_credential_id = user_cred_de_serialized.data['user_credential_id'])
                         data['data'] = {
-                                "AWT" : create_token(user_cred_ref),
+                                "JWT" : create_token(user_cred_ref),
                                 "cred" : user_cred_de_serialized.data
                             }
                         data['data']['cred']['user_password'] = "■ ■ ■ ■ ■ ■ ■"
