@@ -112,3 +112,10 @@ sudo /etc/init.d/nginx restart
 
 sudo /etc/init.d/nginx stop
 ```
+
+#### LOC 
+
+```
+find . -name '*.php' | xargs wc -l | tail -1
+8797
+```
