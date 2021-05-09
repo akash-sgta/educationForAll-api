@@ -81,9 +81,12 @@ class Notification(models.Model):
     notification_body = models.TextField(null=False, blank=False)
     made_date = models.DateTimeField(auto_now_add=True)
 
+    prime = models.BooleanField(default=False) # pinned Notification
+
     def __str__(self):
-        data = '''N [{}] || {}'''.format(
+        data = '''N [{},{}] || {}'''.format(
             self.notification_id,
+            self.prime,
             self.post_id
         )
         return data

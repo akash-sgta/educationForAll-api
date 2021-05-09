@@ -1,0 +1,67 @@
+{% extends 'master.html' %}
+{% load static %}
+<!-- ----------------------------------------------------------------------------------- -->
+{% block title_block %} | API{%endblock%}
+<!-- ----------------------------------------------------------------------------------- -->
+{% block head_block %}
+
+<script src="{% static 'main/js/main.js' %}"></script>
+
+{% endblock %}
+<!-- ----------------------------------------------------------------------------------- -->
+{% block main_block %}
+
+<center>
+    <table>
+        <tbody>
+            <form action="{% url 'API_TOKEN' word='signin' %}" enctype="multipart/form-data" method="POST" autocomplete="on">
+                {% csrf_token %}
+                <input type="text" name="form_type" id="form_type" value="signin" hidden required>
+                <tr>
+                    <th>Email ID</th>
+                    <td>
+                        <input type="email" name="user_email" id="user_email"  onkeyup="signin_vars()" required autofocus>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Password</th>
+                    <td>
+                        <input type="password" name="user_password" id="user_password" onkeyup="signin_vars()" required>
+                    </td>
+                </tr>
+                <tr>
+                    <th></th>
+                    <td>
+                        <button type="submit" id="user_submit" value="signin" disabled>Submit</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <center>
+                        {% if messages %}
+                        <ul style="list-style-type:none;" class="messages">
+                            {% for message in messages %}
+                            <li>{{ message }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                        </center>
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        Do not have an account ?
+                    </th>
+                    <td>
+                        <a href="{% url 'API_TOKEN' word='signup' %}" style="text-decoration: none;">Click Here</a>
+                    </td>
+                </tr>
+            </form>
+        </tbody>
+    </table>
+    <br>
+    <hr>
+</center>
+
+{% endblock %}
+<!-- ----------------------------------------------------------------------------------- -->

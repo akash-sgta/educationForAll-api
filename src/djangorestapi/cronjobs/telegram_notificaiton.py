@@ -7,6 +7,8 @@ import sys
 # ---------------------------------------------
 
 def main():
+    os.system('clear')
+
     BASE_DIR = Path(__file__).resolve().parent.parent
     LOG_PATH = os.path.join(BASE_DIR, 'log', 'telegram_notification.log')
 
@@ -71,4 +73,4 @@ def main():
                 log.write("[.] Notification Left : 0\n")
         bot.disconnect()
 
-# main()
+main()

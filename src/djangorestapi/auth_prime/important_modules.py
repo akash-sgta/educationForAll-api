@@ -1,7 +1,8 @@
 from django.views.decorators.csrf import csrf_exempt
 from django.http.response import JsonResponse
-from django.shortcuts import render
-
+from django.shortcuts import render, redirect
+from rest_framework import status
+from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
 
 from auth_prime.models import (
@@ -43,17 +44,16 @@ class Cookie(object):
                 raise Exception('Required Arguments not found.')
             else:
                 request.session.set_expiry(0)
+                print("============")
                 response = render(request, file_path, data)
+                print("============")
                 for item in key_list:
                     if(item not in ('file_path','data')):
-                        if(type(kwargs[item]) == type(dict())):
-                            response.set_cookie(f"{item}", json.dumps(kwargs[item]))
-                        else:
-                            response.set_cookie(f"{item}", kwargs[item])
+                        response.set_cookie(f"{item}", kwargs[item])
 
         except Exception as ex:
             print(f"[x] SET COOKIE Ex : {str(ex)}")
-            return None
+            return redirect('API_TOKEN', word="signin")
         else:
             return response
     # ------------------------------------------
@@ -91,10 +91,8 @@ class Cookie(object):
                 user = Api_Token_Table.objects.get(pk=pk)
                 tauth = f"{user.pk}::{self.make_hash(user.user_email, user.user_password)}"
         except Exception as ex:
-            from django.shortcuts import redirect
-
             print(f"[x] SET AUTH Ex : {str(ex)}")
-            return redirect('API_TOKEN')
+            return redirect('API_TOKEN', word="")
         else:
             return self.setCookie(request, file_path=file_path, data=data, tauth=tauth)
 
@@ -270,3 +268,4 @@ def logger(api_key, message):
     import logging
     logging.basicConfig(filename="api_access.log", filemode="w", format='%(asctime)s | %(message)s')
     logging.warning(f"{api_key} -> {message}")
+           

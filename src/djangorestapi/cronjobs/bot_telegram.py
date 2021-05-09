@@ -33,12 +33,17 @@ class TG_BOT(Bot, Database):
             }
         else:
             self.type = 'mysql'
+            BASE_DIR = Path(__file__).resolve().parent.parent
+            with open(os.path.join(BASE_DIR, 'config', 'ambiguous', 'DB_KEY.txt'), 'r') as db:
+                text = db.readlines()
+                for i in range(len(text)):
+                    text[i] = text[i].strip()[1:-2]
             self.data = {
-                'database':  "appDB",
-                'user': "admin",
-                'password': "GANDUgandu",
-                'host': "projectdatabase1.czbsimzcrcxe.ap-south-1.rds.amazonaws.com",
-                'port' : "6969"
+                'database':  text[0]+"2",
+                'user': text[0],
+                'password': text[1],
+                'host': text[2],
+                'port' : text[3]
             }
 
         #-----------------------------------------------------------------------
@@ -155,25 +160,25 @@ class TG_BOT(Bot, Database):
                 returnData = self.select_sql(
                     appName = 'auth_prime',
                     tableName = 'user_credential',
-                    columnName = ['user_credential_id'],
-                    condition = f'''user_email LIKE "{data['email'].lower()}" AND user_password LIKE "{data['password']}"'''
+                    columnName = ['user_credential_id', 'user_password'],
+                    condition = f'''user_email LIKE "{data['email'].lower()}"'''
                 )
                 self.disconnect()
-                
-                if(len(data) < 1):
+                if(returnData == None or len(returnData) < 1):
                     text = '<b>Invalid Credentials !</b>'
                 else:
-                    self.connect()
-                    data = self.update_sql(
-                        appName = 'auth_prime',
-                        tableName = 'user_credential',
-                        columnChanges = f'''user_tg_id = {update.effective_chat.id}''',
-                        condition = f'''user_credential_id = {returnData[0][0]}'''
-                    )
-                    self.commit()
-                    self.disconnect()
-                    text = '''Successful.
-                    \nTelegram Account added to profile. 😀'''
+                    if(returnData[0][1] != data['password']):
+                        text = '''Invalid Credentials..\nCheck Again..'''
+                    else:
+                        self.connect()
+                        data = self.update_sql(
+                            appName = 'auth_prime',
+                            tableName = 'user_credential',
+                            columnChanges = f'''user_tg_id = {update.effective_chat.id}''',
+                            condition = f'''user_credential_id = {returnData[0][0]}'''
+                        )
+                        self.commit()
+                        self.disconnect()
             except Exception as ex:
                 code = 'tg001'
                 if(self.DEBUG == True):
@@ -183,10 +188,12 @@ class TG_BOT(Bot, Database):
                 text = f'Unsuccessful.\nError Code\t:\t{code}\nMessage\t:\t{message}'
             else:
                 del(self.IN_TRANSIT[update.effective_chat.id])
-            finally:
-                self.send(update.effective_chat.id, text)
-                with open(self.LOG_PATH, 'a') as log:
-                    log.write(f'[T] LOGIN_3 | ID\t:\t{update.effective_chat.id} | NAME\t:\t{update.effective_chat.id}\n')
+                text = '''Successful.
+                    \nTelegram Account added to profile. 😀'''
+            
+            self.send(update.effective_chat.id, text)
+            with open(self.LOG_PATH, 'a') as log:
+                log.write(f'[T] LOGIN_3 | ID\t:\t{update.effective_chat.id} | NAME\t:\t{update.effective_chat.id}\n')
 
     def send_notifications(self, user_id, text):
         self.send(user_id, text)
@@ -220,6 +227,7 @@ def main():
         TG_TOKEN = secret.read().strip()[:-2]
     bot = TG_BOT(api_key=TG_TOKEN)
     if(bot.run() == True):
+        os.system('clear')
         print("Bot started polling data from server ...")
         try:
             bot.run('START_POLLING')
@@ -228,3 +236,10 @@ def main():
                 log.write("="*25, "\n")
 
 # main()
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+with open(os.path.join(BASE_DIR, 'config', 'ambiguous', 'DB_KEY.txt'), 'r') as db:
+    text = db.readlines()
+    for i in range(len(text)):
+        text[i] = text[i].strip()[1:-2]
+print(text)

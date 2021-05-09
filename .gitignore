@@ -140,3 +140,4 @@ uwsgi-emperor.log
 djangorestapi.sock
 /tmp
 .log
+Static/
