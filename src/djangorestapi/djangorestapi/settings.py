@@ -12,32 +12,64 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 from pathlib import Path
 import os
-
+import getpass
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-with open(os.path.join(BASE_DIR, 'config', 'ambiguous', 'S_KEY.txt'), 'r') as key_file:
+with open(os.path.join(BASE_DIR, 'config', 'keys', 'S_KEY.txt'), 'r') as key_file:
     SECRET_KEY = key_file.read().strip()[1:-2]
 
 # SECURITY WARNING: don't run with debug turned on in production!
 with open(os.path.join(BASE_DIR, 'config', 'debug.txt'), 'r') as key_file:
     DEBUG = key_file.read().strip()[1:-1]
-    if(DEBUG == 'True'):
+    if(DEBUG.lower() == 'true'):
         DEBUG = True
+        from config.development.settings_extended import *
     else:
         DEBUG = False
-
-if(DEBUG):
-    from config.development.settings_extended import *
-else:
-    from config.production.settings_extended import *
+        from config.production.settings_extended import *
 
 # ALLOWED_HOSTS in configFile
+# Database in configFile
+# https://docs.djangoproject.com/en/3.1/ref/settings/#databases
+
+# for surity
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+#create user specific config and ini
+try:
+    fp = open(os.path.join(BASE_DIR, 'config', 'server.conf'), 'r')
+    fp.close() # file found no action required
+except FileNotFoundError:
+    USER = getpass.getuser()
+
+    # print server.config
+    fp_in = open(os.path.join(BASE_DIR, 'config', 'ambiguous', 'conf.draft'), 'r')
+    lines_in = fp_in.readlines()
+    fp_in.close()
+    fp_out = open(os.path.join(BASE_DIR, 'config', 'server.conf'), 'w')
+    for line in lines_in:
+        if(len(line.split("<user>")) > 1):
+            fp_out.write(USER.join(line.split("<user>")))
+        else:
+            fp_out.write(line)
+    fp_out.close()
+
+    # print uwsgi.ini
+    fp_in = open(os.path.join(BASE_DIR, 'config', 'ambiguous', 'ini.draft'), 'r')
+    lines_in = fp_in.readlines()
+    fp_in.close()
+    fp_out = open(os.path.join(BASE_DIR, 'config', 'uwsgi.ini'), 'w')
+    for line in lines_in:
+        if(len(line.split("<user>")) > 1):
+            fp_out.write(USER.join(line.split("<user>")))
+        else:
+            fp_out.write(line)
+    fp_out.close()
 
 # Application definition
 
@@ -94,13 +126,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'djangorestapi.wsgi.application'
-
-
-# Database
-# https://docs.djangoproject.com/en/3.1/ref/settings/#databases
-
-DATABASES = DB_SETTINGS
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators

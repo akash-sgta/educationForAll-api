@@ -31,14 +31,14 @@ DATABASE_ROUTERS = (
 # -----------------------------------------------
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-with open(os.path.join(BASE_DIR, 'ambiguous', 'DB_KEY.txt'), 'r') as db:
+with open(os.path.join(BASE_DIR, 'keys', 'DB_KEY.txt'), 'r') as db:
     text = db.readlines()
     for i in range(len(text)):
         text[i] = text[i].strip()[1:-2]
 
-DB_SETTINGS = dict()
-DB_SETTINGS['default'] = {}
-DB_SETTINGS['auth_db'] = {
+DATABASES = dict()
+DATABASES['default'] = {}
+DATABASES['auth_db'] = {
     'ENGINE': "django.db.backends.mysql",
     'OPTIONS': {
         'sql_mode': 'traditional',
@@ -49,7 +49,7 @@ DB_SETTINGS['auth_db'] = {
     'HOST': text[2],
     'PORT': text[3]
 }
-DB_SETTINGS['app_db'] = {
+DATABASES['app_db'] = {
     'ENGINE': "django.db.backends.mysql",
     'OPTIONS': {
         'sql_mode': 'traditional',

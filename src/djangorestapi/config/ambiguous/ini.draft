@@ -1,24 +1,23 @@
 [uwsgi]
 
 # full path to Django project's root directory
-chdir            = /home/ubuntu/repositories/education-for-all/src/djangorestapi/
+chdir            = /home/<user>/repositories/education-for-all/src/djangorestapi/
 # Django's wsgi file
 module           = djangorestapi.wsgi
 # full path to python virtual env
-home             = /home/ubuntu/repositories/pyenvs/venv_education_for_all
+home             = /home/<user>/repositories/pyenvs/venv_education_for_all
 
 # enable uwsgi master process
 master          = true
 # maximum number of worker processes
-processes       = 10
-enable-thread   = true
+processes       = 5
+enable-threads   = true
 # the socket (use the full path to be safe
-socket          = /home/ubuntu/repositories/education-for-all/src/djangorestapi/djangorestapi.sock
+socket          = /home/<user>/repositories/education-for-all/src/djangorestapi/djangorestapi.sock
 # socket permissions
 chmod-socket    = 664
 # clear environment on exit
 vacuum          = true
 # daemonize uwsgi and write messages into given log
 # daemonize       = /home/udoms/uwsgi-emperor.log
-
 http            = 127.0.0.1:8000

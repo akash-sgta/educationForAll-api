@@ -1,0 +1,34 @@
+server {
+    # server_names_hash_bucket_size  64;
+
+    listen  80;
+    listen [::]:80;
+    server_name localhost *.ngrok.io;
+    charset utf-8;
+
+    client_max_body_size    4M;
+
+    error_page 400 401 403 404 /40x.html;
+    location = /40x.html {
+                alias /home/<user>/repositories/education-for-all/src/djangorestapi/templates;
+                internal;
+    }
+
+    error_page 500 502 503 504 /50x.html;
+    location = /50x.html {
+                alias /home/<user>/repositories/education-for-all/src/djangorestapi/templates;
+                internal;
+    }
+
+    location /media {
+        alias /home/<user>/repositories/education-for-all/src/djangorestapi/media;
+    }
+
+    location /static {
+        alias /home/<user>/repositories/education-for-all/src/djangorestapi/static;
+    }
+
+    location / {
+        proxy_pass "http://127.0.0.1:8000";
+    }
+}

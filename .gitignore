@@ -141,3 +141,5 @@ djangorestapi.sock
 /tmp
 .log
 Static/
+*.conf
+*.ini
