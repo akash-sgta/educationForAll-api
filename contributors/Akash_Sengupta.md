@@ -4,7 +4,7 @@
 
 ### akashofficial1998@gmail.com
 
-### +91-9051125428 (Telegram)
+### https://t.me/a_seng_420 (Telegram)
 
 ### <https://github.com/akash_sgta>
 
