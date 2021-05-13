@@ -72,7 +72,7 @@ apt install python3 python3-pip python3-dev libmysqlclient-dev build-essential g
 
 python -m pip install -r requirements
 
-python manage.py makemigrations auth_prime analytics user_personal content_delivery
+python manage.py makemigrations auth_prime analytics user_personal content_delivery cronjobs
 
 python manage.py migrate --database=auth_db
 

@@ -91,6 +91,7 @@ INSTALLED_APPS = [
     'user_personal',
     'content_delivery',
     'analytics',
+    'cronjobs'
 ]
 
 MIDDLEWARE = [
@@ -207,8 +208,12 @@ SWAGGER_SETTINGS = {
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+CRONTAB_LOCK_JOBS = True
+CRONTAB_COMMAND_SUFFIX = '2>&1'
+FILE = os.path.join(BASE_DIR, 'log', 'cronlog.error.log')
 CRONJOBS = [
-    ('1 * * * *', 'cronjobs.bot_telegram.main'), # every 1 minute telegram backend
-    ('*/1 * * * *', 'cronjobs.telegram_notificaiton.main'), # every 1 minute notificaition checker
-    ('*/1 * * * *', 'cronjobs.token_checker.main') # every 1 minute user token checker
+    # ('*/1 * * * *', 'cronjobs.cron.test', f'>> {FILE}'), # test module for cronjob
+    ('*/1 * * * *', 'cronjobs.cron.token_checker', f'>> {FILE}'), # token expiry checker
+    ('*/1 * * * *', 'cronjobs.cron.telegram_notification', f'>> {FILE}'), # notifications via TG
+    # ('1 * * * *', 'cronjobs.cron.telegram_bot', f'>> {FILE}'), # this works well
 ]

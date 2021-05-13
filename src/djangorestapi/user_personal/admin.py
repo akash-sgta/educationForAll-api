@@ -1,11 +1,14 @@
 from django.contrib import admin
 
-from user_personal.models import Diary
-from user_personal.models import Submission
-from user_personal.models import Notification
-from user_personal.models import User_Notification_Int
-from user_personal.models import Enroll
-from user_personal.models import Assignment_Submission_Int
+from user_personal.models import (
+    Diary,
+    Submission,
+    Notification,
+    User_Notification_Int,
+    Enroll,
+    Assignment_Submission_Int
+)
+
 # ------------------------------------------
 # Register your models here.
 
