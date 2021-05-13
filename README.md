@@ -113,9 +113,27 @@ sudo /etc/init.d/nginx restart
 sudo /etc/init.d/nginx stop
 ```
 
+***
+
 #### LOC 
 
 ```
 find . -name '*.php' | xargs wc -l | tail -1
 8797
+```
+
+***
+
+#### Cronjob
+
+```
+sudo /etc/init.d/cron stop
+
+sudo /etc/init.d/cron start
+
+sudo /etc/init.d/cron restart
+
+python manage.py crontab add
+
+python manage.py crontab remove
 ```
