@@ -78,11 +78,12 @@ class Post_View(APIView):
                     # create notification for concerned part(y/ies)
                     # ---------------------------------------------
                     message = f"Date : {post_de_serialized.data['made_date'].split('T')[0]}"
-                    message += f'''
-                    \n\n<b>{Subject_Serializer(Subject.objects.get(subject_id = post_de_serialized.data['subject_id']), many=False).data['subject_name']}</b>
-                    \n\n<i>{post_de_serialized.data['post_name']}</i>
-                    \n{' '.join(post_de_serialized.data['post_body'].split()[:10])}...<a href="http://{host}/api/content/post/read/{post_de_serialized.data['post_id']}">[Read More]</a>
-                    '''
+                    try:
+                        message += f"\n\n<b>{Subject_Serializer(Subject.objects.get(subject_id = post_de_serialized.data['subject_id']), many=False).data['subject_name']}</b>"
+                    except Subject.DoesNotExist:
+                        message += f"\n\n<b>Ambiguous</b>"
+                    message += f"\n\n<i>{post_de_serialized.data['post_name']}</i>"
+                    message += f"\n{' '.join(post_de_serialized.data['post_body'].split()[:10])}...<a href='http://{host}/api/content/post/read/{post_de_serialized.data['post_id']}'>[Read More]</a>"
                     try:
                         serialized = User_Credential_Serializer(User_Credential.objects.get(user_credential_id = post_de_serialized.data['user_credential_id']), many=False).data
                     except Exception as ex:

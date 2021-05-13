@@ -3,6 +3,7 @@ server {
 
     listen  80;
     listen [::]:80;
+    return 444;
     server_name localhost *.ngrok.io;
     charset utf-8;
 

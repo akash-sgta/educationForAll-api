@@ -115,8 +115,8 @@ class Admin_Credential_View(APIView):
                             }
                             return Response(data = data, status = status.HTTP_202_ACCEPTED)
                         else:
-                            if(am_I_Authorized(request, 'ADMIN') > 0):
-                                if(int(pk) == 666):
+                            if(am_I_Authorized(request, 'ADMIN') > 1):
+                                if(int(pk) == 2473908377493193):
                                     admin_cred_ref_all = Admin_Credential.objects.all()
                                     total = list()
                                     for acr in admin_cred_ref_all:

@@ -117,6 +117,7 @@ class User_Credential_View(APIView):
                         user_cred_ref = User_Credential.objects.get(user_credential_id = isAuthorizedUSER[1])
                         data['success'] = True
                         data['data'] = User_Credential_Serializer(user_cred_ref, many=False).data
+                        data['data']['user_password'] = "■ ■ ■ ■ ■ ■ ■"
                         return Response(data = data, status = status.HTTP_202_ACCEPTED)
                     else:
                         isAuthorizedADMIN = am_I_Authorized(request, "ADMIN")
