@@ -28,17 +28,34 @@ with open(os.path.join(BASE_DIR, 'config', 'debug.txt'), 'r') as key_file:
     DEBUG = key_file.read().strip()[1:-1]
     if(DEBUG.lower() == 'true'):
         DEBUG = True
-        from config.development.settings_extended import *
+        from config.development.settings_extended import (
+            DATABASE_ROUTERS,
+            DATABASES,
+            ALLOWED_HOSTS
+        )
     else:
         DEBUG = False
-        from config.production.settings_extended import *
+        from config.production.settings_extended import (
+            DATABASE_ROUTERS,
+            DATABASES,
+            ALLOWED_HOSTS,
+            HTTP_SECURED
+        )
+
+        if(HTTP_SECURED):
+            # HTTPS settings
+            SESSION_COOKIE_SECURE = True
+            CSRF_COOKIE_SECURE = True
+            SECURE_SSL_REDIRECT = True
+
+            #HSTS settings
+            SECURE_HSTS_SECONDS = 31536000 # 1y
+            SECURE_HSTS_RELOAD = True
+            SECURE_HSTS_INCLUDE_SUBDOMIANS = True
 
 # ALLOWED_HOSTS in configFile
 # Database in configFile
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
-
-# for surity
-BASE_DIR = Path(__file__).resolve().parent.parent
 
 #create user specific config and ini
 try:
@@ -209,11 +226,10 @@ SWAGGER_SETTINGS = {
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CRONTAB_LOCK_JOBS = True
-CRONTAB_COMMAND_SUFFIX = '2>&1'
-FILE = os.path.join(BASE_DIR, 'log', 'cronlog.error.log')
+CRONTAB_COMMAND_SUFFIX = '2>&1' # log error
+FILE = os.path.join(BASE_DIR, 'log', 'cronlog.log')
 CRONJOBS = [
     # ('*/1 * * * *', 'cronjobs.cron.test', f'>> {FILE}'), # test module for cronjob
-    ('*/1 * * * *', 'cronjobs.cron.token_checker', f'>> {FILE}'), # token expiry checker
+    ('0 */1 * * *', 'cronjobs.cron.token_checker', f'>> {FILE}'), # token expiry checker
     ('*/1 * * * *', 'cronjobs.cron.telegram_notification', f'>> {FILE}'), # notifications via TG
-    # ('1 * * * *', 'cronjobs.cron.telegram_bot', f'>> {FILE}'), # this works well
 ]
