@@ -31,19 +31,19 @@ class Admin_Privilege_View(APIView):
         isAuthorizedAPI = am_I_Authorized(request, "API")
         if(not isAuthorizedAPI[0]):
             data['success'] = False
-            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            data["message"] = "ENDPOINT_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         
         isAuthorizedUSER = am_I_Authorized(request, "USER")
         if(isAuthorizedUSER[0] == False):
             data['success'] = False
-            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{isAuthorizedUSER[1]}"
+            data['message'] = f"USER_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         else:
             isAuthorizedADMIN = am_I_Authorized(request, "ADMIN")
-            if(isAuthorizedADMIN < 3):
+            if(isAuthorizedADMIN <= 1): # TODO : Only ADMIN PRIME can create privileges
                 data['success'] = False
-                data['message'] = "USER does not have required ADMIN PRIVILEGES"
+                data['message'] = "ADMIN_NOT_ADMIN_PRIME"
                 return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
             else:
                 description = " ".join(word.capitalize() for word in request.data['admin_privilege_description'].split())
@@ -53,7 +53,7 @@ class Admin_Privilege_View(APIView):
                                 )
                 if(len(admin_prev_ref) > 0):
                     data['success'] = True
-                    data['message'] = "PRIVILEGE already exists"
+                    data['message'] = "PRIVILEGE_ALREADY_EXISTS"
                     data['data'] = Admin_Privilege_Serializer(admin_prev_ref[0], many=False).data
                     return Response(data = data, status=status.HTTP_201_CREATED)
                 else:
@@ -73,24 +73,24 @@ class Admin_Privilege_View(APIView):
         isAuthorizedAPI = am_I_Authorized(request, "API")
         if(not isAuthorizedAPI[0]):
             data['success'] = False
-            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            data["message"] = "ENDPOINT_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
 
         if(pk not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(isAuthorizedUSER[0] == False):
                 data['success'] = False
-                data['message'] = f"error:USER_NOT_AUTHORIZED, message:{isAuthorizedUSER[1]}"
+                data['message'] = f"USER_NOT_AUTHORIZED"
                 return Response(data = data)
             else:
                 isAuthorizedADMIN = am_I_Authorized(request, "ADMIN")
-                if(isAuthorizedADMIN < 1):
+                if(isAuthorizedADMIN < 1): # TODO : Any Admin can see privileges
                     data['success'] = False
-                    data['message'] = "USER does not have required ADMIN PRIVILEGES"
+                    data['message'] = "USER_NOT_ADMIN"
                     return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
                 else:
                     try:
-                        if(int(pk) == 0): #all
+                        if(int(pk) == 0): # TODO : Show all privileges
                             data['success'] = True
                             data['data'] = Admin_Privilege_Serializer(Admin_Privilege.objects.all(), many=True).data
                             return Response(data = data, status = status.HTTP_202_ACCEPTED)
@@ -99,7 +99,7 @@ class Admin_Privilege_View(APIView):
                                 admin_priv_ref = Admin_Privilege.objects.get(admin_privilege_id = int(pk))
                             except Admin_Privilege.DoesNotExist:
                                 data['success'] = False
-                                data['message'] = "item does not exist"
+                                data['message'] = "PRIVILEG_ID_INVALID"
                                 return Response(data = data, status = status.HTTP_404_NOT_FOUND)
                             else:
                                 data['success'] = True
@@ -122,27 +122,27 @@ class Admin_Privilege_View(APIView):
         isAuthorizedAPI = am_I_Authorized(request, "API")
         if(not isAuthorizedAPI[0]):
             data['success'] = False
-            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            data["message"] = "ENDPOINT_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
 
         if(pk not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(isAuthorizedUSER[0] == False):
                 data['success'] = False
-                data['message'] = f"error:USER_NOT_AUTHORIZED, message:{isAuthorizedUSER[1]}"
+                data['message'] = f"USER_NOT_AUTHORIZED"
                 return Response(data = data)
             else:
                 isAuthorizedADMIN = am_I_Authorized(request, "ADMIN")
-                if(isAuthorizedADMIN < 3):
+                if(isAuthorizedADMIN <= 1): # TODO : Only Admin Prime has access to change privileges
                     data['success'] = False
-                    data['message'] = "USER does not have required ADMIN PRIVILEGES"
+                    data['message'] = "ADMIN_NOT_ADMIN_PRIME"
                     return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
                 else:
                     try:
                         admin_priv_ref = Admin_Privilege.objects.get(admin_privilege_id = int(pk))
                     except Admin_Privilege.DoesNotExist:
                         data['success'] = False
-                        data['message'] = "item does not exist"
+                        data['message'] = "PRIVILEG_ID_INVALID"
                         return Response(data = data, status=status.HTTP_404_NOT_FOUND)
                     else:
                         admin_priv_de_serialized = Admin_Privilege_Serializer(admin_priv_ref, data = request.data)
@@ -169,7 +169,7 @@ class Admin_Privilege_View(APIView):
         isAuthorizedAPI = am_I_Authorized(request, "API")
         if(not isAuthorizedAPI[0]):
             data['success'] = False
-            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            data["message"] = "ENDPOINT_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
             
         if(pk not in (None, "")):
@@ -180,27 +180,28 @@ class Admin_Privilege_View(APIView):
                 return Response(data = data)
             else:
                 isAuthorizedADMIN = am_I_Authorized(request, "ADMIN")
-                if(isAuthorizedADMIN < 3):
+                if(isAuthorizedADMIN <= 1): # TODO : Only Admin Prime can delete admin privilege
                     data['success'] = False
-                    data['message'] = "USER does not have required ADMIN PRIVILEGES"
+                    data['message'] = "ADMIN_NOT_ADMIN_PRIME"
                     return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
                 else:
-                    if(int(pk) == 0):
+                    if(int(pk) == 87795962440396049328460600526719): # TODO : Delete all privileges
                         Admin_Privilege.objects.all().delete()
                         data['success'] = True
-                        data['message'] = "All ADMIN PRIVILEGE(s) Deleted"
+                        data['message'] = "ALL_ADMIN_PRIVILEGES_DELETED"
                         return Response(data = data, status=status.HTTP_202_ACCEPTED)
-                    try:
-                        admin_priv = Admin_Privilege.objects.get(admin_privilege_id = int(pk))
-                    except Admin_Privilege.DoesNotExist:
-                        data['success'] = False
-                        data['message'] = "item does not exist"
-                        return Response(data = data, status=status.HTTP_404_NOT_FOUND)
-                    else:
-                        admin_priv.delete()
-                        data['success'] = True
-                        data['message'] = "ADMIN PRIVILEGE Deleted"
-                        return Response(data = data, status=status.HTTP_202_ACCEPTED)
+                    else: # TODO : Delete selective privilges
+                        try:
+                            admin_priv = Admin_Privilege.objects.get(admin_privilege_id = int(pk))
+                        except Admin_Privilege.DoesNotExist:
+                            data['success'] = False
+                            data['message'] = "PRIVILEGE_ID_INVALID"
+                            return Response(data = data, status=status.HTTP_404_NOT_FOUND)
+                        else:
+                            admin_priv.delete()
+                            data['success'] = True
+                            data['message'] = "PRIVILEGE_DELETED"
+                            return Response(data = data, status=status.HTTP_202_ACCEPTED)
         else:
             data['success'] = False
             data['message'] = {

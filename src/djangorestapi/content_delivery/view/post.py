@@ -128,17 +128,27 @@ class Post_View(APIView):
         isAuthorizedAPI = am_I_Authorized(request, "API")
         if(not isAuthorizedAPI[0]):
             data['success'] = False
-            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            data["message"] = "ENDPOINT_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         
         if(pk not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(isAuthorizedUSER[0] == False):
                 data['success'] = False
-                data['message'] = f"error:USER_NOT_AUTHORIZED, message:{isAuthorizedUSER[1]}"
+                data['message'] = f"USER_NOT_AUTHORIZED"
                 return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
             else:
-                if(int(pk) == 0): #all
+                if(int(pk) == 87795962440396049328460600526719): # TODO : ADMIN asking for all posts
+                    isAuthorizedADMIN = am_I_Authorized(request, "ADMIN")
+                    if(isAuthorizedADMIN > 0):
+                        data['success'] = True
+                        data['data'] = Post_Serializer(Post.objects.all(), many=True).data
+                        return Response(data = data, status=status.HTTP_202_ACCEPTED)
+                    else:
+                        data['success'] = False
+                        data['message'] = "USER_NOT_ADMIN"
+                        return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+                elif(int(pk) == 0): # 
                     enroll_ref_list = Enroll.objects.filter(user_credential_id = isAuthorizedUSER[1]).values('subject_id')
                     temp = list()
                     for sub_id in enroll_ref_list:

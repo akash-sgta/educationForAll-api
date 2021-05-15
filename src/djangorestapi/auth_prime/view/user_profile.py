@@ -33,13 +33,13 @@ class User_Profile_View(APIView):
         isAuthorizedAPI = am_I_Authorized(request, "API")
         if(not isAuthorizedAPI[0]):
             data['success'] = False
-            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            data["message"] = "ENDPOINT_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         
         isAuthorizedUSER = am_I_Authorized(request, "USER")
         if(isAuthorizedUSER[0] == False):
             data['success'] = False
-            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{isAuthorizedUSER[1]}"
+            data['message'] = f"USER_NOT_AUTHORIZED"
             return Response(data = data)
         else:
             data = dict()
@@ -49,7 +49,7 @@ class User_Profile_View(APIView):
                 if(user_prof_serialized.initial_data['prime'] == True
                 and user_prof_serialized.initial_data['user_roll_number'] in (None, "")):
                     data['success'] = False
-                    data['message'] = "Student profile requires roll number"
+                    data['message'] = "STUDENT_REQUIRES_12_DIGIT_ROLL"
                     return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
                 else:
                     if(user_prof_serialized.is_valid()):
@@ -64,11 +64,11 @@ class User_Profile_View(APIView):
                         return Response(data=data, status=status.HTTP_201_CREATED)
                     else:
                         data['success'] = False
-                        data['message'] = f"error:SERIALIZING_ERROR, message:{user_prof_serialized.errors}"
+                        data['message'] = f"SERIALIZING_ERROR : {user_prof_serialized.errors}"
                         return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
             else:
                 data['success'] = True
-                data['message'] = "Profile already created"
+                data['message'] = "PROFILE_ALREADY_EXISTS"
                 data['data'] = User_Profile_Serializer(user_cred_ref.user_profile_id, many=False).data
                 return Response(data = data, status=status.HTTP_201_CREATED)
     
@@ -78,49 +78,53 @@ class User_Profile_View(APIView):
         isAuthorizedAPI = am_I_Authorized(request, "API")
         if(not isAuthorizedAPI[0]):
             data['success'] = False
-            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            data["message"] = "ENDPOINT_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
 
         if(pk not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(isAuthorizedUSER[0] == False):
                 data['success'] = False
-                data['message'] = f"error:USER_NOT_AUTHORIZED, message:{isAuthorizedUSER[1]}"
+                data['message'] = f"USER_NOT_AUTHORIZED"
                 return Response(data = data)
             else:
                 try:
-                    if(int(pk) == 0 or int(pk) == isAuthorizedUSER[1]): #self
+                    if(int(pk) == 0): # TODO : User reads self profile
                         user_cred_ref = User_Credential.objects.get(user_credential_id = isAuthorizedUSER[1])
                         if(user_cred_ref.user_profile_id in (None, "")):
                             data['success'] = False
-                            data['message'] = "User does not have profile"
+                            data['message'] = "USER_PROFILE_DOES_NOT_EXIST"
                             return Response(data = data, status = status.HTTP_404_NOT_FOUND)
                         else:
                             data['success'] = True
                             data['data'] = User_Profile_Serializer(user_cred_ref.user_profile_id, many=False).data
                             return Response(data = data, status = status.HTTP_202_ACCEPTED)
-                    else:
+                    elif(int(pk) == 87795962440396049328460600526719): # TODO : Admin reads all profile
                         if(am_I_Authorized(request, 'ADMIN') > 0):
-                            if(int(pk) == 666):
-                                user_prof_ref = User_Profile.objects.all()
-                                data['success'] = True
-                                data['data'] = User_Profile_Serializer(user_prof_ref, many=True).data
-                                return Response(data = data, status = status.HTTP_202_ACCEPTED)
-                            else:
-                                try:
-                                    user_cred_ref = User_Credential.objects.get(user_credential_id = pk)
-                                except User_Credential.DoesNotExist:
-                                    data['success'] = False
-                                    data['message'] = "item invalid"
-                                    return Response(data = data, status = status.HTTP_404_NOT_FOUND)
-                                else:
-                                    data['success'] = True
-                                    data['data'] = User_Profile_Serializer(user_cred_ref.user_profile_id, many=False).data
-                                    return Response(data = data, status = status.HTTP_202_ACCEPTED)
+                            data['success'] = True
+                            data['data'] = User_Profile_Serializer(User_Profile.objects.all(), many=True).data
+                            return Response(data = data, status = status.HTTP_202_ACCEPTED)
                         else:
                             data['success'] = False
-                            data['message'] = "User does not have ADMIN privileges"
+                            data['message'] = "USER_NOT_ADMIN"
                             return Response(data = data, status = status.HTTP_401_UNAUTHORIZED)
+                    else: # TODO : Admin reads selected user profile
+                        try:
+                            user_cred_ref = User_Credential.objects.get(user_credential_id = pk)
+                        except User_Credential.DoesNotExist:
+                            data['success'] = False
+                            data['message'] = "USER_ID_INVALID"
+                            return Response(data = data, status = status.HTTP_404_NOT_FOUND)
+                        else:
+                            if(user_cred_ref.user_profile_id == None):
+                                data['success'] = False
+                                data['message'] = "USER_PROFILE_DOES_NOT_EXIST"
+                                return Response(data = data, status = status.HTTP_404_NOT_FOUND)
+                            else:
+                                data['success'] = True
+                                data['data'] = User_Profile_Serializer(user_cred_ref.user_profile_id, many=False).data
+                                return Response(data = data, status = status.HTTP_202_ACCEPTED)
+                        
                 except Exception as ex:
                     print("EX : ", ex)
                     return Response(status = status.HTTP_400_BAD_REQUEST)
@@ -138,14 +142,14 @@ class User_Profile_View(APIView):
         isAuthorizedAPI = am_I_Authorized(request, "API")
         if(not isAuthorizedAPI[0]):
             data['success'] = False
-            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            data["message"] = "ENDPOINT_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
 
         if(pk not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(isAuthorizedUSER[0] == False):
                 data['success'] = False
-                data['message'] = f"error:USER_NOT_AUTHORIZED, message:{isAuthorizedUSER[1]}"
+                data['message'] = f"USER_NOT_AUTHORIZED"
                 return Response(data = data)
             else:
                 try:
@@ -158,7 +162,7 @@ class User_Profile_View(APIView):
                     if(user_prof_serialized.initial_data['prime'] == True
                     and user_prof_serialized.initial_data['user_roll_number'] in (None, "")):
                         data['success'] = False
-                        data['message'] = "Student profile requires roll number"
+                        data['message'] = "STUDENT_REQUIRES_12_DIGIT_ROLL"
                         return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
                     else:
                         if(user_prof_serialized.is_valid()):
@@ -168,7 +172,7 @@ class User_Profile_View(APIView):
                             return Response(data = data, status=status.HTTP_202_ACCEPTED)
                         else:
                             data['success'] = False
-                            data['message'] = f"error:SERIALIZING_ERROR, message:{user_prof_serialized.errors}"
+                            data['message'] = f"SERIALIZING_ERROR : {user_prof_serialized.errors}"
                             return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
         else:
             data['success'] = False
@@ -184,61 +188,64 @@ class User_Profile_View(APIView):
         isAuthorizedAPI = am_I_Authorized(request, "API")
         if(not isAuthorizedAPI[0]):
             data['success'] = False
-            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            data["message"] = "ENDPOINT_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
             
         if(pk not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(isAuthorizedUSER[0] == False):
                 data['success'] = False
-                data['message'] = f"error:USER_NOT_AUTHORIZED, message:{isAuthorizedUSER[1]}"
+                data['message'] = f"USER_NOT_AUTHORIZED"
                 return Response(data = data)
             else:
                 try:
-                    if(int(pk) == 0 or int(pk) == isAuthorizedUSER[1]): #self
-                        usr = User_Credential.objects.get(user_credential_id = isAuthorizedUSER[1])
-                        if(usr.user_profile_id == None):
+                    if(int(pk) == 0): # TODO : User deleting self profile
+                        user_cred_ref = User_Credential.objects.get(user_credential_id = isAuthorizedUSER[1])
+                        if(user_cred_ref.user_profile_id == None):
                             data['success'] = True
-                            data['message'] = "User Profile Not found"
+                            data['message'] = "USER_PROFILE_DOES_NOT_EXIST"
                             return Response(data = data, status = status.HTTP_202_ACCEPTED)
                         else:
-                            if(usr.user_profile_id.user_profile_pic != None):
-                                usr.user_profile_id.user_profile_pic.delete()
-                            usr.user_profile_id.delete()
+                            if(user_cred_ref.user_profile_id.user_profile_pic != None):
+                                user_cred_ref.user_profile_id.user_profile_pic.delete()
+                            user_cred_ref.user_profile_id.delete()
                             data['success'] = True
                             data['message'] = "User Profile Deleted"
                             return Response(data = data, status = status.HTTP_202_ACCEPTED)
-                    else:
-                        isAuthorizedADMIN = am_I_Authorized(request, 'ADMIN')
-                        if(isAuthorizedADMIN > 2):
-                            if(int(pk) == 666):
-                                User_Profile.objects.all().delete()
-                                Image.objects.all().delete()
-                                data['success'] = True
-                                data['message'] = "All User Profile(s) Deleted"
-                                return Response(data = data, status = status.HTTP_202_ACCEPTED)
-                            else:
-                                try:
-                                    user_cred_ref = User_Credential.objects.get(user_credential_id = pk)
-                                except User_Credential.DoesNotExist:
-                                    data['success'] = False
-                                    data['message'] = "item invalid"
-                                    return Response(data = data, status = status.HTTP_404_NOT_FOUND)
-                                else:
-                                    if(user_cred_ref.user_profile_id == None):
-                                        data['success'] = True
-                                        data['message'] = "User Profile Not found"
-                                        return Response(data = data, status = status.HTTP_202_ACCEPTED)
-                                    else:
-                                        if(usr.user_profile_id.user_profile_pic != None):
-                                            usr.user_profile_id.user_profile_pic.delete()
-                                        usr.user_profile_id.delete()
-                                        data['success'] = True
-                                        data['message'] = "User Profile Deleted by ADMIN"
-                                        return Response(data = data, status = status.HTTP_202_ACCEPTED)
+                    elif(int(pk) == 87795962440396049328460600526719): # TODO : Admin deleting all user profiles
+                        if(am_I_Authorized(request, 'ADMIN') > 0):
+                            User_Profile.objects.all().delete()
+                            Image.objects.all().delete()
+                            data['success'] = True
+                            data['message'] = "ADMIN : ALL_USER_PROFILES_DELETED"
+                            return Response(data = data, status = status.HTTP_202_ACCEPTED)
                         else:
                             data['success'] = False
-                            data['message'] = "User does not have ADMIN privileges"
+                            data['message'] = "USER_NOT_ADMIN"
+                            return Response(data = data, status = status.HTTP_401_UNAUTHORIZED)
+                    else: # TODO : Admin deletes specific profile
+                        if(am_I_Authorized(request, 'ADMIN') > 0):
+                            try:
+                                user_cred_ref = User_Credential.objects.get(user_credential_id = pk)
+                            except User_Credential.DoesNotExist:
+                                data['success'] = False
+                                data['message'] = "ADMIN : USER_ID_INVALID"
+                                return Response(data = data, status = status.HTTP_404_NOT_FOUND)
+                            else:
+                                if(user_cred_ref.user_profile_id == None):
+                                    data['success'] = True
+                                    data['message'] = "ADMIN : USER_PROFILE_DOES_NOT_EXIST"
+                                    return Response(data = data, status = status.HTTP_202_ACCEPTED)
+                                else:
+                                    if(user_cred_ref.user_profile_id.user_profile_pic != None):
+                                        user_cred_ref.user_profile_id.user_profile_pic.delete()
+                                    user_cred_ref.user_profile_id.delete()
+                                    data['success'] = True
+                                    data['message'] = "ADMIN : USER_PROFILE_DELETED"
+                                    return Response(data = data, status = status.HTTP_202_ACCEPTED)
+                        else:
+                            data['success'] = False
+                            data['message'] = "USER_NOT_ADMIN"
                             return Response(data = data, status = status.HTTP_401_UNAUTHORIZED)
                 except Exception as ex:
                     print("EX : ", ex)

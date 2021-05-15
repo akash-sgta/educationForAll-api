@@ -202,10 +202,11 @@ CORS_ALLOW_HEADERS = [
     'user-agent',
     'x-csrftoken',
     'x-requested-with',
-
+    # -----------------
     'authorization',
-    'content-type',
     'uauth',
+    'content-type',
+    'Access-Control-Allow-Origin'    
 ]
 
 SWAGGER_SETTINGS = {

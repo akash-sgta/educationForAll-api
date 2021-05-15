@@ -9,14 +9,15 @@ from rest_framework.renderers import JSONRenderer
 
 from content_delivery.models import (
         Coordinator,
-        Subject
+        Subject,
+        Subject_Coordinator_Int,
     )
 from content_delivery.serializer import (
-        Subject_Serializer
+        Subject_Serializer,
     )
 
 from auth_prime.important_modules import (
-        am_I_Authorized
+        am_I_Authorized,
     )
 
 # ------------------------------------------------------------
@@ -85,9 +86,22 @@ class Subject_View(APIView):
                 data['message'] = f"error:USER_NOT_AUTHORIZED, message:{isAuthorizedUSER[1]}"
                 return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
             else:
-                if(int(pk) == 0): #all
-                    data['success'] = True
+                if(int(pk) == 2312951593774859): # FIXME: Universal asking for all subjects
                     data['data'] = Subject_Serializer(Subject.objects.all(), many=True).data
+                    data['success'] = True
+                    return Response(data = data, status=status.HTTP_202_ACCEPTED)
+                elif(int(pk) == 6878134053606367): # FIXME: Coordinator asking for subjects to form post
+                    try:
+                        am_I_Coordinator = Coordinator.objects.get(user_credential_id = isAuthorizedUSER[1])
+                    except Coordinator.DoesNotExist:
+                        data['success'] = True
+                        data['message'] = "USER not a COORINATOR"
+                        return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+                    else:
+                        subject_coor_int = Subject_Coordinator_Int.objects.filter(coordinator_id = am_I_Coordinator)
+                        subjects = [ref.subject_id for ref in subject_coor_int]
+                        data['data'] = Subject_Serializer(subjects, many=True).data
+                    data['success'] = True
                     return Response(data = data, status=status.HTTP_202_ACCEPTED)
                 else:
                     try:

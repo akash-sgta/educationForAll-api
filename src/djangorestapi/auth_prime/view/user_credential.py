@@ -36,29 +36,29 @@ class User_Credential_View(APIView):
         isAuthorizedAPI = am_I_Authorized(request, "API")
         if(not isAuthorizedAPI[0]):
             data['success'] = False
-            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            data["message"] = "ENDPOINT_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         
         isAuthorizedUSER = am_I_Authorized(request, "USER")
-        if(request.data['action'].lower() == 'signin'):
+        if(request.data['action'].lower() == 'signin'): # TODO : If user is already signed in through cache [x]don't let signin again
             if(isAuthorizedUSER[0]):
                 user_cred_ref = User_Credential.objects.get(user_credential_id = isAuthorizedUSER[1])
                 user_cred_serialized = User_Credential_Serializer(user_cred_ref, many=False)
                 data['success'] = True
-                data['message'] = "User already logged in, logout first"
+                data['message'] = "USER_ALREADY_LOGGED_IN"
                 return Response(data = data, status=status.HTTP_201_CREATED)
             else:
                 myData = request.data['data']
                 user_cred_ref = User_Credential.objects.filter(user_email = myData['email'].lower())
                 if(len(user_cred_ref) < 1):
                     data['success'] = False
-                    data['message'] = "Email not registered"
+                    data['message'] = "EMAIL_NOT_REGISTERED"
                     return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
                 else:
                     user_cred_ref = user_cred_ref[0]
                     if(user_cred_ref.user_password != create_password_hashed(myData['password'])):
                         data['success'] = False
-                        data['message'] = "Password incorrect"
+                        data['message'] = "PASSWORD_INCORRECT"
                         return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
                     else:
                         data['success'] = True
@@ -68,16 +68,16 @@ class User_Credential_View(APIView):
                         return Response(data = data, status=status.HTTP_201_CREATED)
         
         elif(request.data['action'].lower() == 'signup'):
-            if(isAuthorizedUSER[0]):
+            if(isAuthorizedUSER[0]): # TODO : If user is already signed in through cache [x]don't let signin again
                 data['success'] = False
-                data['message'] = "User already logged in, logout first"
+                data['message'] = "USER_ALREADY_LOGGED_IN"
                 return Response(data = data, status=status.HTTP_403_FORBIDDEN)
             else:
                 user_cred_de_serialized = User_Credential_Serializer(data = request.data['data'])
                 user_cred_de_serialized.initial_data['user_email'] = user_cred_de_serialized.initial_data['user_email'].lower()
                 if(len(User_Credential.objects.filter(user_email = user_cred_de_serialized.initial_data['user_email'])) > 0):
                     data['success'] = False
-                    data['message'] = "Email already in use"
+                    data['message'] = "EMAIL_ALREADY_REGISTERED"
                     return Response(data = data, status = status.HTTP_403_FORBIDDEN)
                 else:
                     user_cred_de_serialized.initial_data['user_password'] = create_password_hashed(user_cred_de_serialized.initial_data['user_password'])
@@ -113,35 +113,40 @@ class User_Credential_View(APIView):
                 return Response(data = data)
             else:
                 try:
-                    if(int(pk) == 0 or int(pk) == isAuthorizedUSER[1]): #self
+                    if(int(pk) == 0): # TODO : User asking to read own credentials
                         user_cred_ref = User_Credential.objects.get(user_credential_id = isAuthorizedUSER[1])
                         data['success'] = True
                         data['data'] = User_Credential_Serializer(user_cred_ref, many=False).data
                         data['data']['user_password'] = "■ ■ ■ ■ ■ ■ ■"
                         return Response(data = data, status = status.HTTP_202_ACCEPTED)
-                    else:
+                    elif(int(pk) == 87795962440396049328460600526719): # TODO : ADMIN asking to read everyone's cred
                         isAuthorizedADMIN = am_I_Authorized(request, "ADMIN")
                         if(isAuthorizedADMIN > 0):
-                            if(int(pk) == 54673257461630679457):
-                                user_cred_ref = User_Credential.objects.all()
-                                data['success'] = True
-                                data['data'] = User_Credential_Serializer(user_cred_ref, many=True).data
-                                return Response(data = data, status = status.HTTP_202_ACCEPTED)
-                            else:
-                                try:
-                                    user_cred_ref = User_Credential.objects.get(user_credential_id = pk)
-                                except User_Credential.DoesNotExist:
-                                    data['success'] = False
-                                    data['message'] = "item invalid"
-                                    return Response(data = data, status = status.HTTP_404_NOT_FOUND)
-                                else:
-                                    data['success'] = True
-                                    data['data'] = User_Credential_Serializer(user_cred_ref, many=False).data
-                                    data['data']['user_password'] = "■ ■ ■ ■ ■ ■ ■"
-                                    return Response(data = data, status = status.HTTP_202_ACCEPTED)
+                            user_cred_ref = User_Credential.objects.all()
+                            data['success'] = True
+                            data['data'] = User_Credential_Serializer(user_cred_ref, many=True).data
+                            return Response(data = data, status = status.HTTP_202_ACCEPTED)
                         else:
                             data['success'] = False
-                            data['message'] = "User does not have ADMIN privileges"
+                            data['message'] = "USER_NOT_ADMIN"
+                            return Response(data = data, status = status.HTTP_401_UNAUTHORIZED)
+                    else: # TODO : ADMIN asking to read indivisual select user cred
+                        isAuthorizedADMIN = am_I_Authorized(request, "ADMIN")
+                        if(isAuthorizedADMIN > 0):
+                            try:
+                                user_cred_ref = User_Credential.objects.get(user_credential_id = pk)
+                            except User_Credential.DoesNotExist:
+                                data['success'] = False
+                                data['message'] = "USER_ID_INVALID"
+                                return Response(data = data, status = status.HTTP_404_NOT_FOUND)
+                            else:
+                                data['success'] = True
+                                data['data'] = User_Credential_Serializer(user_cred_ref, many=False).data
+                                data['data']['user_password'] = "■ ■ ■ ■ ■ ■ ■"
+                                return Response(data = data, status = status.HTTP_202_ACCEPTED)
+                        else:
+                            data['success'] = False
+                            data['message'] = "USER_NOT_ADMIN"
                             return Response(data = data, status = status.HTTP_401_UNAUTHORIZED)
                 except Exception as ex:
                     print("EX : ", ex)
@@ -154,20 +159,20 @@ class User_Credential_View(APIView):
             }
             return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
 
-    def put(self, request, pk=None):
+    def put(self, request, pk=None): # FIXME : Add admin access to change password changing privilege
         data = dict()
 
         isAuthorizedAPI = am_I_Authorized(request, "API")
         if(not isAuthorizedAPI[0]):
             data['success'] = False
-            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            data["message"] = "ENDPOINT_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
 
         if(pk not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(isAuthorizedUSER[0] == False):
                 data['success'] = False
-                data['message'] = f"error:USER_NOT_AUTHORIZED, message:{isAuthorizedUSER[1]}"
+                data['message'] = f"USER_NOT_AUTHORIZED"
                 return Response(data = data)
             else:
                 try:
@@ -177,12 +182,11 @@ class User_Credential_View(APIView):
                 else:
                     user_cred_ref = user_cred_ref[0]
                     user_cred_serialized = User_Credential_Serializer(user_cred_ref, data=request.data)
-                    user_cred_serialized.initial_data['user_credential_id'] = int(isAuthorizedUSER[1])
-                    user_cred_serialized.initial_data['user_email'] = user_cred_serialized.initial_data['user_email'].lower()
-                    test_ref = User_Credential.objects.filter(user_email = user_cred_serialized.initial_data['user_email'])
+                    user_cred_serialized.initial_data['user_credential_id'] = isAuthorizedUSER[1]
+                    test_ref = User_Credential.objects.filter(user_email = user_cred_serialized.initial_data['user_email'].lower())
                     if(len(test_ref) > 0 and test_ref[0].user_credential_id != isAuthorizedUSER[1]):
                         data['success'] = False
-                        data['message'] = "Email already used by someone"
+                        data['message'] = "EMAIL_ALREADY_REGISTERED"
                         return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
                     else:
                         if(user_cred_serialized.is_valid()):
@@ -192,7 +196,7 @@ class User_Credential_View(APIView):
                             return Response(data = data)
                         else:
                             data['success'] = False
-                            data['message'] = f"error:SERIALIZING_ERROR, message:{user_cred_serialized.errors}"
+                            data['message'] = f"SERIALIZING_ERROR : {user_cred_serialized.errors}"
                             return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
         else:
             data['success'] = False
@@ -208,18 +212,18 @@ class User_Credential_View(APIView):
         isAuthorizedAPI = am_I_Authorized(request, "API")
         if(not isAuthorizedAPI[0]):
             data['success'] = False
-            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            data["message"] = "ENDPOINT_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
             
         if(pk not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(isAuthorizedUSER[0] == False):
                 data['success'] = False
-                data['message'] = f"error:USER_NOT_AUTHORIZED, message:{isAuthorizedUSER[1]}"
+                data['message'] = f"USER_NOT_AUTHORIZED"
                 return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
             else:
                 try:
-                    if(int(pk) == 0 or int(pk) == isAuthorizedUSER[1]): #self
+                    if(int(pk) == 0): # TODO : User cred delete
                         user_cred_ref = User_Credential.objects.get(user_credential_id = isAuthorizedUSER[1])
                         if(user_cred_ref.user_profile_id != None):
                             if(user_cred_ref.user_profile_id.user_profile_pic != None):
@@ -227,45 +231,49 @@ class User_Credential_View(APIView):
                             user_cred_ref.user_profile_id.delete()
                         user_cred_ref.delete()
                         data['success'] = True
-                        data['message'] = "User Deleted"
+                        data['message'] = "USER_DELETED"
                         return Response(data = data, status = status.HTTP_202_ACCEPTED)
-                    elif(int(pk) == 48112959837082048697): # logout ----------------------------------------LOGOUT HERE
+                    elif(int(pk) == 87795962440396049328460600526719): # TODO : User logout
                         try:
                             user_token_ref = User_Token_Table.objects.get(user_credential_id = isAuthorizedUSER[1])
                         except User_Token_Table.DoesNotExist:
                             data['success'] = True
-                            data['message'] = "User already logged out"
+                            data['message'] = "USER_ALREADY_LOGGED_OUT"
                             return Response(data = data, status = status.HTTP_202_ACCEPTED)
                         else:
                             user_token_ref.delete()
                             data['success'] = True
-                            data['message'] = "User logged out"
+                            data['message'] = "USER_LOGGED_OUT"
                             return Response(data = data, status = status.HTTP_202_ACCEPTED)
-                    else:
+                    elif(int(pk) == 13416989436929794359012690353783): # TODO : ADMIN delete all user cred
                         if(am_I_Authorized(request, 'ADMIN') > 0):
-                            if(int(pk) == 54673257461630679457):
-                                User_Credential.objects.all().exclude(user_credential_id = isAuthorizedUSER[1]).delete()
-                                user_cred = User_Credential.objects.get(user_credential_id = isAuthorizedUSER[1])
-                                if(user_cred.user_profile_id != None):
-                                    User_Profile.objects.all().exclude(user_profile_id = user_cred.user_profile_id.user_profile_id).delete()
-                                data['success'] = True
-                                data['message'] = "All User(s) Deleted"
-                                return Response(data = data, status = status.HTTP_202_ACCEPTED)
-                            else:
-                                try:
-                                    user_cred_ref = User_Credential.objects.get(user_credential_id = pk)
-                                except User_Credential.DoesNotExist:
-                                    data['success'] = False
-                                    data['message'] = "item invalid"
-                                    return Response(data = data, status = status.HTTP_404_NOT_FOUND)
-                                else:
-                                    user_cred_ref.delete()
-                                    data['success'] = True
-                                    data['message'] = "User Deleted by ADMIN"
-                                    return Response(data = data, status = status.HTTP_202_ACCEPTED)
+                            User_Credential.objects.all().exclude(user_credential_id = isAuthorizedUSER[1]).delete() # delete all cred excluding admin's
+                            user_cred = User_Credential.objects.get(user_credential_id = isAuthorizedUSER[1])
+                            if(user_cred.user_profile_id != None): # delete all prof excluding admin's
+                                User_Profile.objects.all().exclude(user_profile_id = user_cred.user_profile_id.user_profile_id).delete()
+                            data['success'] = True
+                            data['message'] = "ADMIN : All_USER_DELETED"
+                            return Response(data = data, status = status.HTTP_202_ACCEPTED)
                         else:
                             data['success'] = False
-                            data['message'] = "User does not have ADMIN privileges"
+                            data['message'] = "USER_NOT_ADMIN"
+                            return Response(data = data, status = status.HTTP_401_UNAUTHORIZED)
+                    else: # TODO : Admin deletes selected user
+                        if(am_I_Authorized(request, 'ADMIN') > 0):
+                            try:
+                                user_cred_ref = User_Credential.objects.get(user_credential_id = pk)
+                            except User_Credential.DoesNotExist:
+                                data['success'] = False
+                                data['message'] = "USER_ID_INVALID"
+                                return Response(data = data, status = status.HTTP_404_NOT_FOUND)
+                            else:
+                                user_cred_ref.delete()
+                                data['success'] = True
+                                data['message'] = "ADMIN : USER_DELETED"
+                                return Response(data = data, status = status.HTTP_202_ACCEPTED)
+                        else:
+                            data['success'] = False
+                            data['message'] = "USER_NOT ADMIN"
                             return Response(data = data, status = status.HTTP_401_UNAUTHORIZED)
                 except Exception as ex:
                     print("EX : ", ex)

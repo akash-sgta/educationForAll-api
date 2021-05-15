@@ -34,19 +34,19 @@ class Admin_Credential_View(APIView):
         isAuthorizedAPI = am_I_Authorized(request, "API")
         if(not isAuthorizedAPI[0]):
             data['success'] = False
-            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            data["message"] = "ENDPOINT_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         
         isAuthorizedUSER = am_I_Authorized(request, "USER")
         if(isAuthorizedUSER[0] == False):
             data['success'] = False
-            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{isAuthorizedUSER[1]}"
+            data['message'] = f"USER_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         else:
             isAuthorizedADMIN = am_I_Authorized(request, "ADMIN")
-            if(isAuthorizedADMIN < 3):
+            if(isAuthorizedADMIN < 3): # TODO : Only Prime Admin can give admin access to others
                 data['success'] = False
-                data['message'] = "USER does not have required ADMIN PRIVILEGES"
+                data['message'] = "ADMIN_NOT_ADMIN_PRIME"
                 return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
             else:
                 data = dict()
@@ -55,7 +55,7 @@ class Admin_Credential_View(APIView):
                     user_cred_ref = User_Credential.objects.get(user_credential_id = int(id))
                 except User_Credential.DoesNotExist:
                     data['success'] = False
-                    data['message'] = "item does not exist"
+                    data['message'] = "ADMIN : USER_ID_INVALID"
                     return Response(data = data, status=status.HTTP_404_NOT_FOUND)
                 else:
                     try:
@@ -68,7 +68,7 @@ class Admin_Credential_View(APIView):
                         return Response(data = data, status=status.HTTP_201_CREATED)
                     else:
                         data['success'] = True
-                        data['message'] = f"Admin already exists"
+                        data['message'] = f"ADMIN : USER_ALREADY_ADMIN"
                         privileges = Admin_Cred_Admin_Prev_Int.objects.filter(admin_credential_id = admin_cred_ref.admin_credential_id)
                         priv_list = list()
                         for priv in privileges:
@@ -86,23 +86,23 @@ class Admin_Credential_View(APIView):
         isAuthorizedAPI = am_I_Authorized(request, "API")
         if(not isAuthorizedAPI[0]):
             data['success'] = False
-            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            data["message"] = "ENDPOINT_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         
         if(pk not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(isAuthorizedUSER[0] == False):
                 data['success'] = False
-                data['message'] = f"error:USER_NOT_AUTHORIZED, message:{isAuthorizedUSER[1]}"
+                data['message'] = f"USER_NOT_AUTHORIZED"
                 return Response(data = data)
             else:
                 if(am_I_Authorized(request, "ADMIN") < 1):
                     data['success'] = False
-                    data['message'] = "USER does not have required ADMIN PRIVILEGES"
+                    data['message'] = "USER_NOT_ADMIN"
                     return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
                 else:
                     try:
-                        if(int(pk) == 0 or int(pk) == isAuthorizedUSER[1]): #self
+                        if(int(pk) == 0): # TODO : Admin looking for self
                             admin_cred_ref = Admin_Credential.objects.get(user_credential_id = isAuthorizedUSER[1])
                             privileges = Admin_Cred_Admin_Prev_Int.objects.filter(admin_credential_id = admin_cred_ref.admin_credential_id)
                             priv_list = list()
@@ -115,8 +115,12 @@ class Admin_Credential_View(APIView):
                             }
                             return Response(data = data, status = status.HTTP_202_ACCEPTED)
                         else:
-                            if(am_I_Authorized(request, 'ADMIN') > 1):
-                                if(int(pk) == 2473908377493193):
+                            if(am_I_Authorized(request, 'ADMIN') <= 1):
+                                data['success'] = False
+                                data['message'] = "ADMIN_NOT_ADMIN_PRIME"
+                                return Response(data = data, status = status.HTTP_401_UNAUTHORIZED)
+                            else:
+                                if(int(pk) == 87795962440396049328460600526719): # TODO : Only for prime admin to see all
                                     admin_cred_ref_all = Admin_Credential.objects.all()
                                     total = list()
                                     for acr in admin_cred_ref_all:
@@ -131,12 +135,12 @@ class Admin_Credential_View(APIView):
                                     data['success'] = True
                                     data['data'] = total
                                     return Response(data = data, status = status.HTTP_202_ACCEPTED)
-                                else:
+                                else:# TODO : Only for prime admin to see indivisual selection
                                     try:
                                         admin_cred_ref = Admin_Credential.objects.get(user_credential_id = pk)
                                     except Admin_Credential.DoesNotExist:
                                         data['success'] = False
-                                        data['message'] = "item User does not have ADMIN Privilege"
+                                        data['message'] = "ADMIN : USER_ID_INVALID"
                                         return Response(data = data, status = status.HTTP_404_NOT_FOUND)
                                     else:
                                         privileges = Admin_Cred_Admin_Prev_Int.objects.filter(admin_credential_id = admin_cred_ref.admin_credential_id)
@@ -149,10 +153,6 @@ class Admin_Credential_View(APIView):
                                                 "privilege" : priv_list.copy()
                                             }
                                         return Response(data = data, status = status.HTTP_202_ACCEPTED)
-                            else:
-                                data['success'] = False
-                                data['message'] = "User does not have ADMIN privileges"
-                                return Response(data = data, status = status.HTTP_401_UNAUTHORIZED)
                     except Exception as ex:
                         print("EX : ", ex)
                         return Response(status = status.HTTP_400_BAD_REQUEST)
@@ -170,120 +170,62 @@ class Admin_Credential_View(APIView):
         isAuthorizedAPI = am_I_Authorized(request, "API")
         if(not isAuthorizedAPI[0]):
             data['success'] = False
-            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            data["message"] = "ENDPOINT_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
 
         if(pk not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(isAuthorizedUSER[0] == False):
                 data['success'] = False
-                data['message'] = f"error:USER_NOT_AUTHORIZED, message:{isAuthorizedUSER[1]}"
+                data['message'] = f"USER_NOT_AUTHORIZED"
                 return Response(data = data)
             else:
                 isAuthorizedADMIN = am_I_Authorized(request, "ADMIN")
-                if(isAuthorizedADMIN < 3):
+                if(isAuthorizedADMIN <= 1): # TODO : Admin Prime access only to change privileges
                     data['success'] = False
-                    data['message'] = "USER does not have required ADMIN PRIVILEGES"
+                    data['message'] = "ADMIN_NOT_ADMIN_PRIME"
                     return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
                 else:
                     privilege = int(request.data['privilege'])
-                    if(Admin_Credential.objects.get(user_credential_id = isAuthorizedUSER[1]).prime == False):
-                        data['success'] = False
-                        data['message'] = "Only ADMIN PRIME authorized to change PRIVILEGES"
-                        return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
-                    else:
-                        if(int(pk) in (0, isAuthorizedUSER[1])): 
-                            if(privilege  > 0): #self change
-                                many_to_many = Admin_Cred_Admin_Prev_Int.objects.filter(
-                                                    admin_credential_id = Admin_Credential.objects.get(user_credential_id = isAuthorizedUSER[1]),
-                                                    admin_privilege_id = privilege
-                                                )
-                                if(len(many_to_many) > 0):
-                                    data['success'] = True
-                                    data['message'] = "SELF : ADMIN already has the PRIVILEGE"
-                                    return Response(data = data, status=status.HTTP_201_CREATED)
-                                else:
-                                    privilege_ref = Admin_Privilege.objects.filter(admin_privilege_id = privilege)
-                                    if(len(privilege_ref) < 1):
-                                        data['success'] = False
-                                        data['message'] = "SELF :PRIVILEGE id invalid"
-                                        return Response(data = data, status=status.HTTP_404_NOT_FOUND)
-                                    else:
-                                        privilege_ref = privilege_ref[0]
-                                        Admin_Cred_Admin_Prev_Int(
-                                            admin_credential_id = Admin_Credential.objects.get(user_credential_id = isAuthorizedUSER[1]),
-                                            admin_privilege_id = privilege_ref
-                                        ).save()
-                                        data['success'] = True
-                                        data['message'] = "SELF : PRIVILEGE granted to ADMIN"
-                                        return Response(data = data, status=status.HTTP_201_CREATED)
-                            else: 
-                                privilege = privilege*-1
-                                many_to_many = Admin_Cred_Admin_Prev_Int.objects.filter(
-                                                    admin_credential_id = Admin_Credential.objects.get(user_credential_id = isAuthorizedUSER[1]),
-                                                    admin_privilege_id = privilege
-                                                )
-                                if(len(many_to_many) < 1):
-                                    data['success'] = True
-                                    data['message'] = "SELF : ADMIN does not the PRIVILEGE"
-                                    return Response(data = data, status=status.HTTP_202_ACCEPTED)
-                                else:
-                                    many_to_many[0].delete()
-                                    data['success'] = True
-                                    data['message'] = "SELF : PRIVILEGE revoked from ADMIN"
-                                    return Response(data = data, status=status.HTTP_202_ACCEPTED)
-                        else: # change others
-                            if(privilege  > 0):
-                                try:
-                                    many_to_many = Admin_Cred_Admin_Prev_Int.objects.filter(
-                                                        admin_credential_id = Admin_Credential.objects.get(user_credential_id = int(pk)),
-                                                        admin_privilege_id = privilege
-                                                    )
-                                except Admin_Credential.DoesNotExist:
-                                    data['success'] = False
-                                    data['message'] = "item does not exist"
-                                    return Response(data = data, status=status.HTTP_404_NOT_FOUND)
-                                else:
-                                    if(len(many_to_many) > 0):
-                                        data['success'] = True
-                                        data['message'] = "ADMIN already has the PRIVILEGE"
-                                        return Response(data = data, status=status.HTTP_201_CREATED)
-                                    else:
-                                        privilege_ref = Admin_Privilege.objects.filter(admin_privilege_id = privilege)
-                                        if(len(privilege_ref) < 1):
-                                            data['success'] = False
-                                            data['message'] = "PRIVILEGE id invalid"
-                                            return Response(data = data, status=status.HTTP_404_NOT_FOUND)
-                                        else:
-                                            privilege_ref = privilege_ref[0]
-                                            Admin_Cred_Admin_Prev_Int(
-                                                admin_credential_id = Admin_Credential.objects.get(user_credential_id = int(pk)),
-                                                admin_privilege_id = privilege_ref
-                                            ).save()
-                                            data['success'] = True
-                                            data['message'] = "PRIVILEGE granted to ADMIN"
-                                            return Response(data = data, status=status.HTTP_201_CREATED)
+                    if(privilege  > 0): # TODO : grant privilege
+                        many_to_many = Admin_Cred_Admin_Prev_Int.objects.filter(
+                                            admin_credential_id = Admin_Credential.objects.get(user_credential_id = int(pk)),
+                                            admin_privilege_id = privilege
+                                        )
+                        if(len(many_to_many) > 0):
+                            data['success'] = True
+                            data['message'] = "ADMINP : ADMIN_ALREADY_HAS_PRIVILEGE"
+                            return Response(data = data, status=status.HTTP_201_CREATED)
+                        else:
+                            privilege_ref = Admin_Privilege.objects.filter(admin_privilege_id = privilege)
+                            if(len(privilege_ref) < 1):
+                                data['success'] = False
+                                data['message'] = "ADMINP : PRIVILEGE_ID_INVALID"
+                                return Response(data = data, status=status.HTTP_404_NOT_FOUND)
                             else:
-                                privilege = privilege*-1
-                                try:
-                                    many_to_many = Admin_Cred_Admin_Prev_Int.objects.filter(
-                                                        admin_credential_id = Admin_Credential.objects.get(user_credential_id = int(pk)),
-                                                        admin_privilege_id = privilege
-                                                    )
-                                except Admin_Credential.DoesNotExist:
-                                    data['success'] = False
-                                    data['message'] = "item does not exist"
-                                    return Response(data = data, status=status.HTTP_404_NOT_FOUND)
-                                else:
-                                    if(len(many_to_many) < 1):
-                                        data['success'] = True
-                                        data['message'] = "ADMIN does not the PRIVILEGE"
-                                        return Response(data = data, status=status.HTTP_202_ACCEPTED)
-                                    else:
-                                        many_to_many[0].delete()
-                                        data['success'] = True
-                                        data['message'] = "PRIVILEGE revoked from ADMIN"
-                                        return Response(data = data, status=status.HTTP_202_ACCEPTED)
+                                privilege_ref = privilege_ref[0]
+                                Admin_Cred_Admin_Prev_Int(
+                                    admin_credential_id = Admin_Credential.objects.get(user_credential_id = int(pk)),
+                                    admin_privilege_id = privilege_ref
+                                ).save()
+                                data['success'] = True
+                                data['message'] = "ADMINP : PRIVILEGE_GRANTED_TO_ADMIN"
+                                return Response(data = data, status=status.HTTP_201_CREATED)
+                    else: # TODO : revoke privilge
+                        privilege = privilege*-1
+                        many_to_many = Admin_Cred_Admin_Prev_Int.objects.filter(
+                                            admin_credential_id = Admin_Credential.objects.get(user_credential_id = int(pk)),
+                                            admin_privilege_id = privilege
+                                        )
+                        if(len(many_to_many) < 1):
+                            data['success'] = True
+                            data['message'] = "ADMINP : ADMIN_DOES_NOT_HAVE_PRIVILEGE"
+                            return Response(data = data, status=status.HTTP_202_ACCEPTED)
+                        else:
+                            many_to_many[0].delete()
+                            data['success'] = True
+                            data['message'] = "ADMINP : PRIVILEG_REVOKED_FROM_ADMIN"
+                            return Response(data = data, status=status.HTTP_202_ACCEPTED)
         else:
             data['success'] = False
             data['message'] = {
@@ -298,51 +240,56 @@ class Admin_Credential_View(APIView):
         isAuthorizedAPI = am_I_Authorized(request, "API")
         if(not isAuthorizedAPI[0]):
             data['success'] = False
-            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            data["message"] = "ENDPOINT_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
 
         if(pk not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(isAuthorizedUSER[0] == False):
                 data['success'] = False
-                data['message'] = f"error:USER_NOT_AUTHORIZED, message:{isAuthorizedUSER[1]}"
+                data['message'] = f"USER_NOT_AUTHORIZED"
                 return Response(data = data)
             else:
                 isAuthorizedADMIN = am_I_Authorized(request, "ADMIN")
-                if(isAuthorizedADMIN < 3):
+                if(isAuthorizedADMIN <= 1):
                     data['success'] = False
-                    data['message'] = "USER does not have required ADMIN PRIVILEGES"
+                    data['message'] = "ADMIN_NOT_ADMIN_PRIME"
                     return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
                 else:
                     try:
-                        if(int(pk) == 0 or int(pk) == isAuthorizedUSER[1]): #self
+                        if(int(pk) == 0): # TODO : ADMIN deleting own admin access
                             Admin_Credential.objects.get(user_credential_id = isAuthorizedUSER[1]).delete()
                             data['success'] = True
-                            data['message'] = "Admin Profile deleted"
+                            data['message'] = "ADMIN_PROFILE_DELETED"
                             return Response(data = data, status = status.HTTP_202_ACCEPTED)
                         else:
-                            if(am_I_Authorized(request, 'ADMIN') > 0):
-                                if(int(pk) == 666):
+                            if(int(pk) == 87795962440396049328460600526719): # TODO : ADMIN_Prime deleting all admins
+                                if(am_I_Authorized(request, 'ADMIN') > 1):
                                     Admin_Credential.objects.all().exclude(user_credential_id = isAuthorizedUSER[1]).delete()
                                     data['success'] = True
-                                    data['message'] = "All Admin Profile(s) Deleted"
+                                    data['message'] = "ALL_ADMIN_PROFILES_DELETED"
                                     return Response(data = data, status = status.HTTP_202_ACCEPTED)
                                 else:
+                                    data['success'] = False
+                                    data['message'] = "ADMIN_NOT_ADMIN_PRIME"
+                                    return Response(data = data, status = status.HTTP_401_UNAUTHORIZED)
+                            else:
+                                if(am_I_Authorized(request, 'ADMIN') > 1):
                                     try:
                                         admin_cred_ref = Admin_Credential.objects.get(user_credential_id = pk)
                                     except Admin_Credential.DoesNotExist:
                                         data['success'] = False
-                                        data['message'] = "item invalid"
+                                        data['message'] = "ADMINP : ADMIN_ID_INVALID"
                                         return Response(data = data, status = status.HTTP_404_NOT_FOUND)
                                     else:
                                         admin_cred_ref.delete()
                                         data['success'] = True
-                                        data['message'] = "Admin Profile deleted"
+                                        data['message'] = "ADMINP : ADMIN_PROFILE_DELETED"
                                         return Response(data = data, status = status.HTTP_202_ACCEPTED)
-                            else:
-                                data['success'] = False
-                                data['message'] = "User does not have ADMIN privileges"
-                                return Response(data = data, status = status.HTTP_401_UNAUTHORIZED)
+                                else:
+                                    data['success'] = False
+                                    data['message'] = "ADMIN_NOT_ADMIN_PRIME"
+                                    return Response(data = data, status = status.HTTP_401_UNAUTHORIZED)
                     except Exception as ex:
                         print("EX : ", ex)
                         return Response(status = status.HTTP_400_BAD_REQUEST)
