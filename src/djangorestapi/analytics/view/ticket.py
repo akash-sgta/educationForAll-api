@@ -25,19 +25,19 @@ class Ticket_View(APIView):
     def __init__(self):
         super().__init__()
 
-    def post(self, request, pk=None):
+    def post(self, request, pk=None): # TODO : Any user can post tickets
         data = dict()
         
         isAuthorizedAPI = am_I_Authorized(request, "API")
         if(not isAuthorizedAPI[0]):
             data['success'] = False
-            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            data["message"] = "ENDPOINT_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         
         isAuthorizedUSER = am_I_Authorized(request, "USER")
         if(isAuthorizedUSER[0] == False):
             data['success'] = False
-            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{isAuthorizedUSER[1]}"
+            data['message'] = f"USER_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         else:
             ticket_de_serialized = Ticket_Serializer(data = request.data)
@@ -52,47 +52,44 @@ class Ticket_View(APIView):
                 data['message'] = ticket_de_serialized.errors
                 return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
     
-    def get(self, request, pk=None):
+    def get(self, request, pk=None): # TODO : Only Admins can access tickets
         data = dict()
         
         isAuthorizedAPI = am_I_Authorized(request, "API")
         if(not isAuthorizedAPI[0]):
             data['success'] = False
-            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            data["message"] = "ENDPOINT_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         
         if(pk not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(not isAuthorizedUSER[0]):
                 data['success'] = False
-                data['message'] = f"error:USER_NOT_AUTHORIZED, message:{isAuthorizedUSER[1]}"
+                data['message'] = f"USER_NOT_AUTHORIZED"
                 return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
             else:
-                # pk    -   0   -   all
-                # pk    -   1   -   unsolved
-                # pk    -   2   -   solved
-                isAuthorizedADMIN = am_I_Authorized(request, "admin")
+                isAuthorizedADMIN = am_I_Authorized(request, "ADMIN")
                 if(isAuthorizedADMIN > 0):
                     pk = int(pk)
-                    if(pk == 0):
+                    if(pk == 87795962440396049328460600526719): # TODO : All tickets
                         data['success'] = True
                         data['data'] = Ticket_Serializer(Ticket.objects.all(), many=True).data
                         return Response(data = data, status=status.HTTP_202_ACCEPTED)
-                    elif(pk == 1):
+                    elif(pk == 1): # TODO : Unsolved Tickets
                         data['success'] = True
                         data['data'] = Ticket_Serializer(Ticket.objects.filter(prime=False), many=True).data
                         return Response(data = data, status=status.HTTP_202_ACCEPTED)
-                    elif(pk == 2):
+                    elif(pk == 2): # TODO : Solved Tickets
                         data['success'] = True
                         data['data'] = Ticket_Serializer(Ticket.objects.filter(prime=True), many=True).data
                         return Response(data = data, status=status.HTTP_202_ACCEPTED)
                     else:
                         data['success'] = False
-                        data['message'] = "item is invalid, only 0(all) 1(solved) 2(unsolved) allowed"
+                        data['message'] = "INVALID_ID_[87795962440396049328460600526719->ALL, 1->Unsolved, 2->Solved]"
                         return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
                 else:
                     data['success'] = False
-                    data['message'] = "ADMIN_NOT_AUTHORIZED"
+                    data['message'] = "USER_NOT_ADMIN"
                     return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         else:
             data['success'] = False
@@ -102,80 +99,92 @@ class Ticket_View(APIView):
             }
             return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
     
-    def put(self, request, pk=None):
+    def put(self, request, pk=None): # TODO : Only Admins can change Ticket status
         data = dict()
         
         isAuthorizedAPI = am_I_Authorized(request, "API")
         if(not isAuthorizedAPI[0]):
             data['success'] = False
-            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            data["message"] = "ENDPOINT_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
-        
-        isAuthorizedADMIN = am_I_Authorized(request, "ADMIN")
-        if(isAuthorizedADMIN < 1):
-            data['success'] = False
-            data['message'] = f"error:USER_NOT_ADMIN"
-            return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
-        else:
-            try:
-                ticket_ref = Ticket.objects.get(ticket_id = int(pk))
-            except Ticket.DoesNotExist:
+        if(pk not in (None, "")):
+            isAuthorizedUSER = am_I_Authorized(request, "USER")
+            if(isAuthorizedUSER[0] == False):
                 data['success'] = False
-                data['message'] = 'id does not exist'
-                return Response(data = data, status=status.HTTP_404_NOT_FOUND)
+                data['message'] = f"USER_NOT_AUTHORIZED"
+                return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
             else:
-                try:
-                    ticket_ref.prime = request.data['solved']
-                    ticket_ref.save()
-                except Exception as ex:
-                    print("::", ex)
+                isAuthorizedADMIN = am_I_Authorized(request, "ADMIN")
+                if(isAuthorizedADMIN < 1):
                     data['success'] = False
-                    data['message'] = 'invalid data in json'
-                    return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
+                    data['message'] = f"USER_NOT_ADMIN"
+                    return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
                 else:
-                    data['success'] = True
-                    data['data'] = Ticket_Serializer(ticket_ref, many=False).data
-                    return Response(data = data, status=status.HTTP_201_CREATED)
+                    try:
+                        ticket_ref = Ticket.objects.get(ticket_id = int(pk))
+                    except Ticket.DoesNotExist:
+                        data['success'] = False
+                        data['message'] = 'TICKET_ID_INVALID'
+                        return Response(data = data, status=status.HTTP_404_NOT_FOUND)
+                    else:
+                        try:
+                            ticket_ref.prime = request.data['solved']
+                            ticket_ref.save()
+                        except Exception as ex:
+                            data['success'] = False
+                            data['message'] = 'INVALID_JSON_DATA[true/false]'
+                            return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
+                        else:
+                            data['success'] = True
+                            data['data'] = Ticket_Serializer(ticket_ref, many=False).data
+                            return Response(data = data, status=status.HTTP_201_CREATED)
+        else:
+            data['success'] = False
+            data['message'] = {
+                'METHOD' : 'PUT',
+                'URL_FORMAT' : '/api/analytics/ticket/<id>'
+            }
+            return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk=None):
+    def delete(self, request, pk=None):# TODO : Only Admins can delete Tickets
         data = dict()
         
         isAuthorizedAPI = am_I_Authorized(request, "API")
         if(not isAuthorizedAPI[0]):
             data['success'] = False
-            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            data["message"] = "ENDPOINT_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         
         if(pk not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(isAuthorizedUSER[0] == False):
                 data['success'] = False
-                data['message'] = f"error:USER_NOT_AUTHORIZED, message:{isAuthorizedUSER[1]}"
+                data['message'] = f"USER_NOT_AUTHORIZED"
                 return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
             else:
-                isAuthorizedADMIN = am_I_Authorized(request, "admin")
+                isAuthorizedADMIN = am_I_Authorized(request, "ADMIN")
                 if(isAuthorizedADMIN > 0):
                     pk = int(pk)
-                    if(pk == 0):
+                    if(pk == 87795962440396049328460600526719):
                         Ticket.objects.all().delete()
                         data['success'] = True
-                        data['message'] = "All TICKET(s) deleted"
+                        data['message'] = "ALL_TICKETS_DELETED"
                         return Response(data = data, status = status.HTTP_202_ACCEPTED)
                     else:
                         try:
                             ticket_ref = Ticket.objects.get(ticket_id = pk)
                         except Ticket.DoesNotExist:
                             data['success'] = False
-                            data['message'] = "item does not exist"
+                            data['message'] = "TICKET_ID_INVALID"
                             return Response(data = data, status=status.HTTP_404_NOT_FOUND)
                         else:
                             ticket_ref.delete()
                             data['success'] = True
-                            data['data'] = "TICKET deleted"
+                            data['data'] = "TICKET_DELETED"
                             return Response(data = data, status=status.HTTP_202_ACCEPTED)
                 else:
                     data['success'] = False
-                    data['message'] = "ADMIN_NOT_AUTHORIZED"
+                    data['message'] = "USER_NOT_ADMIN"
                     return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         else:
             data['success'] = False

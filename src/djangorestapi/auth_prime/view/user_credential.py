@@ -159,7 +159,7 @@ class User_Credential_View(APIView):
             }
             return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
 
-    def put(self, request, pk=None): # FIXME : Add admin access to change password changing privilege
+    def put(self, request, pk=None): # FIXME : Add admin access to change password of users
         data = dict()
 
         isAuthorizedAPI = am_I_Authorized(request, "API")

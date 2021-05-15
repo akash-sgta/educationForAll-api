@@ -32,14 +32,14 @@ class Log_View(APIView):
         isAuthorizedAPI = am_I_Authorized(request, "API")
         if(not isAuthorizedAPI[0]):
             data['success'] = False
-            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            data["message"] = "ENDPOINT_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         
         if(date not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(not isAuthorizedUSER[0]):
                 data['success'] = False
-                data['message'] = f"error:USER_NOT_AUTHORIZED, message:{isAuthorizedUSER[1]}"
+                data['message'] = f"USER_NOT_AUTHORIZED"
                 return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
             else:
                 data['success'] = True

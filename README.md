@@ -87,6 +87,10 @@ python manage.py runserver
 
 ***
 
+FOR BETTER CODE VISIBILITY : __fabiospampinato.vscode-highlight__
+
+***
+
 ### Intermediate
 
 ```
