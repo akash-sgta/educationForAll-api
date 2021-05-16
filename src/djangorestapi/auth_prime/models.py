@@ -83,7 +83,8 @@ class User_Token_Table(models.Model):
     token_start = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        data = '''UTT [{}, {}, {}]'''.format(
+        data = '''U [{}] || UTT [{}, {}, {}]'''.format(
+            self.user_credential_id.user_credential_id,
             self.token_id,
             self.token_start,
             self.token_start+timedelta(hours=48)

@@ -1,10 +1,14 @@
 from django.db import models
 
-from content_delivery.models import Post
-from content_delivery.models import Assignment
-from content_delivery.models import Subject
+from content_delivery.models import (
+    Post,
+    Assignment,
+    Subject
+)
 
-from auth_prime.models import User_Credential
+from auth_prime.models import (
+    User_Credential,
+)
 
 # Create your models here.
 

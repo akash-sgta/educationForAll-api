@@ -49,7 +49,7 @@ urlpatterns = [
     # url(r'^docs/swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     # url(r'^docs/redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     
-    url(r'mahnigga/', admin.site.urls),
+    url(r'djadmin/', admin.site.urls),
 
     url(r'^', include('auth_prime.urls')),
     url(r'^', include('content_delivery.urls')),

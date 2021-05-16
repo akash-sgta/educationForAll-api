@@ -44,7 +44,7 @@ class User_Credential_View(APIView):
             if(isAuthorizedUSER[0]):
                 user_cred_ref = User_Credential.objects.get(user_credential_id = isAuthorizedUSER[1])
                 user_cred_serialized = User_Credential_Serializer(user_cred_ref, many=False)
-                data['success'] = True
+                data['success'] = False
                 data['message'] = "USER_ALREADY_LOGGED_IN"
                 return Response(data = data, status=status.HTTP_201_CREATED)
             else:

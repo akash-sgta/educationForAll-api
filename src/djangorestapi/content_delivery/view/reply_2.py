@@ -26,19 +26,19 @@ class Reply_2_View(APIView):
     def __init__(self):
         super().__init__()
     
-    def post(self, request, pk=None):
+    def post(self, request, pk=None):# TODO : Users can add replies
         data = dict()
         
         isAuthorizedAPI = am_I_Authorized(request, "API")
         if(not isAuthorizedAPI[0]):
             data['success'] = False
-            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            data["message"] = "ENDPOINT_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         
         isAuthorizedUSER = am_I_Authorized(request, "USER")
         if(isAuthorizedUSER[0] == False):
             data['success'] = False
-            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{isAuthorizedUSER[1]}"
+            data['message'] = f"USER_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         else:
             reply_de_serialized = ReplyToReply_Serializer(data = request.data)
@@ -53,38 +53,32 @@ class Reply_2_View(APIView):
                 data['message'] = reply_de_serialized.errors
                 return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
     
-    def get(self, request, pk=None):
+    def get(self, request, pk=None): # TODO : Users can see all replies indivisually 
         data = dict()
         
         isAuthorizedAPI = am_I_Authorized(request, "API")
         if(not isAuthorizedAPI[0]):
             data['success'] = False
-            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            data["message"] = "ENDPOINT_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         
         if(pk not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(isAuthorizedUSER[0] == False):
                 data['success'] = False
-                data['message'] = f"error:USER_NOT_AUTHORIZED, message:{isAuthorizedUSER[1]}"
+                data['message'] = f"USER_NOT_AUTHORIZED"
                 return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
             else:
-                user_id = isAuthorizedUSER[1]
-                if(int(pk) == 0):
+                try:
+                    reply_ref = ReplyToReply.objects.get(reply_id = int(pk))
+                except ReplyToReply.DoesNotExist:
                     data['success'] = False
-                    data['message'] = "item does not exist"
+                    data['message'] = "INVALID_REPLY2_ID"
                     return Response(data = data, status=status.HTTP_404_NOT_FOUND)
                 else:
-                    try:
-                        reply_ref = ReplyToReply.objects.filter(reply_to_id = int(pk))
-                    except ReplyToReply.DoesNotExist:
-                        data['success'] = False
-                        data['message'] = "item does not exist"
-                        return Response(data = data, status=status.HTTP_404_NOT_FOUND)
-                    else:
-                        data['success'] = True
-                        data['data'] = ReplyToReply_Serializer(reply_ref, many=True).data
-                        return Response(data = data, status=status.HTTP_202_ACCEPTED)
+                    data['success'] = True
+                    data['data'] = ReplyToReply_Serializer(reply_ref, many=False).data
+                    return Response(data = data, status=status.HTTP_202_ACCEPTED)
         else:
             data['success'] = False
             data['message'] = {
@@ -93,27 +87,27 @@ class Reply_2_View(APIView):
             }
             return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
     
-    def put(self, request, pk=None):
+    def put(self, request, pk=None): # TODO : Users can edit own replies
         data = dict()
         
         isAuthorizedAPI = am_I_Authorized(request, "API")
         if(not isAuthorizedAPI[0]):
             data['success'] = False
-            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            data["message"] = "ENDPOINT_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         
         if(pk not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(isAuthorizedUSER[0] == False):
                 data['success'] = False
-                data['message'] = f"error:USER_NOT_AUTHORIZED, message:{isAuthorizedUSER[1]}"
+                data['message'] = f"USER_NOT_AUTHORIZED"
                 return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
             else:
                 try:
                     reply_ref = ReplyToReply.objects.get(reply_id = int(pk), user_credential_id=isAuthorizedUSER[1])
                 except ReplyToReply.DoesNotExist:
                     data['success'] = False
-                    data['message'] = "item does not exist or does not belong to user"
+                    data['message'] = "REPLY2_DOES_NOT_EXIST"
                     return Response(data = data, status=status.HTTP_404_NOT_FOUND)
                 else:
                     reply_de_serialized = ReplyToReply_Serializer(reply_ref, data=request.data)
@@ -134,46 +128,33 @@ class Reply_2_View(APIView):
             }
             return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
     
-    def delete(self, request, pk=None):
+    def delete(self, request, pk=None): # TODO : Users can delete own replies
         data = dict()
         
         isAuthorizedAPI = am_I_Authorized(request, "API")
         if(not isAuthorizedAPI[0]):
             data['success'] = False
-            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            data["message"] = "ENDPOINT_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         
         if(pk not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(isAuthorizedUSER[0] == False):
                 data['success'] = False
-                data['message'] = f"error:USER_NOT_AUTHORIZED, message:{isAuthorizedUSER[1]}"
+                data['message'] = f"USER_NOT_AUTHORIZED"
                 return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
             else:
-                user_id = isAuthorizedUSER[1]
-                if(int(pk) == 0): #all
-                    coordinator_ref = Coordinator.objects.filter(user_credential_id = isAuthorizedUSER[1])
-                    if(len(coordinator_ref) < 1):
-                        data['success'] = False
-                        data['message'] = "USER not COORDINATOR"
-                        return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
-                    else:
-                        ReplyToReply.objects.all().delete()
-                        data['success'] = True
-                        data['message'] = "All DEEP REPL(y/ies) deleted as COORDINATOR"
-                        return Response(data = data, status = status.HTTP_202_ACCEPTED)
+                try:
+                    reply_ref = ReplyToReply.objects.get(reply_id = int(pk), user_credential_id = isAuthorizedUSER[1])
+                except ReplyToReply.DoesNotExist:
+                    data['success'] = False
+                    data['message'] = "REPLY2_DOES_NOT_EXIST"
+                    return Response(data = data, status=status.HTTP_404_NOT_FOUND)
                 else:
-                    try:
-                        reply_ref = ReplyToReply.objects.get(reply_id = int(pk), user_credential_id = isAuthorizedUSER[1])
-                    except ReplyToReply.DoesNotExist:
-                        data['success'] = False
-                        data['message'] = "item does not exist or does not belong to user"
-                        return Response(data = data, status=status.HTTP_404_NOT_FOUND)
-                    else:
-                        reply_ref.delete()
-                        data['success'] = True
-                        data['message'] = "DEEP REPLY deleted"
-                        return Response(data = data, status=status.HTTP_202_ACCEPTED)
+                    reply_ref.delete()
+                    data['success'] = True
+                    data['message'] = "REPLY2_DELETED"
+                    return Response(data = data, status=status.HTTP_202_ACCEPTED)
         else:
             data['success'] = False
             data['message'] = {

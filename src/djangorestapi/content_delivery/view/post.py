@@ -56,27 +56,38 @@ class Post_View(APIView):
         isAuthorizedAPI = am_I_Authorized(request, "API")
         if(not isAuthorizedAPI[0]):
             data['success'] = False
-            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            data["message"] = "ENDPOINT_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         
         isAuthorizedUSER = am_I_Authorized(request, "USER")
         if(isAuthorizedUSER[0] == False):
             data['success'] = False
-            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{isAuthorizedUSER[1]}"
+            data['message'] = f"USER_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         else:
-            coordinator_ref = Coordinator.objects.filter(user_credential_id = isAuthorizedUSER[1])
-            if(len(coordinator_ref) < 1):
-                data['success'] = False
-                data['message'] = "USER not COORDINATOR"
-                return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
-            else:
+            try:
                 post_de_serialized = Post_Serializer(data = request.data)
+                Subject_Coordinator_Int.objects.get(
+                    coordinator_id = Coordinator.objects.get(user_credential_id = isAuthorizedUSER[1]).coordinator_id,
+                    subject_id = post_de_serialized.initial_data['subject_id'])
+            except Coordinator.DoesNotExist:
+                data['success'] = False
+                data['message'] = "USER_NOT_COORDINATOR"
+                return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+            except Subject_Coordinator_Int.DoesNotExist: # TODO : Only accessed subject post can be created by coordinators
+                data['success'] = False
+                data['message'] = "COORDINATOR_NOT_ACCESSED_TO_SUBJECT"
+                return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+            except KeyError:
+                data['success'] = False
+                data['message'] = "CHECK_SUBJECT_ID_KEY"
+                return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
+            else:
                 post_de_serialized.initial_data['user_credential_id'] = isAuthorizedUSER[1]
                 if(post_de_serialized.is_valid()):
                     post_de_serialized.save()
-                    # create notification for concerned part(y/ies)
-                    # ---------------------------------------------
+
+                    # TODO : create notification for concerned part(y/ies)
                     message = f"Date : {post_de_serialized.data['made_date'].split('T')[0]}"
                     try:
                         message += f"\n\n<b>{Subject_Serializer(Subject.objects.get(subject_id = post_de_serialized.data['subject_id']), many=False).data['subject_name']}</b>"
@@ -113,7 +124,7 @@ class Post_View(APIView):
                                 notification_id = notification_ref_new,
                                 user_credential_id = one.user_credential_id
                             ).save()
-                    # ---------------------------------------------
+                    # TODO : =================================================================
                     data['success'] = True
                     data['data'] = post_de_serialized.data
                     return Response(data = data, status=status.HTTP_201_CREATED)
@@ -142,26 +153,47 @@ class Post_View(APIView):
                     isAuthorizedADMIN = am_I_Authorized(request, "ADMIN")
                     if(isAuthorizedADMIN > 0):
                         data['success'] = True
-                        data['data'] = Post_Serializer(Post.objects.all(), many=True).data
+                        data['data'] = Post_Serializer(Post.objects.all().order_by("-post_id"), many=True).data
                         return Response(data = data, status=status.HTTP_202_ACCEPTED)
                     else:
                         data['success'] = False
                         data['message'] = "USER_NOT_ADMIN"
                         return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
-                elif(int(pk) == 0): # 
-                    enroll_ref_list = Enroll.objects.filter(user_credential_id = isAuthorizedUSER[1]).values('subject_id')
-                    temp = list()
-                    for sub_id in enroll_ref_list:
-                        temp.extend(Post_Serializer(Post.objects.filter(subject_id = sub_id['subject_id']).order_by('-pk'), many=True).data)
-                    data['success'] = True
-                    data['data'] = temp.copy()
-                    return Response(data = data, status=status.HTTP_202_ACCEPTED)
-                else:
+                elif(int(pk) == 13416989436929794359012690353783): # TODO : Coordintor asks for respective subject posts
+                    try:
+                        coordinator_id = Coordinator.objects.get(user_credential_id = isAuthorizedUSER[1]).coordinator_id
+                    except Coordinator.DoesNotExist:
+                        data['success'] = False
+                        data['message'] = "USER_NOT_COORDINATOR"
+                        return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+                    else:
+                        sub_coor_ref_ids = Subject_Coordinator_Int.objects.filter(coordinator_id = coordinator_id).values('subject_id')
+                        temp = list()
+                        for sub_id in sub_coor_ref_ids:
+                            temp.extend(Post_Serializer(Post.objects.filter(subject_id = sub_id['subject_id']).order_by("-post_id"), many=True).data)
+                        data['success'] = True
+                        data['data'] = temp.copy()
+                        return Response(data = data, status=status.HTTP_202_ACCEPTED)
+                elif(int(pk) == 0): # TODO : User asking for all posts under enrolled subjects
+                    try:
+                        enroll_sub_ids = Enroll.objects.filter(user_credential_id = isAuthorizedUSER[1]).values('subject_id')
+                    except Enroll.DoesNotExist:
+                        data['success'] = False
+                        data['message'] = "USER_NOT_ENROLLED"
+                        return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+                    else:
+                        temp = list()
+                        for sub_id in enroll_sub_ids:
+                            temp.extend(Post_Serializer(Post.objects.filter(subject_id = sub_id['subject_id']).order_by("-post_id"), many=True).data)
+                        data['success'] = True
+                        data['data'] = temp.copy()
+                        return Response(data = data, status=status.HTTP_202_ACCEPTED)
+                else: # TODO : User asking for specific post
                     try:
                         post_ref = Post.objects.get(post_id = int(pk))
                     except Post.DoesNotExist:
                         data['success'] = False
-                        data['message'] = "item does not exist"
+                        data['message'] = "POST_ID_INVALID"
                         return Response(data = data, status=status.HTTP_404_NOT_FOUND)
                     else:
                         post_ref.post_views += 1
@@ -183,27 +215,39 @@ class Post_View(APIView):
         isAuthorizedAPI = am_I_Authorized(request, "API")
         if(not isAuthorizedAPI[0]):
             data['success'] = False
-            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            data["message"] = "ENDPOINT_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         
         if(pk not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(isAuthorizedUSER[0] == False):
                 data['success'] = False
-                data['message'] = f"error:USER_NOT_AUTHORIZED, message:{isAuthorizedUSER[1]}"
+                data['message'] = f"USER_NOT_AUTHORIZED"
                 return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
             else:
-                coordinator_ref = Coordinator.objects.filter(user_credential_id = isAuthorizedUSER[1])
-                if(len(coordinator_ref) < 1):
+                try:
+                    post_de_serialized = Post_Serializer(data = request.data)
+                    Subject_Coordinator_Int.objects.get(
+                        coordinator_id = Coordinator.objects.get(user_credential_id = isAuthorizedUSER[1]).coordinator_id,
+                        subject_id = post_de_serialized.initial_data['subject_id'])
+                except Coordinator.DoesNotExist:
                     data['success'] = False
-                    data['message'] = "USER not COORDINATOR"
+                    data['message'] = "USER_NOT_COORDINATOR"
                     return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+                except Subject_Coordinator_Int.DoesNotExist: # TODO : Only accessed subject post can be edited by coordinators
+                    data['success'] = False
+                    data['message'] = "COORDINATOR_NOT_ACCESSED_TO_SUBJECT"
+                    return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+                except KeyError:
+                    data['success'] = False
+                    data['message'] = "CHECK_SUBJECT_ID_KEY"
+                    return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
                 else:
                     try:
                         post_ref = Post.objects.get(post_id = int(pk), user_credential_id = isAuthorizedUSER[1])
                     except Post.DoesNotExist:
                         data['success'] = False
-                        data['message'] = "item does not exist or does not belong to user"
+                        data['message'] = "POST_DOES_NOT_BELONG_TO_USER"
                         return Response(data = data, status=status.HTTP_404_NOT_FOUND)
                     else:
                         post_de_serialized = Post_Serializer(post_ref, data=request.data)
@@ -230,51 +274,59 @@ class Post_View(APIView):
         isAuthorizedAPI = am_I_Authorized(request, "API")
         if(not isAuthorizedAPI[0]):
             data['success'] = False
-            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            data["message"] = "ENDPOINT_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         
         if(pk not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(isAuthorizedUSER[0] == False):
                 data['success'] = False
-                data['message'] = f"error:USER_NOT_AUTHORIZED, message:{isAuthorizedUSER[1]}"
+                data['message'] = f"USER_NOT_AUTHORIZED"
                 return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
             else:
-                coordinator_ref = Coordinator.objects.filter(user_credential_id = isAuthorizedUSER[1])
-                if(len(coordinator_ref) < 1):
+                try:
+                    coordinator_ref = Coordinator.objects.get(user_credential_id = isAuthorizedUSER[1])
+                except Coordinator.DoesNotExist:
                     data['success'] = False
-                    data['message'] = "USER not COORDINATOR"
+                    data['message'] = "USER_NOT_COORDINATOR"
                     return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
                 else:
-                    if(int(pk) == 0): #all
+                    if(int(pk) == 87795962440396049328460600526719): # TODO : Admin deletes all posts
                         Video.objects.all().delete()
                         Forum.objects.all().delete()
                         Lecture.objects.all().delete()
                         Assignment.objects.all.delete()
                         Post.objects.all().delete()
                         data['success'] = True
-                        data['message'] = "All POST(s) deleted"
+                        data['message'] = "ADMIN : ALL_POSTS_DELETED"
                         return Response(data = data, status = status.HTTP_202_ACCEPTED)
                     else:
                         try:
-                            post_ref = Post.objects.get(post_id = int(pk), user_credential_id = isAuthorizedUSER[1])
+                            post_ref = None
+                            post_ref = Post.objects.get(post_id = int(pk))
                         except Post.DoesNotExist:
-                            data['success'] = False
-                            data['message'] = "item does not exist or does not belong to user"
-                            return Response(data = data, status=status.HTTP_404_NOT_FOUND)
+                            if(post_ref == None):
+                                data['success'] = False
+                                data['message'] = "INVALID_POST_ID"
+                                return Response(data = data, status=status.HTTP_404_NOT_FOUND)
                         else:
-                            if(post_ref.video_id != None):
-                                post_ref.video_id.delete()
-                            if(post_ref.lecture_id != None):
-                                post_ref.lecture_id.delete()
-                            if(post_ref.forum_id != None):
-                                post_ref.forum_id.delete()
-                            if(post_ref.assignment_id != None):
-                                post_ref.assignment_id.delete()
-                            post_ref.delete()
-                            data['success'] = True
-                            data['message'] = "POST deleted"
-                            return Response(data = data, status=status.HTTP_202_ACCEPTED)
+                            if(post_ref.user_credential_id.user_credential_id != isAuthorizedUSER[1] and am_I_Authorized(request, "ADMIN") < 1):
+                                data['success'] = False
+                                data['message'] = "USER_NOT_ADMIN"
+                                return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+                            else:
+                                if(post_ref.video_id != None):
+                                    post_ref.video_id.delete()
+                                if(post_ref.lecture_id != None):
+                                    post_ref.lecture_id.delete()
+                                if(post_ref.forum_id != None):
+                                    post_ref.forum_id.delete()
+                                if(post_ref.assignment_id != None):
+                                    post_ref.assignment_id.delete()
+                                post_ref.delete()
+                                data['success'] = True
+                                data['message'] = "POST_DELETED"
+                                return Response(data = data, status=status.HTTP_202_ACCEPTED)
         else:
             data['success'] = False
             data['message'] = {
