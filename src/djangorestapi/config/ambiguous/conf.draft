@@ -11,13 +11,13 @@ server {
 
     error_page 400 401 403 404 /40x.html;
     location = /40x.html {
-                alias /home/<user>/repositories/education-for-all/src/djangorestapi/templates;
+                alias /home/<user>/repositories/education-for-all/src/djangorestapi/templates/40x;
                 internal;
     }
 
     error_page 500 502 503 504 /50x.html;
     location = /50x.html {
-                alias /home/<user>/repositories/education-for-all/src/djangorestapi/templates;
+                alias /home/<user>/repositories/education-for-all/src/djangorestapi/templates/50x;
                 internal;
     }
 
