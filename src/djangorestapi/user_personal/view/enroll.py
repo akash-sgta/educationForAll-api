@@ -36,13 +36,13 @@ class Enroll_View(APIView):
         isAuthorizedAPI = am_I_Authorized(request, "API")
         if(not isAuthorizedAPI[0]):
             data['success'] = False
-            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            data["message"] = "ENDPOINT_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         
         isAuthorizedUSER = am_I_Authorized(request, "USER")
         if(isAuthorizedUSER[0] == False):
             data['success'] = False
-            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{isAuthorizedUSER[1]}"
+            data['message'] = f"USER_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         else:
             try:
@@ -57,11 +57,11 @@ class Enroll_View(APIView):
                     return Response(data=data, status=status.HTTP_201_CREATED)
                 else:
                     data['success'] = False
-                    data['message'] = f"error:SERIALIZING_ERROR, message:{enroll_serialized.errors}"
+                    data['message'] = f"SERIALIZING_ERROR : {enroll_serialized.errors}"
                     return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
             else:
                 data['success'] = True
-                data['message'] = f"User already enrolled with subject"
+                data['message'] = f"USER_ALREADY_ENROLLED"
                 data['data'] = Enroll_Serializer(enroll_ref, many=False).data
                 return Response(data = data, status=status.HTTP_202_ACCEPTED)
 
@@ -71,49 +71,41 @@ class Enroll_View(APIView):
         isAuthorizedAPI = am_I_Authorized(request, "API")
         if(not isAuthorizedAPI[0]):
             data['success'] = False
-            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            data["message"] = "ENDPOINT_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         
         if(pk not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(not isAuthorizedUSER[0]):
                 data['success'] = False
-                data['message'] = f"error:USER_NOT_AUTHORIZED, message:{isAuthorizedUSER[1]}"
+                data['message'] = f"USER_NOT_AUTHORIZED"
                 return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
             else:
                 try:
-                    # coordinator   -   0   -   All enrollment under thier subject
-                    # others        -   0   -   All subjects enrolled
-                    if(int(pk) == 0):
-                        coordinator_ref = Coordinator.objects.filter(user_credential_id = isAuthorizedUSER[1])
-                        if(len(coordinator_ref) < 1): # normal user
-                            data['success'] = True
-                            subject_list = list()
-                            for one in Enroll_Serializer(Enroll.objects.filter(user_credential_id = isAuthorizedUSER[1]), many=True).data:
-                                subject_list.append(one['subject_id'])
-                            data['data'] = {'subject' : subject_list.copy()}
-                            return Response(data=data, status=status.HTTP_202_ACCEPTED)
-                        else: # coordinator
-                            coordinator_ref = coordinator_ref[0]
-                            many_to_many_coor_sub = Subject_Coordinator_Int.objects.filter(coordinator_id = coordinator_ref.coordinator_id)
-                            # print(many_to_many_coor_sub)
-                            enroll_list = list()
-                            for one in many_to_many_coor_sub:
-                                user_list = list()
-                                enroll_ref = Enroll.objects.filter(subject_id = one.subject_id.subject_id)
-                                for enroll in enroll_ref:
-                                    user_list.append(enroll.user_credential_id.user_credential_id)
-                                enroll_list.append({
-                                    "subject" : one.subject_id.subject_id,
-                                    "user" : user_list.copy()
+                    if(int(pk) == 0): # TODO : Coordinator Looking for their enrollments
+                        try:
+                            coordinator_ref = Coordinator.objects.get(user_credential_id = isAuthorizedUSER[1])
+                        except Coordinator.DoesNotExist:
+                            data['success'] = False
+                            data['message'] = "USER_NOT_COORDINATOR"
+                            return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
+                        else:
+                            many_to_many_coor_sub = Subject_Coordinator_Int.objects.filter(coordinator_id = coordinator_ref.coordinator_id).values('subject_id')
+                            coordinator_subject_ids = [one['subject_id'] for one in many_to_many_coor_sub]
+                            data['data'] = list()
+                            for one_sub in coordinator_subject_ids:
+                                enroll_ref = Enroll.objects.filter(subject_id = one_sub['subject_id']).values('user_coordinator_id')
+                                data['data'].append({
+                                    "subject" : one_sub,
+                                    "user" : [enroll_ref['user_coordinator_id'] for enroll in enroll_ref]
                                 })
                             data['success'] = True
-                            data['data'] = enroll_list.copy()
                             return Response(data=data, status=status.HTTP_202_ACCEPTED)
-                    else:
-                        data['success'] = False
-                        data['message'] = "only 0 accepted as id"
-                        return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+                    elif(int(pk) == 87795962440396049328460600526719): # TODO : User looking for their enrollment
+                        subject_ids = Enroll.objects.filter(user_credential_id = isAuthorizedUSER[1]).values('subject_id')
+                        data['success'] = True
+                        data['data'] = {'subject' : [one['subject_id'] for one in subject_ids]}
+                        return Response(data=data, status=status.HTTP_202_ACCEPTED)
                 except Exception as ex:
                     print("EX : ", ex)
                     return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -131,26 +123,26 @@ class Enroll_View(APIView):
         isAuthorizedAPI = am_I_Authorized(request, "API")
         if(not isAuthorizedAPI[0]):
             data['success'] = False
-            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            data["message"] = "ENDPOINT_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         
         if(pk not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(isAuthorizedUSER[0] == False):
                 data['success'] = False
-                data['message'] = f"error:USER_NOT_AUTHORIZED, message:{isAuthorizedUSER[1]}"
+                data['message'] = f"USER_NOT_AUTHORIZED"
                 return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
             else:
                 try:
                     enroll_ref = Enroll.objects.get(user_credential_id = isAuthorizedUSER[1], subject_id = pk)
                 except Enroll.DoesNotExist:
                     data['success'] = False
-                    data['message'] = "item does not exist or does not belong to user"
+                    data['message'] = "INVALID_ENROLLMENT_ID"
                     return Response(data = data, status=status.HTTP_404_NOT_FOUND)
                 else:
                     enroll_ref.delete()
                     data['success'] = True
-                    data['message'] = "ENROLLMENT deleted"
+                    data['message'] = "ENROLLMENT_DELETED"
                     return Response(data = data, status=status.HTTP_202_ACCEPTED)
         else:
             data['success'] = False

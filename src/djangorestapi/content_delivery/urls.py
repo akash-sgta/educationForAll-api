@@ -19,6 +19,6 @@ urlpatterns = [
 
     url(r'api/content/post/(?P<pk>\d*)', views.pView.as_view(), name="Post_View"),
 
-    url(r'api/content/votes/(?P<word>\w+)/(?P<pk>\d+)/(?P<word>\w+)$', views.vView.as_view(), name="Votes_View"),
+    url(r'api/content/votes/(?P<word>\w+)/(?P<pk>\d+)/(?P<word>\w{1})$', views.vView.as_view(), name="Votes_View"),
     
 ]

@@ -11,7 +11,9 @@ from auth_prime.important_modules import (
 
 from content_delivery.models import (
         Coordinator,
-        Assignment
+        Assignment,
+        Subject_Coordinator_Int,
+        Post,
     )
 
 from user_personal.models import (
@@ -31,19 +33,19 @@ class Submission_View(APIView):
     def __init__(self):
         super().__init__()
 
-    def post(self, request, pk_1=None, pk_2=None):
+    def post(self, request, pk=None, pkk=None):
         data = dict()
         
         isAuthorizedAPI = am_I_Authorized(request, "API")
         if(not isAuthorizedAPI[0]):
             data['success'] = False
-            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            data["message"] = "ENDPOINT_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         
         isAuthorizedUSER = am_I_Authorized(request, "USER")
         if(isAuthorizedUSER[0] == False):
             data['success'] = False
-            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{isAuthorizedUSER[1]}"
+            data['message'] = f"USER_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         else:
             submission_serialized = Submission_Serializer(data = request.data)
@@ -69,23 +71,23 @@ class Submission_View(APIView):
                     return Response(data=data, status=status.HTTP_201_CREATED)
                 else:
                     data['success'] = False
-                    data['message'] = f"error:SERIALIZING_ERROR, message:{submission_serialized.errors}"
+                    data['message'] = f"SERIALIZING_ERROR : {submission_serialized.errors}"
                     return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
 
-    def get(self, request, pk_1=None, pk_2=None):
+    def get(self, request, pk=None, pkk=None):
         data = dict()
         
         isAuthorizedAPI = am_I_Authorized(request, "API")
         if(not isAuthorizedAPI[0]):
             data['success'] = False
-            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            data["message"] = "ENDPOINT_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         
-        if(pk_1 not in (None, "")):
+        if(pk not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(not isAuthorizedUSER[0]):
                 data['success'] = False
-                data['message'] = f"error:USER_NOT_AUTHORIZED, message:{isAuthorizedUSER[1]}"
+                data['message'] = f"USER_NOT_AUTHORIZED"
                 return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
             else:
                 try:
@@ -93,8 +95,125 @@ class Submission_View(APIView):
                     # pk_1 - 0, pk_2 - None    ->  User demanding all their submission
                     # pk_1 - x, pk_2 - None    ->  User demanding for submission [x]
                     # pk_1 - 0, pk_2 - x       ->  Coordiantor demanding all submission under assignment [x]
-                    if(int(pk_1) == 0):
-                        if(pk_2 not in (None, "")): # Coordiantor demanding all submission under assignment [x]
+                    if(int(pk) == 0): # TODO : User accessing submission
+                        if(int(pkk) == 0): # TODO : All submission
+                            submission_ref = Submission.objects.filter(user_credential_id = isAuthorizedUSER[1]).values('submission_id')
+                            submission_list = [one['submission_id'] for one in submission_serialized]
+                            temp = list()
+                            for sub in submission_list:
+                                try:
+                                    marks_ref = Assignment_Submission_Int.objects.get(submission_id = sub)
+                                except Assignment_Submission_Int.DoesNotExist:
+                                    pass
+                                else:
+                                    temp.append({
+                                        "assignment_id" : marks_ref.assignment_id.assignment_id,
+                                        "submission" : sub,
+                                        "marks" : marks_ref.marks
+                                    })
+                            data['success'] = True
+                            data['data'] = temp.copy()
+                            return Response(data=data, status=status.HTTP_202_ACCEPTED)
+                        else: # TODO : Specific Submission
+                            try:
+                                submission_ref = Submission.objects.get(user_credential_id = isAuthorizedUSER[1], submission_id=int(pkk))
+                            except Submission.DoesNotExist:
+                                data['success'] = False
+                                data['message'] = "INVALID_SUBMISSION_ID"
+                                return Response(data = data, status=status.HTTP_404_NOT_FOUND)
+                            else:
+                                submission_serialized = Submission_Serializer(submission_ref, many=False).data
+                                try:
+                                    marks_ref = Assignment_Submission_Int.objects.get(submission_id = submission_serialized['submission_id'])
+                                except Assignment_Submission_Int.DoesNotExist:
+                                    pass # FIX : Why did this forgot
+                                else:
+                                    data['data'] = {
+                                        "assignment_id" : marks_ref.assignment_id.assignment_id,
+                                        "submission" : submission_serialized,
+                                        "marks" : marks_ref.marks
+                                    }
+                                data['success'] = True
+                                return Response(data=data, status=status.HTTP_202_ACCEPTED)
+                    elif(int(pk) == 87795962440396049328460600526719): # TODO : Coordinator accessing submission
+                        if(int(pkk) == 0): # TODO : All submission
+                            try:
+                                coordinator_id = Coordinator.objects.get(user_credential_id = isAuthorizedUSER[1]).coordinator_id
+                            except Coordinator.DoesNotExist:
+                                data['success'] = False
+                                data['message'] = "USER_NOT_COORDINATOR"
+                                return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
+                            else:
+                                subject_coordinator_ids = Subject_Coordinator_Int.objects.filter(coordinator_id = coordinator_id).values('subject_id')
+                                subject_ids = [int(one['subject_id']) for one in subject_coordinator_ids]
+                                assignment_ids = Post.objects.filter(subject_id__in = subject_ids).values('assignment_id')
+                                assignment_ids = [int(one['assignment_id']) for one in assignment_ids]
+                                temp = dict()
+                                for one in assignment_ids:
+                                    marks_ref = Assignment_Submission_Int.objects.filter(assignment_id = one)
+                                    temp[one] = list()
+                                    for one_ref in marks_ref:
+                                        temp[one].append({
+                                            "submission_id" : one_ref.submission_id.submission_id,
+                                            "marks" : marks_ref.marks
+                                        })
+                                data['success'] = False
+                                data['data'] = temp.copy()
+                                return Response(data=data, status=status.HTTP_200_OK)
+                        else: # TODO : Specific Submission
+                            try:
+                                coordinator_id = Coordinator.objects.get(user_credential_id = isAuthorizedUSER[1]).coordinator_id
+                            except Coordinator.DoesNotExist:
+                                data['success'] = False
+                                data['message'] = "USER_NOT_COORDINATOR"
+                                return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
+                            else:
+                                try:
+                                    submission_ref = Submission.objects.get(submission_id = int(pkk))
+                                except Submission.DoesNotExist:
+                                    data['success'] = False
+                                    data['message'] = "INVALID_SUBMISSION_ID"
+                                    return Response(data=data, status=status.HTTP_404_NOT_FOUND)
+                                else:
+                                    marks_ref = Assignment_Submission_Int.objects.get(submission_id = submission_ref.submission_id)
+                                    temp[one] = list()
+                                    for one_ref in marks_ref:
+                                        temp[one].append({
+                                            "submission_id" : one_ref.submission_id.submission_id,
+                                            "marks" : marks_ref.marks
+                                        })
+                                    data['success'] = True
+                                    data['data'] = temp.copy()
+                                    return Response(data=data, status=status.HTTP_200_OK)
+                                    
+
+                            
+                    else: # TODO : Specific Submission
+                            try:
+                                submission_ref = Submission.objects.get(user_credential_id = isAuthorizedUSER[1], submission_id=int(pkk))
+                            except Submission.DoesNotExist:
+                                data['success'] = False
+                                data['message'] = "INVALID_SUBMISSION_ID"
+                                return Response(data = data, status=status.HTTP_404_NOT_FOUND)
+                            else:
+                                submission_serialized = Submission_Serializer(submission_ref, many=False).data
+                                try:
+                                    marks_ref = Assignment_Submission_Int.objects.get(submission_id = submission_serialized['submission_id'])
+                                except Assignment_Submission_Int.DoesNotExist:
+                                    data['data'] = {
+                                        "assignment_id" : None,
+                                        "submission" : submission_serialized,
+                                        "marks" : marks_ref.marks
+                                    }
+                                else:
+                                    data['data'] = {
+                                        "assignment_id" : marks_ref.assignment_id.assignment_id,
+                                        "submission" : submission_serialized,
+                                        "marks" : marks_ref.marks
+                                    }
+                                data['success'] = True
+                                return Response(data=data, status=status.HTTP_202_ACCEPTED)
+
                             coordinator_ref = Coordinator.objects.filter(user_credential_id = isAuthorizedUSER[1])
                             if(len(coordinator_ref) < 1):
                                 data['success'] = False
@@ -113,38 +232,7 @@ class Submission_View(APIView):
                                     })
                                 data['success'] = True
                                 data['data'] = temp.copy()
-                                return Response(data=data, status=status.HTTP_202_ACCEPTED)
-                        else:
-                            submission_ref = Submission.objects.filter(user_credential_id = isAuthorizedUSER[1])
-                            submission_serialized = Submission_Serializer(submission_ref, many=True).data
-                            temp = list()
-                            for subS in submission_serialized:
-                                intermediate = Assignment_Submission_Int.objects.get(submission_id = subS['submission_id'])
-                                temp.append({
-                                    "assignment_id" : None if(intermediate.assignment_id == None) else intermediate.assignment_id.assignment_id,
-                                    "submission" : subS,
-                                    "marks" : intermediate.marks
-                                })
-                            data['success'] = True
-                            data['data'] = temp.copy()
-                            return Response(data=data, status=status.HTTP_202_ACCEPTED)
-                    else:
-                        try:
-                            submission_ref = Submission.objects.get(user_credential_id = isAuthorizedUSER[1], submission_id=int(pk_1))
-                        except Submission.DoesNotExist:
-                            data['success'] = False
-                            data['message'] = "item does not exist or does not belong to user"
-                            return Response(data = data, status=status.HTTP_404_NOT_FOUND)
-                        else:
-                            submission_serialized = Submission_Serializer(submission_ref, many=False).data
-                            intermediate = Assignment_Submission_Int.objects.get(submission_id = submission_serialized['submission_id'])
-                            data['success'] = True
-                            data['data'] = {
-                                "assignment_id" : None if(intermediate.assignment_id == None) else intermediate.assignment_id.assignment_id,
-                                "submission" : submission_serialized,
-                                "marks" : intermediate.marks
-                            }
-                            return Response(data=data, status=status.HTTP_202_ACCEPTED)
+                                return Response(data=data, status=status.HTTP_202_ACCEPTED)        
                 except Exception as ex:
                     print("EX : ", ex)
                     return Response(status=status.HTTP_400_BAD_REQUEST)
