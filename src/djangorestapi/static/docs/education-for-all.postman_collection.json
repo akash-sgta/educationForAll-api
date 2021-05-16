@@ -253,7 +253,7 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token i4xETbxsVHeA15uNvARSI4uVElYwOaVlS8Z76BsTZj5CX1GMcoRQauNqJER8YLtn",
+										"value": "Token alwZU3mbns1Suq99Zkr25wv6ZFN8VppZz9n2CrlTgDeR0cmjZvbobkR8zTSOpgyf",
 										"type": "text"
 									}
 								],
@@ -286,7 +286,7 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token ",
+										"value": "Token alwZU3mbns1Suq99Zkr25wv6ZFN8VppZz9n2CrlTgDeR0cmjZvbobkR8zTSOpgyf",
 										"type": "text"
 									}
 								],
@@ -1475,7 +1475,7 @@
 					"name": "coordinator_api",
 					"item": [
 						{
-							"name": "create",
+							"name": "[admin] create",
 							"request": {
 								"method": "POST",
 								"header": [
@@ -1495,13 +1495,12 @@
 									}
 								},
 								"url": {
-									"raw": "{{LOCAL}}content/coordinator/create/",
+									"raw": "{{LOCAL}}content/coordinator/",
 									"host": [
 										"{{LOCAL}}content"
 									],
 									"path": [
 										"coordinator",
-										"create",
 										""
 									]
 								}
@@ -1509,7 +1508,7 @@
 							"response": []
 						},
 						{
-							"name": "read",
+							"name": "[user] read self",
 							"protocolProfileBehavior": {
 								"disableBodyPruning": true
 							},
@@ -1518,7 +1517,7 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token pbuBDU2aFCjHSfafJrTy8r5PcdimOaTH8rlfI55i4iRdI76G7biy9m6lBTycRY5J",
+										"value": "Token 7Z67xJpd6sJf5JCjbSZVIo49AbCYlFbim5e0fdLPzWArwkJdyjdkqNf2Ql6Ftkao",
 										"type": "text"
 									}
 								],
@@ -1532,13 +1531,12 @@
 									}
 								},
 								"url": {
-									"raw": "{{AUXILIARY_URL}}content/coordinator/read/0",
+									"raw": "{{LOCAL}}content/coordinator/0",
 									"host": [
-										"{{AUXILIARY_URL}}content"
+										"{{LOCAL}}content"
 									],
 									"path": [
 										"coordinator",
-										"read",
 										"0"
 									]
 								}
@@ -1546,7 +1544,115 @@
 							"response": []
 						},
 						{
-							"name": "edit",
+							"name": "[user] read specific",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token 7Z67xJpd6sJf5JCjbSZVIo49AbCYlFbim5e0fdLPzWArwkJdyjdkqNf2Ql6Ftkao",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/coordinator/4",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"coordinator",
+										"4"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[user] read all",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token 7Z67xJpd6sJf5JCjbSZVIo49AbCYlFbim5e0fdLPzWArwkJdyjdkqNf2Ql6Ftkao",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/coordinator/13416989436929794359012690353783",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"coordinator",
+										"13416989436929794359012690353783"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[admin] read all",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token 7Z67xJpd6sJf5JCjbSZVIo49AbCYlFbim5e0fdLPzWArwkJdyjdkqNf2Ql6Ftkao",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/coordinator/87795962440396049328460600526719",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"coordinator",
+										"87795962440396049328460600526719"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[admin] edit",
 							"request": {
 								"method": "PUT",
 								"header": [
@@ -1558,7 +1664,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"subject\" : 1\r\n}",
+									"raw": "{\r\n    \"subject_id\" : 1\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1566,13 +1672,12 @@
 									}
 								},
 								"url": {
-									"raw": "{{LOCAL}}content/coordinator/edit/1",
+									"raw": "{{LOCAL}}content/coordinator/1",
 									"host": [
 										"{{LOCAL}}content"
 									],
 									"path": [
 										"coordinator",
-										"edit",
 										"1"
 									]
 								}
@@ -1580,7 +1685,7 @@
 							"response": []
 						},
 						{
-							"name": "delete",
+							"name": "[coor] delete self",
 							"request": {
 								"method": "DELETE",
 								"header": [
@@ -1600,17 +1705,79 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost/api/content/coordinator/delete/0",
-									"protocol": "http",
+									"raw": "{{LOCAL}}content/coordinator/0",
 									"host": [
-										"localhost"
+										"{{LOCAL}}content"
 									],
 									"path": [
-										"api",
-										"content",
 										"coordinator",
-										"delete",
 										"0"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[admin] delete one",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/coordinator/5",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"coordinator",
+										"5"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[admin] delete all",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/coordinator/87795962440396049328460600526719",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"coordinator",
+										"87795962440396049328460600526719"
 									]
 								}
 							},
@@ -1622,7 +1789,7 @@
 					"name": "subject_api",
 					"item": [
 						{
-							"name": "create",
+							"name": "[admin] create",
 							"request": {
 								"method": "POST",
 								"header": [
@@ -1656,7 +1823,7 @@
 							"response": []
 						},
 						{
-							"name": "read",
+							"name": "[user] read all",
 							"protocolProfileBehavior": {
 								"disableBodyPruning": true
 							},
@@ -1692,7 +1859,79 @@
 							"response": []
 						},
 						{
-							"name": "edit",
+							"name": "[user] read specific",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token DF9gAekapxAekfRYkNd00xOUn6Jxhfslfv69xjMdX0JmIX1wgZ6mvdux15FBsJxE",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/subject/69",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"subject",
+										"69"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[coor] read allotted",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token DF9gAekapxAekfRYkNd00xOUn6Jxhfslfv69xjMdX0JmIX1wgZ6mvdux15FBsJxE",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/subject/87795962440396049328460600526719",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"subject",
+										"87795962440396049328460600526719"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[admin] edit",
 							"request": {
 								"method": "PUT",
 								"header": [
@@ -1712,16 +1951,12 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost/api/content/subject/edit/4",
-									"protocol": "http",
+									"raw": "{{LOCAL}}content/subject/4",
 									"host": [
-										"localhost"
+										"{{LOCAL}}content"
 									],
 									"path": [
-										"api",
-										"content",
 										"subject",
-										"edit",
 										"4"
 									]
 								}
@@ -1729,7 +1964,7 @@
 							"response": []
 						},
 						{
-							"name": "delete",
+							"name": "[admin] delete all",
 							"request": {
 								"method": "DELETE",
 								"header": [
@@ -1749,17 +1984,46 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost/api/content/subject/delete/0",
-									"protocol": "http",
+									"raw": "{{LOCAL}}content/subject/0",
 									"host": [
-										"localhost"
+										"{{LOCAL}}content"
 									],
 									"path": [
-										"api",
-										"content",
 										"subject",
-										"delete",
 										"0"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[admin] delete specific",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/subject/69",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"subject",
+										"69"
 									]
 								}
 							},
@@ -1771,7 +2035,7 @@
 					"name": "forum_api",
 					"item": [
 						{
-							"name": "create",
+							"name": "[coor] create",
 							"request": {
 								"method": "POST",
 								"header": [
@@ -1791,13 +2055,12 @@
 									}
 								},
 								"url": {
-									"raw": "{{LOCAL}}content/forum/create/",
+									"raw": "{{LOCAL}}content/forum/",
 									"host": [
 										"{{LOCAL}}content"
 									],
 									"path": [
 										"forum",
-										"create",
 										""
 									]
 								}
@@ -1805,7 +2068,7 @@
 							"response": []
 						},
 						{
-							"name": "read",
+							"name": "[user] read",
 							"protocolProfileBehavior": {
 								"disableBodyPruning": true
 							},
@@ -1828,13 +2091,12 @@
 									}
 								},
 								"url": {
-									"raw": "{{LOCAL}}content/forum/read/1",
+									"raw": "{{LOCAL}}content/forum/1",
 									"host": [
 										"{{LOCAL}}content"
 									],
 									"path": [
 										"forum",
-										"read",
 										"1"
 									]
 								}
@@ -1842,44 +2104,7 @@
 							"response": []
 						},
 						{
-							"name": "edit",
-							"request": {
-								"method": "PUT",
-								"header": [
-									{
-										"key": "uauth",
-										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"forum_name\" : \"teseeeeeeet\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "http://localhost/api/content/forum/edit/1",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"path": [
-										"api",
-										"content",
-										"forum",
-										"edit",
-										"1"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "delete",
+							"name": "[coor] delete",
 							"request": {
 								"method": "DELETE",
 								"header": [
@@ -1899,16 +2124,12 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost/api/content/forum/delete/1",
-									"protocol": "http",
+									"raw": "{{LOCAL}}content/forum/1",
 									"host": [
-										"localhost"
+										"{{LOCAL}}content"
 									],
 									"path": [
-										"api",
-										"content",
 										"forum",
-										"delete",
 										"1"
 									]
 								}
@@ -1921,7 +2142,7 @@
 					"name": "reply_api",
 					"item": [
 						{
-							"name": "create",
+							"name": "[user] create",
 							"request": {
 								"method": "POST",
 								"header": [
@@ -1955,7 +2176,7 @@
 							"response": []
 						},
 						{
-							"name": "read",
+							"name": "[user] read",
 							"protocolProfileBehavior": {
 								"disableBodyPruning": true
 							},
@@ -1992,7 +2213,7 @@
 							"response": []
 						},
 						{
-							"name": "edit",
+							"name": "[user] edit",
 							"request": {
 								"method": "PUT",
 								"header": [
@@ -2012,16 +2233,12 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost/api/content/reply/edit/1",
-									"protocol": "http",
+									"raw": "{{LOCAL}}content/reply/1",
 									"host": [
-										"localhost"
+										"{{LOCAL}}content"
 									],
 									"path": [
-										"api",
-										"content",
 										"reply",
-										"edit",
 										"1"
 									]
 								}
@@ -2029,7 +2246,7 @@
 							"response": []
 						},
 						{
-							"name": "delete",
+							"name": "[user] delete",
 							"request": {
 								"method": "DELETE",
 								"header": [
@@ -2071,7 +2288,7 @@
 					"name": "reply2reply_api",
 					"item": [
 						{
-							"name": "create",
+							"name": "[user] create",
 							"request": {
 								"method": "POST",
 								"header": [
@@ -2091,13 +2308,12 @@
 									}
 								},
 								"url": {
-									"raw": "{{LOCAL}}content/reply2reply/create/",
+									"raw": "{{LOCAL}}content/reply2reply/",
 									"host": [
 										"{{LOCAL}}content"
 									],
 									"path": [
 										"reply2reply",
-										"create",
 										""
 									]
 								}
@@ -2105,7 +2321,7 @@
 							"response": []
 						},
 						{
-							"name": "read",
+							"name": "[user] read",
 							"request": {
 								"method": "GET",
 								"header": [
@@ -2116,13 +2332,12 @@
 									}
 								],
 								"url": {
-									"raw": "{{LOCAL}}content/reply2reply/read/2",
+									"raw": "{{LOCAL}}content/reply2reply/2",
 									"host": [
 										"{{LOCAL}}content"
 									],
 									"path": [
 										"reply2reply",
-										"read",
 										"2"
 									]
 								}
@@ -2130,7 +2345,7 @@
 							"response": []
 						},
 						{
-							"name": "edit",
+							"name": "[user] edit",
 							"request": {
 								"method": "PUT",
 								"header": [
@@ -2150,21 +2365,20 @@
 									}
 								},
 								"url": {
-									"raw": "{{LOCAL}}content/reply2reply/edit/1",
+									"raw": "{{LOCAL}}content/reply2reply/23",
 									"host": [
 										"{{LOCAL}}content"
 									],
 									"path": [
 										"reply2reply",
-										"edit",
-										"1"
+										"23"
 									]
 								}
 							},
 							"response": []
 						},
 						{
-							"name": "delete",
+							"name": "[user] delete",
 							"request": {
 								"method": "DELETE",
 								"header": [
@@ -2175,14 +2389,13 @@
 									}
 								],
 								"url": {
-									"raw": "{{LOCAL}}content/reply2reply/delete/15",
+									"raw": "{{LOCAL}}content/reply2reply/48",
 									"host": [
 										"{{LOCAL}}content"
 									],
 									"path": [
 										"reply2reply",
-										"delete",
-										"15"
+										"48"
 									]
 								}
 							},
@@ -2561,19 +2774,19 @@
 					"name": "post_api",
 					"item": [
 						{
-							"name": "create",
+							"name": "[user] create",
 							"request": {
 								"method": "POST",
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token DF9gAekapxAekfRYkNd00xOUn6Jxhfslfv69xjMdX0JmIX1wgZ6mvdux15FBsJxE",
+										"value": "Token oUQfXRaJN98XLE70f9FN9F6GhhZPtzPDLIn5xxtYwhRkt8EnJJUNuhS06MVvfjh4",
 										"type": "text"
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"video_id\" : null,\r\n\r\n    \"forum_id\" : null,\r\n    \"assignment_id\" : null,\r\n    \"lecture_id\" : null,\r\n    \"subject_id\" : 1,\r\n                \r\n    \"post_name\" : \"New Test Post\",\r\n    \"post_body\" : \"Who Let the dogs out WHO WHO WHo whO WhO..\"\r\n}",
+									"raw": "{\r\n    \"video_id\" : null,\r\n\r\n    \"forum_id\" : null,\r\n    \"assignment_id\" : null,\r\n    \"lecture_id\" : null,\r\n    \"subject_id\" : 2,\r\n                \r\n    \"post_name\" : \"New Test Post\",\r\n    \"post_body\" : \"Who Let the dogs out WHO WHO WHo whO WhO..\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -2594,7 +2807,43 @@
 							"response": []
 						},
 						{
-							"name": "read",
+							"name": "[coor] read",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token oUQfXRaJN98XLE70f9FN9F6GhhZPtzPDLIn5xxtYwhRkt8EnJJUNuhS06MVvfjh4",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/post/0",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"post",
+										"0"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[stu] read all",
 							"protocolProfileBehavior": {
 								"disableBodyPruning": true
 							},
@@ -2617,21 +2866,56 @@
 									}
 								},
 								"url": {
-									"raw": "{{LOCAL}}content/post/read/1",
+									"raw": "{{LOCAL}}content/post/0",
 									"host": [
 										"{{LOCAL}}content"
 									],
 									"path": [
 										"post",
-										"read",
-										"1"
+										"0"
 									]
 								}
 							},
 							"response": []
 						},
 						{
-							"name": "edit",
+							"name": "[admin] read all",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token pbuBDU2aFCjHSfafJrTy8r5PcdimOaTH8rlfI55i4iRdI76G7biy9m6lBTycRY5J",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/post/87795962440396049328460600526719",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"post",
+										"87795962440396049328460600526719"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[user] edit",
 							"request": {
 								"method": "PUT",
 								"header": [
@@ -2651,16 +2935,12 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost/api/content/post/edit/3",
-									"protocol": "http",
+									"raw": "{{LOCAL}}content/post/3",
 									"host": [
-										"localhost"
+										"{{LOCAL}}content"
 									],
 									"path": [
-										"api",
-										"content",
 										"post",
-										"edit",
 										"3"
 									]
 								}
@@ -2668,7 +2948,7 @@
 							"response": []
 						},
 						{
-							"name": "delete",
+							"name": "[user] delete",
 							"request": {
 								"method": "DELETE",
 								"header": [
@@ -2688,17 +2968,79 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost/api/content/post/delete/0",
-									"protocol": "http",
+									"raw": "{{LOCAL}}content/post/2",
 									"host": [
-										"localhost"
+										"{{LOCAL}}content"
 									],
 									"path": [
-										"api",
-										"content",
 										"post",
-										"delete",
-										"0"
+										"2"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[admin] delete all",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token 7lXSNTMukklMXdWhjOPQRKGPPKhcBSJIMewt8r51MoFBQg85OimEdHVgqFGJEy7u",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/post/87795962440396049328460600526719",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"post",
+										"87795962440396049328460600526719"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[admin] delete one",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token 7lXSNTMukklMXdWhjOPQRKGPPKhcBSJIMewt8r51MoFBQg85OimEdHVgqFGJEy7u",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/post/2",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"post",
+										"2"
 									]
 								}
 							},
