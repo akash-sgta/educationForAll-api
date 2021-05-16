@@ -15,10 +15,10 @@ urlpatterns = [
     url(r'api/content/lecture/(?P<pk>\d*)', views.lView.as_view(), name="Lecture_View"),
 
     url(r'api/content/assignment/(?P<pk>\d*)', views.a1View.as_view(), name="Assignment_View"),
-    url(r'api/content/mark/(?P<pk_a>\d+)-(?P<pk_s>\d+)$', views.a2View.as_view(), name="Mark_Assignment_View"),
+    url(r'api/content/mark/(?P<pk_a>\d+)/(?P<pk_s>\d+)$', views.a2View.as_view(), name="Mark_Assignment_View"),
 
     url(r'api/content/post/(?P<pk>\d*)', views.pView.as_view(), name="Post_View"),
 
-    url(r'api/content/votes/(?P<word>\w+)-(?P<pk>\d+)-(?P<control>[+-]{1})$', views.vView.as_view(), name="Votes_View"),
+    url(r'api/content/votes/(?P<word>\w+)/(?P<pk>\d+)/(?P<word>\w+)$', views.vView.as_view(), name="Votes_View"),
     
 ]

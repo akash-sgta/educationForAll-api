@@ -12,13 +12,16 @@ from auth_prime.important_modules import (
 from content_delivery.models import (
         Coordinator,
         Assignment,
+        Subject_Coordinator_Int,
+        Post,
     )
 from content_delivery.serializer import (
         Assignment_Serializer
     )
     
 from user_personal.models import (
-    Assignment_Submission_Int
+    Assignment_Submission_Int,
+    Enroll,
 )
 
 # ------------------------------------------------------------
@@ -30,25 +33,26 @@ class Assignment_1_View(APIView):
     def __init__(self):
         super().__init__()
     
-    def post(self, request, pk=None):
+    def post(self, request, pk=None): # TODO : Only Coordinator can create assignment
         data = dict()
         
         isAuthorizedAPI = am_I_Authorized(request, "API")
         if(not isAuthorizedAPI[0]):
             data['success'] = False
-            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            data["message"] = "ENDPOINT_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         
         isAuthorizedUSER = am_I_Authorized(request, "USER")
         if(isAuthorizedUSER[0] == False):
             data['success'] = False
-            data['message'] = f"error:USER_NOT_AUTHORIZED, message:{isAuthorizedUSER[1]}"
+            data['message'] = f"USER_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         else:
-            coordinator_ref = Coordinator.objects.filter(user_credential_id = isAuthorizedUSER[1])
-            if(len(coordinator_ref) < 1):
+            try:
+                coordinator_ref = Coordinator.objects.get(user_credential_id = isAuthorizedUSER[1])
+            except Coordinator.DoesNotExist:
                 data['success'] = False
-                data['message'] = "USER not COORDINATOR"
+                data['message'] = "USER_NOT_COORDINATOR"
                 return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
             else:
                 assignment_de_serialized = Assignment_Serializer(data = request.data)
@@ -64,50 +68,67 @@ class Assignment_1_View(APIView):
     
     def get(self, request, pk=None):
         data = dict()
-        
+
         isAuthorizedAPI = am_I_Authorized(request, "API")
         if(not isAuthorizedAPI[0]):
             data['success'] = False
-            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            data["message"] = "ENDPOINT_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         
         if(pk not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(isAuthorizedUSER[0] == False):
                 data['success'] = False
-                data['message'] = f"error:USER_NOT_AUTHORIZED, message:{isAuthorizedUSER[1]}"
+                data['message'] = f"USER_NOT_AUTHORIZED"
                 return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
             else:
-                if(int(pk) == 0): #all
+                if(int(pk) == 87795962440396049328460600526719): # TODO : User can see all assignments respect to enrolled subjects
+                    enroll = Enroll.objects.filter(user_credential_id = isAuthorizedUSER[1]).values('subject_id')
+                    subject_list = [int(sub['subject_id']) for sub in enroll]
+                    post_ref = Post.object.filter(subject_id__in = subject_list)
                     data['success'] = True
-                    assignment_serializer = Assignment_Serializer(Assignment.objects.all(), many=True).data
-                    ass_list = list()
-                    for ass in assignment_serializer:
-                        sub_list = list()
-                        for one in Assignment_Submission_Int.objects.filter(assignment_id = ass['assignment_id']):
-                            sub_list.append(one.submission_id.submission_id)
-                        ass_list.append({
-                            "assignment" : ass,
-                            "submission" : sub_list.copy()
-                        })
-                    data['data'] = ass_list.copy()
+                    data['data'] = list()
+                    for post in post_ref:
+                        if(post.assignment_id != None):
+                            assignment_ref = post.assignment_id
+                            data['data'].append({
+                                "assignment" : Assignment_Serializer(assignment_ref, many=False).data,
+                                "submission" : [one['submission_id'] for one in Assignment_Submission_Int.objects.filter(assignment_id = assignment_ref.assignment_id).values('submission_id')]
+                            })
                     return Response(data = data, status=status.HTTP_202_ACCEPTED)
-                else:
+                elif(int(pk) == 0): # TODO : Coordinator looks for assignments under them
+                    try:
+                        coordinator_id = Coordinator.objects.get(user_credential_id = isAuthorizedUSER[1]).coordinator_id
+                    except Coordinator.DoesNotExist:
+                        data['success'] = False
+                        data['message'] = "USER_NOT_COORDINATOR"
+                        return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
+                    else:
+                        coordinator_subjects = Subject_Coordinator_Int.objects.filter(coordinator_id = coordinator_id).values('subject_id')
+                        subject_list = [int(sub['subject_id']) for sub in coordinator_subjects]
+                        post_ref = Post.object.filter(subject_id__in = subject_list)
+                        data['success'] = True
+                        data['data'] = list()
+                        for post in post_ref:
+                            if(post.assignment_id != None):
+                                assignment_ref = post.assignment_id
+                                data['data'].append({
+                                    "assignment" : Assignment_Serializer(assignment_ref, many=False).data,
+                                    "submission" : [one['submission_id'] for one in Assignment_Submission_Int.objects.filter(assignment_id = assignment_ref.assignment_id).values('submission_id')]
+                                })
+                        return Response(data = data, status=status.HTTP_202_ACCEPTED)
+                else: # TODO : Any user looking for assignment
                     try:
                         assignment_ref = Assignment.objects.get(assignment_id = int(pk))
                     except Assignment.DoesNotExist:
                         data['success'] = False
-                        data['message'] = "item does not exist"
+                        data['message'] = "INVALID_ASSIGNMENT_ID"
                         return Response(data = data, status=status.HTTP_404_NOT_FOUND)
                     else:
                         data['success'] = True
-                        assignment_serializer = Assignment_Serializer(assignment_ref, many=False).data
-                        sub_list = list()
-                        for one in Assignment_Submission_Int.objects.filter(assignment_id = assignment_serializer['assignment_id']):
-                            sub_list.append(one.submission_id.submission_id)
                         data['data'] = {
-                            "assignment" : assignment_serializer,
-                            "submission" : sub_list.copy()
+                            "assignment" : Assignment_Serializer(assignment_ref, many=False).data,
+                            "submission" : [one["subject_id"] for one in Assignment_Submission_Int.objects.filter(assignment_id = assignment_serializer['assignment_id']).values('subject_id')]
                         }
                         return Response(data = data, status=status.HTTP_202_ACCEPTED)
         else:
@@ -118,33 +139,34 @@ class Assignment_1_View(APIView):
             }
             return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
     
-    def put(self, request, pk=None):
+    def put(self, request, pk=None): # TODO : Only Coordinator can edit assignment
         data = dict()
         
         isAuthorizedAPI = am_I_Authorized(request, "API")
         if(not isAuthorizedAPI[0]):
             data['success'] = False
-            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            data["message"] = "ENDPOINT_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         
         if(pk not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(isAuthorizedUSER[0] == False):
                 data['success'] = False
-                data['message'] = f"error:USER_NOT_AUTHORIZED, message:{isAuthorizedUSER[1]}"
+                data['message'] = f"USER_NOT_AUTHORIZED"
                 return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
             else:
-                coordinator_ref = Coordinator.objects.filter(user_credential_id = isAuthorizedUSER[1])
-                if(len(coordinator_ref) < 1):
+                try:
+                    coordinator_ref = Coordinator.objects.get(user_credential_id = isAuthorizedUSER[1])
+                except Coordinator.DoesNotExist:
                     data['success'] = False
-                    data['message'] = "USER not COORDINATOR"
+                    data['message'] = "USER_NOT_COORDINATOR"
                     return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
                 else:
                     try:
                         assignment_ref = Assignment.objects.get(assignment_id = int(pk))
                     except Assignment.DoesNotExist:
                         data['success'] = False
-                        data['message'] = "item does not exist"
+                        data['message'] = "INVALID_ASSIGNMENT_ID"
                         return Response(data = data, status=status.HTTP_404_NOT_FOUND)
                     else:
                         assignment_de_serialized = Assignment_Serializer(assignment_ref, data=request.data)
@@ -165,45 +187,40 @@ class Assignment_1_View(APIView):
             }
             return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
     
-    def delete(self, request, pk=None):
+    def delete(self, request, pk=None): # TODO : Only Coordinator can delete assignment
         data = dict()
         
         isAuthorizedAPI = am_I_Authorized(request, "API")
         if(not isAuthorizedAPI[0]):
             data['success'] = False
-            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            data["message"] = "ENDPOINT_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         
         if(pk not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(isAuthorizedUSER[0] == False):
                 data['success'] = False
-                data['message'] = f"error:USER_NOT_AUTHORIZED, message:{isAuthorizedUSER[1]}"
+                data['message'] = f"USER_NOT_AUTHORIZED"
                 return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
             else:
-                coordinator_ref = Coordinator.objects.filter(user_credential_id = isAuthorizedUSER[1])
-                if(len(coordinator_ref) < 1):
+                try:
+                    coordinator_ref = Coordinator.objects.filter(user_credential_id = isAuthorizedUSER[1])
+                except Coordinator.DoesNotExist:
                     data['success'] = False
-                    data['message'] = "USER not COORDINATOR"
+                    data['message'] = "USER_NOT_COORDINATOR"
                     return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
                 else:
-                    if(int(pk) == 0): #all
-                        Assignment.objects.all().delete()
-                        data['success'] = True
-                        data['message'] = "All ASSIGNMENT(s) deleted"
-                        return Response(data = data, status = status.HTTP_202_ACCEPTED)
+                    try:
+                        assignment_ref = Assignment.objects.get(assignment_id = int(pk))
+                    except Assignment.DoesNotExist:
+                        data['success'] = False
+                        data['message'] = "INVALID_ASSIGNMENT_ID"
+                        return Response(data = data, status=status.HTTP_404_NOT_FOUND)
                     else:
-                        try:
-                            assignment_ref = Assignment.objects.get(assignment_id = int(pk))
-                        except Assignment.DoesNotExist:
-                            data['success'] = False
-                            data['message'] = "item does not exist"
-                            return Response(data = data, status=status.HTTP_404_NOT_FOUND)
-                        else:
-                            assignment_ref.delete()
-                            data['success'] = True
-                            data['message'] = "ASSIGNMENT deleted"
-                            return Response(data = data, status=status.HTTP_202_ACCEPTED)
+                        assignment_ref.delete()
+                        data['success'] = True
+                        data['message'] = "ASSIGNMENT_DELETED"
+                        return Response(data = data, status=status.HTTP_202_ACCEPTED)
         else:
             data['success'] = False
             data['message'] = {
