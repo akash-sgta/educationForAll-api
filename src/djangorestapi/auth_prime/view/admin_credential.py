@@ -188,44 +188,56 @@ class Admin_Credential_View(APIView):
                 else:
                     privilege = int(request.data['privilege'])
                     if(privilege  > 0): # TODO : grant privilege
-                        many_to_many = Admin_Cred_Admin_Prev_Int.objects.filter(
-                                            admin_credential_id = Admin_Credential.objects.get(user_credential_id = int(pk)),
-                                            admin_privilege_id = privilege
-                                        )
-                        if(len(many_to_many) > 0):
-                            data['success'] = True
-                            data['message'] = "ADMINP : ADMIN_ALREADY_HAS_PRIVILEGE"
-                            return Response(data = data, status=status.HTTP_201_CREATED)
+                        try:
+                            many_to_many = Admin_Cred_Admin_Prev_Int.objects.filter(
+                                                admin_credential_id = Admin_Credential.objects.get(user_credential_id = int(pk)),
+                                                admin_privilege_id = privilege
+                                            )
+                        except Admin_Credential.DoesNotExist:
+                            data['success'] = False
+                            data['message'] = "CHECK_ADMIN_ID"
+                            return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
                         else:
-                            privilege_ref = Admin_Privilege.objects.filter(admin_privilege_id = privilege)
-                            if(len(privilege_ref) < 1):
-                                data['success'] = False
-                                data['message'] = "ADMINP : PRIVILEGE_ID_INVALID"
-                                return Response(data = data, status=status.HTTP_404_NOT_FOUND)
-                            else:
-                                privilege_ref = privilege_ref[0]
-                                Admin_Cred_Admin_Prev_Int(
-                                    admin_credential_id = Admin_Credential.objects.get(user_credential_id = int(pk)),
-                                    admin_privilege_id = privilege_ref
-                                ).save()
+                            if(len(many_to_many) > 0):
                                 data['success'] = True
-                                data['message'] = "ADMINP : PRIVILEGE_GRANTED_TO_ADMIN"
+                                data['message'] = "ADMINP : ADMIN_ALREADY_HAS_PRIVILEGE"
                                 return Response(data = data, status=status.HTTP_201_CREATED)
+                            else:
+                                privilege_ref = Admin_Privilege.objects.filter(admin_privilege_id = privilege)
+                                if(len(privilege_ref) < 1):
+                                    data['success'] = False
+                                    data['message'] = "ADMINP : PRIVILEGE_ID_INVALID"
+                                    return Response(data = data, status=status.HTTP_404_NOT_FOUND)
+                                else:
+                                    privilege_ref = privilege_ref[0]
+                                    Admin_Cred_Admin_Prev_Int(
+                                        admin_credential_id = Admin_Credential.objects.get(user_credential_id = int(pk)),
+                                        admin_privilege_id = privilege_ref
+                                    ).save()
+                                    data['success'] = True
+                                    data['message'] = "ADMINP : PRIVILEGE_GRANTED_TO_ADMIN"
+                                    return Response(data = data, status=status.HTTP_201_CREATED)
                     else: # TODO : revoke privilge
                         privilege = privilege*-1
-                        many_to_many = Admin_Cred_Admin_Prev_Int.objects.filter(
-                                            admin_credential_id = Admin_Credential.objects.get(user_credential_id = int(pk)),
-                                            admin_privilege_id = privilege
-                                        )
-                        if(len(many_to_many) < 1):
-                            data['success'] = True
-                            data['message'] = "ADMINP : ADMIN_DOES_NOT_HAVE_PRIVILEGE"
-                            return Response(data = data, status=status.HTTP_202_ACCEPTED)
+                        try:
+                            many_to_many = Admin_Cred_Admin_Prev_Int.objects.filter(
+                                                admin_credential_id = Admin_Credential.objects.get(user_credential_id = int(pk)),
+                                                admin_privilege_id = privilege
+                                            )
+                        except Admin_Credential.DoesNotExist:
+                            data['success'] = False
+                            data['message'] = "CHECK_ADMIN_ID"
+                            return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
                         else:
-                            many_to_many[0].delete()
-                            data['success'] = True
-                            data['message'] = "ADMINP : PRIVILEG_REVOKED_FROM_ADMIN"
-                            return Response(data = data, status=status.HTTP_202_ACCEPTED)
+                            if(len(many_to_many) < 1):
+                                data['success'] = True
+                                data['message'] = "ADMINP : ADMIN_DOES_NOT_HAVE_PRIVILEGE"
+                                return Response(data = data, status=status.HTTP_202_ACCEPTED)
+                            else:
+                                many_to_many[0].delete()
+                                data['success'] = True
+                                data['message'] = "ADMINP : PRIVILEG_REVOKED_FROM_ADMIN"
+                                return Response(data = data, status=status.HTTP_202_ACCEPTED)
         else:
             data['success'] = False
             data['message'] = {

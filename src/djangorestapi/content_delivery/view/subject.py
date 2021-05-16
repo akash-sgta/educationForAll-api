@@ -52,7 +52,7 @@ class Subject_View(APIView):
             else:
                 if(not do_I_Have_Privilege(request, "SAGP")):
                     data['success'] = False
-                    data['message'] = f"ADMIN_DOES_NOT_HAVE_CAGP_PRIVILEGE"
+                    data['message'] = f"ADMIN_DOES_NOT_HAVE_SAGP_PRIVILEGE"
                     return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
                 else:
                     subject_de_serialized = Subject_Serializer(data = request.data)

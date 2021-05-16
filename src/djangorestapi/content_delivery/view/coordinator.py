@@ -258,49 +258,55 @@ class Coordinator_View(APIView):
                                 data['message'] = "ADMIN : INVALID_COORDINATOR_ID"
                                 return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
                             else:
-                                id = request.data['subject_id']
-                                add_Subject = True
                                 try:
-                                    id = int(id)
-                                    if(id < 0):
-                                        id = id*-1
-                                        add_Subject = False
-                                    subject_ref = Subject.objects.get(subject_id = id)
-                                except Subject.DoesNotExist or ValueError or TypeError:
+                                    id = request.data['subject_id']
+                                except KeyError:
                                     data['success'] = False
-                                    data['message'] = "ADMIN : SUBJECT_ID_INVALID"
-                                    return Response(data = data, status=status.HTTP_404_NOT_FOUND)
+                                    data['message'] = "CHECK_SUBJECT_ID"
+                                    return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
                                 else:
-                                    if(not add_Subject): # TODO : Revoking access from subject
-                                        try:
-                                            many_to_many = Subject_Coordinator_Int.objects.get(
-                                                                subject_id = subject_ref.subject_id,
-                                                                coordinator_id = coordinator_ref.coordinator_id
-                                                            )
-                                        except Subject_Coordinator_Int.DoesNotExist:
-                                            data['success'] = False
-                                            data['message'] = "ADMIN : SUBJECT_DOES_NOT_BELONG_TO_COORDINATOR"
-                                            return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
-                                        else:
-                                            many_to_many.delete()
-                                            data['success'] = True
-                                            data['message'] = "ADMIN : SUBJECT_REMOVED_FROM_COORDINATOR"
-                                            return Response(data = data, status=status.HTTP_202_ACCEPTED)
-                                    else: # TODO : Granting access to subject
-                                        try:
-                                            many_to_many = Subject_Coordinator_Int.objects.get(
-                                                                subject_id = subject_ref.subject_id,
-                                                                coordinator_id = coordinator_ref.coordinator_id
-                                                            )
-                                        except Subject_Coordinator_Int.DoesNotExist:
-                                            Subject_Coordinator_Int(subject_id = subject_ref, coordinator_id = coordinator_ref).save()
-                                            data['success'] = True
-                                            data['message'] = "ADMIN : SUBJECT_ADDED_TO_COORDINATOR"
-                                            return Response(data = data, status=status.HTTP_202_ACCEPTED)
-                                        else:
-                                            data['success'] = False
-                                            data['message'] = "ADMIN : SUBJECT_ALREADY_BELONGS_TO_COORDINATOR"
-                                            return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
+                                    add_Subject = True
+                                    try:
+                                        id = int(id)
+                                        if(id < 0):
+                                            id = id*-1
+                                            add_Subject = False
+                                        subject_ref = Subject.objects.get(subject_id = id)
+                                    except Subject.DoesNotExist or ValueError or TypeError:
+                                        data['success'] = False
+                                        data['message'] = "ADMIN : SUBJECT_ID_INVALID"
+                                        return Response(data = data, status=status.HTTP_404_NOT_FOUND)
+                                    else:
+                                        if(not add_Subject): # TODO : Revoking access from subject
+                                            try:
+                                                many_to_many = Subject_Coordinator_Int.objects.get(
+                                                                    subject_id = subject_ref.subject_id,
+                                                                    coordinator_id = coordinator_ref.coordinator_id
+                                                                )
+                                            except Subject_Coordinator_Int.DoesNotExist:
+                                                data['success'] = False
+                                                data['message'] = "ADMIN : SUBJECT_DOES_NOT_BELONG_TO_COORDINATOR"
+                                                return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
+                                            else:
+                                                many_to_many.delete()
+                                                data['success'] = True
+                                                data['message'] = "ADMIN : SUBJECT_REMOVED_FROM_COORDINATOR"
+                                                return Response(data = data, status=status.HTTP_202_ACCEPTED)
+                                        else: # TODO : Granting access to subject
+                                            try:
+                                                many_to_many = Subject_Coordinator_Int.objects.get(
+                                                                    subject_id = subject_ref.subject_id,
+                                                                    coordinator_id = coordinator_ref.coordinator_id
+                                                                )
+                                            except Subject_Coordinator_Int.DoesNotExist:
+                                                Subject_Coordinator_Int(subject_id = subject_ref, coordinator_id = coordinator_ref).save()
+                                                data['success'] = True
+                                                data['message'] = "ADMIN : SUBJECT_ADDED_TO_COORDINATOR"
+                                                return Response(data = data, status=status.HTTP_202_ACCEPTED)
+                                            else:
+                                                data['success'] = False
+                                                data['message'] = "ADMIN : SUBJECT_ALREADY_BELONGS_TO_COORDINATOR"
+                                                return Response(data = data, status=status.HTTP_400_BAD_REQUEST)
         else:
             data['success'] = False
             data['message'] = {
