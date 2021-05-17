@@ -91,9 +91,7 @@ class Cookie(object):
                 raise Exception("Necessary arguments not passed.")
             else:
                 user = Api_Token.objects.get(pk=pk)
-                tauth = (
-                    f"{user.pk}::{self.make_hash(user.user_email, user.user_password)}"
-                )
+                tauth = f"{user.pk}::{self.make_hash(user.user_email, user.user_password)}"
         except Exception as ex:
             print(f"[x] SET AUTH Ex : {str(ex)}")
             return redirect("API_TOKEN", word="")
@@ -131,9 +129,7 @@ class Cookie(object):
                 except Api_Token.DoesNotExist:
                     return False, 2
                 else:
-                    if cookie_user[1] == self.make_hash(
-                        user.user_email, user.user_password
-                    ):
+                    if cookie_user[1] == self.make_hash(user.user_email, user.user_password):
                         return True, user.pk
                     else:
                         return False, 3
@@ -152,9 +148,7 @@ def am_I_Authorized(request, key):
             headers = request.headers
             if "Authorization" in headers:
                 try:
-                    api_token_ref = Api_Token.objects.get(
-                        hash=headers["Authorization"].split()[1]
-                    )
+                    api_token_ref = Api_Token.objects.get(hash=headers["Authorization"].split()[1])
                 except Api_Token.DooesNotExist:
                     return (False, "API_KEY_UNAUTHORIZED")
                 else:
@@ -170,9 +164,7 @@ def am_I_Authorized(request, key):
             headers = request.headers
             if "uauth" in headers:
                 try:
-                    user_token_ref = User_Token.objects.get(
-                        hash=headers["uauth"].split()[1]
-                    )
+                    user_token_ref = User_Token.objects.get(hash=headers["uauth"].split()[1])
                 except User_Token.DoesNotExist:
                     return (False, "USER_HASH_UNAUTHORIZED")
                 else:
@@ -188,16 +180,12 @@ def am_I_Authorized(request, key):
             headers = request.headers
             if "uauth" in headers:
                 try:
-                    user_token_ref = User_Token.objects.get(
-                        hash=headers["uauth"].split()[1]
-                    )
+                    user_token_ref = User_Token.objects.get(hash=headers["uauth"].split()[1])
                 except User_Token.DoesNotExist:
                     return 0
                 else:
                     try:
-                        admin_ref = Admin.objects.get(
-                            user_ref=user_token_ref.user_ref.pk
-                        )
+                        admin_ref = Admin.objects.get(user_ref=user_token_ref.user_ref.pk)
                     except Admin.DoesNotExist:
                         return 0
                     else:
@@ -219,9 +207,7 @@ def do_I_Have_Privilege(request, key):
         headers = request.headers
         if "uauth" in headers:
             try:
-                user_token_ref = User_Token.objects.get(
-                    token_hash=headers["uauth"].split()[1]
-                )
+                user_token_ref = User_Token.objects.get(token_hash=headers["uauth"].split()[1])
             except User_Token.DoesNotExist:
                 return False
             else:
@@ -237,8 +223,8 @@ def do_I_Have_Privilege(request, key):
                     else:
                         try:
                             Admin_Privilege.objects.get(
-                                admin_credential_id=admin_ref.pk,
-                                admin_privilege_id=privilege_ref.pk,
+                                admin_ref=admin_ref,
+                                privilege_ref=privilege_ref,
                             )
                         except Admin_Privilege.DoesNotExist:
                             return False
@@ -287,7 +273,5 @@ def create_token(user_ref):
 def logger(api_key, message):
     import logging
 
-    logging.basicConfig(
-        filename="api_access.log", filemode="w", format="%(asctime)s | %(message)s"
-    )
+    logging.basicConfig(filename="api_access.log", filemode="w", format="%(asctime)s | %(message)s")
     logging.warning(f"{api_key} -> {message}")

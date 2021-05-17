@@ -8,13 +8,7 @@ from auth_prime.models import User
 
 
 class Coordinator(models.Model):
-    coordinator_id = models.BigAutoField(
-        primary_key=True, null=False, blank=False, unique=True
-    )
-
-    user_ref = models.ForeignKey(
-        User, null=False, blank=False, on_delete=models.CASCADE
-    )
+    user_ref = models.ForeignKey(User, null=False, blank=False, on_delete=models.CASCADE)
     prime = models.BooleanField(default=False)  # TODO : T =>
 
     def __str__(self):
@@ -23,22 +17,16 @@ class Coordinator(models.Model):
 
 
 class Subject(models.Model):
-    subject_id = models.BigAutoField(
-        primary_key=True, null=False, blank=False, unique=True
-    )
-
-    name = models.TextField(null=False, blank=False)
+    name = models.CharField(max_length=128, null=False, blank=False)
     description = models.TextField(null=False, blank=False)
-    prime = models.BooleanField(
-        default=False
-    )  # TODO : T => TO be shown to only logged users
+    prime = models.BooleanField(default=False)  # TODO : T => TO be shown to only logged users
 
     def __str__(self):
         data = f"S [{self.subject_id} {self.subject_name}]"
         return data
 
 
-# TODO : Subject <=1======1=> Coordinator
+# TODO : Subject <=M======N=> Coordinator
 class Subject_Coordinator(models.Model):
     subject_ref = models.ForeignKey(Subject, on_delete=models.CASCADE)
     coordinator_ref = models.ForeignKey(Coordinator, on_delete=models.CASCADE)
@@ -51,34 +39,51 @@ class Subject_Coordinator(models.Model):
 # --------------------------------------------------------------------------------------------
 
 
+class Video(models.Model):
+    url = models.URLField(max_length=256, null=False, blank=False)
+
+    def __str__(self):
+        data = f"V [{self.pk}, {self.url}]"
+        return data
+
+
+class Forum(models.Model):
+    def __str__(self):
+        data = f"F [{self.pk}]"
+        return data
+
+
+class Lecture(models.Model):
+    body = models.TextField(default="", null=False, blank=False)
+    external_url_1 = models.URLField(max_length=255, null=True, blank=True)
+    external_url_2 = models.URLField(max_length=255, null=True, blank=True)
+
+    def __str__(self):
+        data = f"L [{self.pk}]"
+        return data
+
+
+class Assignment(models.Model):
+    body = models.TextField(null=False, blank=False)
+    external_url_1 = models.URLField(max_length=255, null=True, blank=True)
+    external_url_2 = models.URLField(max_length=255, null=True, blank=True)
+    total_score = models.PositiveSmallIntegerField(default=100, null=True, blank=True)
+
+    def __str__(self):
+        data = f"A [{self.pk}]"
+        return data
+
+
 class Post(models.Model):
-    post_id = models.BigAutoField(
-        primary_key=True, null=False, blank=False, unique=True
-    )
-
     user_ref = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
-    subject_id = models.ForeignKey(
-        Subject, null=True, blank=True, on_delete=models.SET_NULL
-    )
+    subject_ref = models.ForeignKey(Subject, null=True, blank=True, on_delete=models.CASCADE)
+    lecture_ref = models.ForeignKey(Lecture, null=True, blank=True, on_delete=models.SET_NULL)
+    forum_ref = models.ForeignKey(Forum, null=True, blank=True, on_delete=models.SET_NULL)
+    assignment_ref = models.ForeignKey(Assignment, null=True, blank=True, on_delete=models.SET_NULL)
+    video_ref = models.ForeignKey(Video, null=True, blank=True, on_delete=models.SET_NULL)
 
-    # Video
-    v_url = models.URLField(max_length=1024, null=True, blank=True)
-    # Forum
-    f_id = models.PositiveBigIntegerField(
-        default=None, null=True, blank=True, unique=True
-    )
-    # Lecture
-    l_body = models.TextField(default="", null=True, blank=True)
-    l_url_1 = models.URLField(null=True, blank=True)
-    l_url_2 = models.URLField(null=True, blank=True)
-    # Assignment
-    a_body = models.TextField(null=False, blank=False)
-    a_url_1 = models.URLField(null=True, blank=True)
-    a_url_2 = models.URLField(null=True, blank=True)
-    a_score = models.PositiveSmallIntegerField(default=100, null=True, blank=True)
-    # Post
-    p_name = models.CharField(max_length=128, null=False, blank=False)
-    p_body = models.TextField(null=False, blank=False)
+    name = models.CharField(max_length=128, null=False, blank=False)
+    body = models.TextField(null=False, blank=False)
 
     views = models.PositiveBigIntegerField(default=0)
     up = models.IntegerField(default=0)
@@ -88,9 +93,7 @@ class Post(models.Model):
     prime = models.BooleanField(default=False, null=False, blank=False)
 
     def __str__(self):
-        data = (
-            f"P [{self.post_id}, {self.p_name}] || {self.user_ref} ||{self.subject_id}"
-        )
+        data = f"P [{self.post_id}] || {self.user_ref} ||{self.subject_ref} || {self.lecture_ref} || {self.forum_ref} || {self.assignment_ref} || {self.video_ref}"
         return data
 
 
@@ -98,11 +101,7 @@ class Post(models.Model):
 
 # TODO : Post <=1======N=> Reply
 class Reply(models.Model):
-    reply_id = models.BigAutoField(
-        primary_key=True, null=False, blank=False, unique=True
-    )
-
-    post_ref = models.ForeignKey(Post, null=True, blank=True, on_delete=models.CASCADE)
+    forum_ref = models.ForeignKey(Forum, null=True, blank=True, on_delete=models.CASCADE)
     user_ref = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
 
     body = models.TextField(null=False, blank=False)
@@ -112,19 +111,13 @@ class Reply(models.Model):
     made_date = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        data = f"R [{self.reply_id}] || {self.user_ref} || {self.post_ref}"
+        data = f"R [{self.reply_id}] || {self.user_ref} || {self.forum_ref}"
         return data
 
 
 # TODO : Reply <=1======N=> Reply2
 class ReplyToReply(models.Model):
-    reply_id = models.BigAutoField(
-        primary_key=True, null=False, blank=False, unique=True
-    )
-
-    reply_ref = models.ForeignKey(
-        Reply, null=True, blank=True, on_delete=models.CASCADE
-    )
+    reply_ref = models.ForeignKey(Reply, null=True, blank=True, on_delete=models.CASCADE)
     user_ref = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
 
     body = models.TextField(null=False, blank=False)

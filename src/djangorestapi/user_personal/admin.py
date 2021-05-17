@@ -4,7 +4,7 @@ from user_personal.models import (
     Diary,
     Submission,
     Notification,
-    User_Notification_Int,
+    User_Notification,
     Enroll,
 )
 
@@ -14,5 +14,5 @@ from user_personal.models import (
 admin.site.register(Diary)
 admin.site.register(Submission)
 admin.site.register(Notification)
-admin.site.register(User_Notification_Int)
+admin.site.register(User_Notification)
 admin.site.register(Enroll)

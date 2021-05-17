@@ -1,6 +1,7 @@
 from django.db import models
 
 from content_delivery.models import (
+    Assignment,
     Post,
     Subject,
 )
@@ -14,14 +15,10 @@ from auth_prime.models import (
 # TODO : Post <=1======N=> Diary
 # TODO : User <=1======N=> Diary
 class Diary(models.Model):
-    diary_id = models.BigAutoField(
-        primary_key=True, null=False, blank=False, unique=True
-    )
+    diary_id = models.BigAutoField(primary_key=True, null=False, blank=False, unique=True)
 
     post_ref = models.ForeignKey(Post, null=True, blank=True, on_delete=models.SET_NULL)
-    user_ref = models.ForeignKey(
-        User, null=False, blank=False, on_delete=models.CASCADE
-    )
+    user_ref = models.ForeignKey(User, null=False, blank=False, on_delete=models.CASCADE)
 
     body = models.TextField()
 
@@ -35,26 +32,16 @@ class Diary(models.Model):
 # TODO : Assignment <=1======N=> Submission
 # TODO : User       <=1======N=> Submission
 class Submission(models.Model):
-    submission_id = models.BigAutoField(
-        primary_key=True, null=False, blank=False, unique=True
-    )
-
-    user_ref = models.ForeignKey(
-        User, null=False, blank=False, on_delete=models.CASCADE
-    )
-    post_ref = models.ForeignKey(
-        Post, null=True, blank=False, on_delete=models.SET_NULL
-    )
+    user_ref = models.ForeignKey(User, null=False, blank=False, on_delete=models.CASCADE)
+    assignment_ref = models.ForeignKey(Assignment, null=True, blank=False, on_delete=models.SET_NULL)
 
     body = models.TextField(null=False, blank=False)
-    url_1 = models.URLField(null=True, blank=True)
-    url_2 = models.URLField(null=True, blank=True)
+    external_url_1 = models.URLField(null=True, blank=True)
+    external_url_2 = models.URLField(null=True, blank=True)
 
     made_date = models.DateTimeField(auto_now=True)
 
-    marks = models.PositiveSmallIntegerField(
-        default=0
-    )  # TODO : Only accessible by Coordinator
+    marks = models.PositiveSmallIntegerField(default=0)  # TODO : Only accessible by Coordinator
 
     def __str__(self):
         data = f"S [{self.submission_id}] || {self.user_ref} || {self.post_ref}"
@@ -63,12 +50,8 @@ class Submission(models.Model):
 
 # TODO : User <=M======N=> Subject
 class Enroll(models.Model):
-    subject_ref = models.ForeignKey(
-        Subject, null=False, blank=False, on_delete=models.CASCADE
-    )
-    user_ref = models.ForeignKey(
-        User, null=False, blank=False, on_delete=models.CASCADE
-    )
+    subject_ref = models.ForeignKey(Subject, null=False, blank=False, on_delete=models.CASCADE)
+    user_ref = models.ForeignKey(User, null=False, blank=False, on_delete=models.CASCADE)
 
     made_date = models.DateTimeField(auto_now_add=True)
 
@@ -79,9 +62,7 @@ class Enroll(models.Model):
 
 # TODO : Post <=1======N=> Notification
 class Notification(models.Model):
-    notification_id = models.BigAutoField(
-        primary_key=True, null=False, blank=False, unique=True
-    )
+    notification_id = models.BigAutoField(primary_key=True, null=False, blank=False, unique=True)
 
     post_ref = models.ForeignKey(Post, null=True, blank=True, on_delete=models.CASCADE)
 
@@ -96,13 +77,9 @@ class Notification(models.Model):
 
 
 # TODO : User_Credential <=M======N=> Notification
-class User_Notification_Int(models.Model):
-    notification_ref = models.ForeignKey(
-        Notification, null=False, blank=False, on_delete=models.CASCADE
-    )
-    user_ref = models.ForeignKey(
-        User, null=False, blank=False, on_delete=models.CASCADE
-    )
+class User_Notification(models.Model):
+    notification_ref = models.ForeignKey(Notification, null=False, blank=False, on_delete=models.CASCADE)
+    user_ref = models.ForeignKey(User, null=False, blank=False, on_delete=models.CASCADE)
 
     prime_1 = models.BooleanField(default=False)  # TODO : T -> Sent
     prime_2 = models.BooleanField(default=False)  # TODO : T -> Seen
