@@ -2,45 +2,45 @@ from rest_framework import serializers
 
 # ---------------------------------------------------------------
 
-from auth_prime.models import (
-        User_Profile,
-        User_Credential,
-        Admin_Privilege,
-        Admin_Credential,
-        Image,
-        Api_Token_Table
-    )
+from auth_prime.models import Profile, User, Privilege, Admin, Image, Api_Token
 
 # ---------------------------------------------------------------
 
-class User_Profile_Serializer(serializers.ModelSerializer):
+
+class Profile_Serializer(serializers.ModelSerializer):
     class Meta:
-        model = User_Profile
+        model = Profile
         fields = "__all__"
 
-class User_Credential_Serializer(serializers.ModelSerializer):
+
+class User_Serializer(serializers.ModelSerializer):
     class Meta:
-        model = User_Credential
+        model = User
         fields = "__all__"
 
-class Admin_Privilege_Serializer(serializers.ModelSerializer):
+
+class Privilege_Serializer(serializers.ModelSerializer):
     class Meta:
-        model = Admin_Privilege
+        model = Privilege
         fields = "__all__"
 
-class Admin_Credential_Serializer(serializers.ModelSerializer):
+
+class Admin_Serializer(serializers.ModelSerializer):
     class Meta:
-        model = Admin_Credential
+        model = Admin
         fields = "__all__"
+
 
 class Image_Serializer(serializers.ModelSerializer):
     class Meta:
         model = Image
         fields = "__all__"
 
+
 class Api_Token_Serializer(serializers.ModelSerializer):
     class Meta:
-        model = Api_Token_Table
+        model = Api_Token
         fields = "__all__"
+
 
 # ---------------------------------------------------------------

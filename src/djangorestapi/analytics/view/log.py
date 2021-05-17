@@ -26,7 +26,7 @@ class Log_View(APIView):
     def __init__(self):
         super().__init__()
 
-    def get(self, request, date=None):
+    def get(self, request, dd=None, mm=None, yyyy=None):
         data = dict()
         
         isAuthorizedAPI = am_I_Authorized(request, "API")
@@ -35,7 +35,7 @@ class Log_View(APIView):
             data["message"] = "ENDPOINT_NOT_AUTHORIZED"
             return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
         
-        if(date not in (None, "")):
+        if(dd not in (None, "") and mm not in (None, "") and yyyy not in (None, "")):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if(not isAuthorizedUSER[0]):
                 data['success'] = False
@@ -43,7 +43,7 @@ class Log_View(APIView):
                 return Response(data = data, status=status.HTTP_401_UNAUTHORIZED)
             else:
                 data['success'] = True
-                date = datetime.strptime(date, '%d-%m-%Y').strftime('%Y-%m-%d').split()[0]
+                date = f"{dd}-{mm}-{yyyy}"
                 data['date'] = Log_Serializer(Log.objects.filter(made_date__startswith=date, api_token_id=isAuthorizedAPI[1]).order_by('-log_id'), many=True).data
                 return Response(data = data, status=status.HTTP_202_ACCEPTED)
         else:
@@ -65,7 +65,7 @@ class Log_View(APIView):
         
         temp = dict()
 
-        data["Allow"] = "GETOPTIONS".split()
+        data["Allow"] = "GET OPTIONS".split()
         
         temp["Content-Type"] = "application/json"
         temp["Authorization"] = "Token JWT"
