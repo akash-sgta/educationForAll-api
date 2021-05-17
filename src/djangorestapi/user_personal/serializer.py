@@ -28,14 +28,10 @@ class Notification_Serializer(serializers.ModelSerializer):
 class Enroll_Serializer(serializers.ModelSerializer):
     class Meta:
         model = Enroll
-        fields = (
-            "subject_id",
-            "user_credential_id",
-            "made_date",
-        )
+        fields = "__all__"
 
 
 class User_Notification_Serializer(serializers.ModelSerializer):
     class Meta:
         model = User_Notification
-        fields = ("notification_id", "user_credential_id", "made_date", "prime_1", "prime_2", "tries")
+        fields = "__all__"

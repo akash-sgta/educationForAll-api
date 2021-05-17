@@ -15,8 +15,6 @@ from auth_prime.models import (
 # TODO : Post <=1======N=> Diary
 # TODO : User <=1======N=> Diary
 class Diary(models.Model):
-    diary_id = models.BigAutoField(primary_key=True, null=False, blank=False, unique=True)
-
     post_ref = models.ForeignKey(Post, null=True, blank=True, on_delete=models.SET_NULL)
     user_ref = models.ForeignKey(User, null=False, blank=False, on_delete=models.CASCADE)
 
@@ -36,8 +34,8 @@ class Submission(models.Model):
     assignment_ref = models.ForeignKey(Assignment, null=True, blank=False, on_delete=models.SET_NULL)
 
     body = models.TextField(null=False, blank=False)
-    external_url_1 = models.URLField(null=True, blank=True)
-    external_url_2 = models.URLField(null=True, blank=True)
+    external_url_1 = models.URLField(max_length=255, null=True, blank=True)
+    external_url_2 = models.URLField(max_length=255, null=True, blank=True)
 
     made_date = models.DateTimeField(auto_now=True)
 
@@ -62,8 +60,6 @@ class Enroll(models.Model):
 
 # TODO : Post <=1======N=> Notification
 class Notification(models.Model):
-    notification_id = models.BigAutoField(primary_key=True, null=False, blank=False, unique=True)
-
     post_ref = models.ForeignKey(Post, null=True, blank=True, on_delete=models.CASCADE)
 
     body = models.TextField(null=False, blank=False)
