@@ -91,7 +91,7 @@ class Cookie(object):
                 raise Exception("Necessary arguments not passed.")
             else:
                 user = Api_Token.objects.get(pk=pk)
-                tauth = f"{user.pk}::{self.make_hash(user.user_email, user.user_password)}"
+                tauth = f"{user.pk}::{self.make_hash(user.email, user.password)}"
         except Exception as ex:
             print(f"[x] SET AUTH Ex : {str(ex)}")
             return redirect("API_TOKEN", word="")
@@ -129,7 +129,7 @@ class Cookie(object):
                 except Api_Token.DoesNotExist:
                     return False, 2
                 else:
-                    if cookie_user[1] == self.make_hash(user.user_email, user.user_password):
+                    if cookie_user[1] == self.make_hash(user.email, user.password):
                         return True, user.pk
                     else:
                         return False, 3
@@ -243,7 +243,7 @@ def do_I_Have_Privilege(request, key):
 def create_password_hashed(password):
     sha256_ref = sha256()
     sha256_ref.update(f"ooga{password}booga".encode("utf-8"))
-    return str(sha256_ref.digest())
+    return str(sha256_ref.digest())[:64]
 
 
 def random_generator(length=64):

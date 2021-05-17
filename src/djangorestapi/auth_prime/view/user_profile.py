@@ -38,7 +38,7 @@ class User_Profile_View(APIView):
             return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
         else:
             user_ref = User.objects.get(pk=isAuthorizedUSER[1])
-            if user_ref.user_profile_id in (None, ""):
+            if user_ref.profile_ref in (None, ""):
                 profile_de_serialized = Profile_Serializer(data=request.data)
                 if profile_de_serialized.initial_data["prime"] == True and profile_de_serialized.initial_data[
                     "roll_number"
@@ -53,7 +53,7 @@ class User_Profile_View(APIView):
                     if profile_de_serialized.is_valid():
                         profile_de_serialized.save()
 
-                        profile_ref = Profile.objects.get(pk=profile_de_serialized.data["user_profile_id"])
+                        profile_ref = Profile.objects.get(pk=profile_de_serialized.data["id"])
                         user_ref.profile_ref = profile_ref
                         user_ref.save()
 

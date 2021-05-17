@@ -68,15 +68,16 @@ class User_Credential_View(APIView):
                 user_de_serialized = User_Serializer(data=request.data["data"])
                 user_de_serialized.initial_data["email"] = user_de_serialized.initial_data["email"].lower()
                 try:
-                    User.objects.get(user_email=user_de_serialized.initial_data["email"])
+                    User.objects.get(email=user_de_serialized.initial_data["email"])
                 except User.DoesNotExist:
                     user_de_serialized.initial_data["password"] = create_password_hashed(
                         user_de_serialized.initial_data["password"]
                     )
                     if user_de_serialized.is_valid():
                         user_de_serialized.save()
+                        user_de_serialized.data
                         data["success"] = True
-                        user_ref = User.objects.get(pk=user_de_serialized.data["pk"])
+                        user_ref = User.objects.get(pk=user_de_serialized.data["id"])
                         data["data"] = {
                             "JWT": create_token(user_ref),
                             "data": user_de_serialized.data,
@@ -113,7 +114,12 @@ class User_Credential_View(APIView):
                         user_ref = User.objects.get(pk=isAuthorizedUSER[1])
                         data["success"] = True
                         data["data"] = User_Serializer(user_ref, many=False).data
-                        data["data"]["user_password"] = "■■REDACTED■■"
+                        REDACTED = "■■REDACTED■■"
+                        data["data"]["password"] = REDACTED
+                        data["data"]["profile_ref"] = REDACTED
+                        data["data"]["telegram_id"] = REDACTED
+                        data["data"]["security_question"] = REDACTED
+                        data["data"]["security_answer"] = REDACTED
                         return Response(data=data, status=status.HTTP_202_ACCEPTED)
                     elif int(pk) == 87795962440396049328460600526719:  # TODO : ADMIN asking to read everyone's cred
                         isAuthorizedADMIN = am_I_Authorized(request, "ADMIN")
@@ -138,7 +144,12 @@ class User_Credential_View(APIView):
                             else:
                                 data["success"] = True
                                 data["data"] = User_Serializer(user_ref, many=False).data
-                                data["data"]["user_password"] = "■■REDACTED■■"
+                                REDACTED = "■■REDACTED■■"
+                                data["data"]["password"] = REDACTED
+                                data["data"]["profile_ref"] = REDACTED
+                                data["data"]["telegram_id"] = REDACTED
+                                data["data"]["security_question"] = REDACTED
+                                data["data"]["security_answer"] = REDACTED
                                 return Response(data=data, status=status.HTTP_202_ACCEPTED)
                         else:
                             data["success"] = False
@@ -172,9 +183,9 @@ class User_Credential_View(APIView):
                     user_ref = User.objects.get(pk=isAuthorizedUSER[1])
                     user_de_serialized = User_Serializer(user_ref, data=request.data)
                     user_de_serialized.initial_data["pk"] = isAuthorizedUSER[1]
-                    user_de_serialized.initial_data["user_email"] = user_de_serialized.initial_data["user_email"].lower()
+                    user_de_serialized.initial_data["email"] = user_de_serialized.initial_data["email"].lower()
                     try:
-                        email_check = User.objects.get(email=user_de_serialized.initial_data["user_email"])
+                        email_check = User.objects.get(email=user_de_serialized.initial_data["email"])
                     except User.DoesNotExist:
                         flag = True
                     else:

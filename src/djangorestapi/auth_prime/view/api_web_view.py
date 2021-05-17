@@ -24,11 +24,11 @@ class API_Web_View(View):
             isAuthorizedAPI = cookie.check_authentication_info(request)
             if isAuthorizedAPI[0]:
                 api_ref = Api_Token.objects.get(pk=isAuthorizedAPI[1])
-                data_returned["user"] = api_ref.user_name.upper()
-                data_returned["AWT"] = api_ref.user_key_private
-                data_returned["endpoint"] = api_ref.api_endpoint
+                data_returned["user"] = api_ref.name.upper()
+                data_returned["AWT"] = api_ref.hash
+                data_returned["endpoint"] = api_ref.endpoint
                 data_returned["pinned"] = Notification_Serializer(
-                    Notification.objects.filter(prime=True).order_by("-notification_id"), many=True
+                    Notification.objects.filter(prime=True).order_by("-pk"), many=True
                 ).data
                 return render(request, "auth_prime/index.html", data_returned)
             else:
@@ -78,11 +78,11 @@ class API_Web_View(View):
                         print("-" * 25)
                         print(f"[.] API TOKEN GENERATION : SUCCESSFUL")
                         print("-" * 25)
-                        data_returned["user"] = api_ref.user_name.upper()
-                        data_returned["AWT"] = api_ref.user_key_private
-                        data_returned["endpoint"] = api_ref.api_endpoint
+                        data_returned["user"] = api_ref.name.upper()
+                        data_returned["AWT"] = api_ref.hash
+                        data_returned["endpoint"] = api_ref.endpoint
                         data_returned["pinned"] = Notification_Serializer(
-                            Notification.objects.filter(prime=True).order_by("-notification_id"), many=True
+                            Notification.objects.filter(prime=True).order_by("-pk"), many=True
                         ).data
                         return cookie.set_authentication_info(
                             request=request, file_path="auth_prime/index.html", data=data_returned, pk=api_ref.pk
@@ -104,7 +104,7 @@ class API_Web_View(View):
                         data_returned["AWT"] = api_ref.hash
                         data_returned["endpoint"] = api_ref.endpoint
                         data_returned["pinned"] = Notification_Serializer(
-                            Notification.objects.filter(prime=True).order_by("-notification_id"), many=True
+                            Notification.objects.filter(prime=True).order_by("-pk"), many=True
                         ).data
                         return cookie.set_authentication_info(
                             request=request, file_path="auth_prime/index.html", data=data_returned, pk=api_ref.pk

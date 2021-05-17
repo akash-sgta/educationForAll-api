@@ -203,7 +203,7 @@ class Post_View(APIView):
                         data["message"] = "POST_ID_INVALID"
                         return Response(data=data, status=status.HTTP_404_NOT_FOUND)
                     else:
-                        post_ref.post_views += 1
+                        post_ref.views += 1
                         post_ref.save()
                         data["success"] = True
                         data["data"] = Post_Serializer(post_ref, many=False).data

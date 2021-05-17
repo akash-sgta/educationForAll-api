@@ -49,7 +49,7 @@ class Profile(models.Model):
     made_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        data = f" P [{self.pk} {self.prime}] || self.image_ref"
+        data = f" P [{self.pk} {self.prime}] || {self.image_ref}"
         return data
 
 
