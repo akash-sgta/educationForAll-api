@@ -63,7 +63,7 @@ except FileNotFoundError:
             fp_out.write(line)
 
     # print uwsgi.ini
-    with open(os.path.join(BASE_DIR, "config", "ambiguous", "int.draft"), "r") as fp_in:
+    with open(os.path.join(BASE_DIR, "config", "ambiguous", "ini.draft"), "r") as fp_in:
         lines_in = fp_in.readlines()
     with open(os.path.join(BASE_DIR, "config", "uwsgi.ini"), "w") as fp_out:
         for line in lines_in:
