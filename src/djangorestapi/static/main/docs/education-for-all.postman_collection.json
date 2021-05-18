@@ -1,0 +1,3533 @@
+{
+	"info": {
+		"_postman_id": "16fb084c-cf6c-4038-8e2c-04304e524b44",
+		"name": "education-for-all",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "analytics",
+			"item": [
+				{
+					"name": "ticket_api",
+					"item": [
+						{
+							"name": "[user] create",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token bNc5zmoPiWLtk6BM3xBrAbHKHCERaCUkSTqQI3d9O1UVKQsEb7pzDoKf6J6zyjPn",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"ticket_body\" : \"This is a ticket demo\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}analytics/ticket/",
+									"host": [
+										"{{LOCAL}}analytics"
+									],
+									"path": [
+										"ticket",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[admin] read all",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{LOCAL}}analytics/ticket/87795962440396049328460600526719",
+									"host": [
+										"{{LOCAL}}analytics"
+									],
+									"path": [
+										"ticket",
+										"87795962440396049328460600526719"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[admin] read unsolved",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{LOCAL}}analytics/ticket/1",
+									"host": [
+										"{{LOCAL}}analytics"
+									],
+									"path": [
+										"ticket",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[admin] read solved",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{LOCAL}}analytics/ticket/2",
+									"host": [
+										"{{LOCAL}}analytics"
+									],
+									"path": [
+										"ticket",
+										"2"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[admin] delete all",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{LOCAL}}analytics/ticket/87795962440396049328460600526719",
+									"host": [
+										"{{LOCAL}}analytics"
+									],
+									"path": [
+										"ticket",
+										"87795962440396049328460600526719"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[admin] delete one",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{LOCAL}}analytics/ticket/2",
+									"host": [
+										"{{LOCAL}}analytics"
+									],
+									"path": [
+										"ticket",
+										"2"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[univ] check options",
+							"request": {
+								"method": "OPTIONS",
+								"header": [],
+								"url": {
+									"raw": "{{LOCAL}}analytics/ticket/",
+									"host": [
+										"{{LOCAL}}analytics"
+									],
+									"path": [
+										"ticket",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "log_api [experimntal]",
+					"item": [
+						{
+							"name": "[user] read",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token bNc5zmoPiWLtk6BM3xBrAbHKHCERaCUkSTqQI3d9O1UVKQsEb7pzDoKf6J6zyjPn",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}analytics/log/read/05-04-2021",
+									"host": [
+										"{{LOCAL}}analytics"
+									],
+									"path": [
+										"log",
+										"read",
+										"05-04-2021"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[univ] check options",
+							"request": {
+								"method": "OPTIONS",
+								"header": [],
+								"url": {
+									"raw": "{{LOCAL}}analytics/log/",
+									"host": [
+										"{{LOCAL}}analytics"
+									],
+									"path": [
+										"log",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "auth_prime",
+			"item": [
+				{
+					"name": "user_credential_api",
+					"item": [
+						{
+							"name": "[user] signup",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token alwZU3mbns1Suq99Zkr25wv6ZFN8VppZz9n2CrlTgDeR0cmjZvbobkR8zTSOpgyf",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"action\" : \"signup\",\r\n    \"data\" : {\r\n        \"user_f_name\" : \"Akash\",\r\n        \"user_m_name\" : null,\r\n        \"user_l_name\" : \"Sengupta\",\r\n        \"user_email\" : \"alphatrionakash@gmail.com\",\r\n        \"user_password\" : \"sengupta\",\r\n        \"user_security_question\" : \"Favourite Buttocks\",\r\n        \"user_security_answer\" : \"Abella Danger\"\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}user/cred/",
+									"host": [
+										"{{LOCAL}}user"
+									],
+									"path": [
+										"cred",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[user] signin",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token alwZU3mbns1Suq99Zkr25wv6ZFN8VppZz9n2CrlTgDeR0cmjZvbobkR8zTSOpgyf",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"action\" : \"signin\",\r\n    \"data\" : {\r\n        \"email\" : \"alphatrionakash@gmail.com\",\r\n        \"password\" : \"sengupta\"\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}user/cred/",
+									"host": [
+										"{{LOCAL}}user"
+									],
+									"path": [
+										"cred",
+										""
+									]
+								},
+								"description": "SIGNIN"
+							},
+							"response": []
+						},
+						{
+							"name": "[user] signout",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token DF9gAekapxAekfRYkNd00xOUn6Jxhfslfv69xjMdX0JmIX1wgZ6mvdux15FBsJxE",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}user/cred/87795962440396049328460600526719",
+									"host": [
+										"{{LOCAL}}user"
+									],
+									"path": [
+										"cred",
+										"87795962440396049328460600526719"
+									]
+								},
+								"description": "SIGNOUT"
+							},
+							"response": []
+						},
+						{
+							"name": "[user] read",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token 0Owv69AZHnVaMyIbYIZG801jz1LUC7rQ7LfMNhR0IXxKd2BQZ48x1rqJO0B9PnBQ",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}user/cred/0",
+									"host": [
+										"{{LOCAL}}user"
+									],
+									"path": [
+										"cred",
+										"0"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[user] edit",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Token QvGaXG1CeScETGsnhJolFokaWFl3hEA9v2lI3RlEcXKJngifvcd4K49KciTI8eJm",
+										"type": "text"
+									},
+									{
+										"key": "uauth",
+										"value": "Token yRWZXFR3kupse2gONxYigbiyfsqkVYc4bXuCOy7Ni03yQHrgrX7QPED9QWqk2rAJ",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"user_f_name\" : \"Akash\",\r\n    \"user_m_name\" : null,\r\n    \"user_l_name\" : \"Sengupta\",\r\n    \"user_email\" : \"alphatrionakash@gmail.com\",\r\n    \"user_password\" : \"sengupta\",\r\n    \"user_security_question\" : \"Favourite Buttocks\",\r\n    \"user_security_answer\" : \"Abella Daner\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}user/cred/",
+									"host": [
+										"{{LOCAL}}user"
+									],
+									"path": [
+										"cred",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[user] delete",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token 0Owv69AZHnVaMyIbYIZG801jz1LUC7rQ7LfMNhR0IXxKd2BQZ48x1rqJO0B9PnBQ",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}user/cred/0",
+									"host": [
+										"{{LOCAL}}user"
+									],
+									"path": [
+										"cred",
+										"0"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[admin] read all",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token 0Owv69AZHnVaMyIbYIZG801jz1LUC7rQ7LfMNhR0IXxKd2BQZ48x1rqJO0B9PnBQ",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{LOCAL}}user/cred/87795962440396049328460600526719",
+									"host": [
+										"{{LOCAL}}user"
+									],
+									"path": [
+										"cred",
+										"87795962440396049328460600526719"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[admin] read user",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token 0Owv69AZHnVaMyIbYIZG801jz1LUC7rQ7LfMNhR0IXxKd2BQZ48x1rqJO0B9PnBQ",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{LOCAL}}user/cred/2",
+									"host": [
+										"{{LOCAL}}user"
+									],
+									"path": [
+										"cred",
+										"2"
+									],
+									"query": [
+										{
+											"key": "uauth",
+											"value": "Token 0Owv69AZHnVaMyIbYIZG801jz1LUC7rQ7LfMNhR0IXxKd2BQZ48x1rqJO0B9PnBQ",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[admin] delete all",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token 0Owv69AZHnVaMyIbYIZG801jz1LUC7rQ7LfMNhR0IXxKd2BQZ48x1rqJO0B9PnBQ",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{LOCAL}}user/cred/13416989436929794359012690353783",
+									"host": [
+										"{{LOCAL}}user"
+									],
+									"path": [
+										"cred",
+										"13416989436929794359012690353783"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[admin] delete user",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token 0Owv69AZHnVaMyIbYIZG801jz1LUC7rQ7LfMNhR0IXxKd2BQZ48x1rqJO0B9PnBQ",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{LOCAL}}user/cred/4",
+									"host": [
+										"{{LOCAL}}user"
+									],
+									"path": [
+										"cred",
+										"4"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[univ] check options",
+							"request": {
+								"method": "OPTIONS",
+								"header": [],
+								"url": {
+									"raw": "{{LOCAL}}user/cred/",
+									"host": [
+										"{{LOCAL}}user"
+									],
+									"path": [
+										"cred",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "user_profile_api",
+					"item": [
+						{
+							"name": "[user] create",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token 0Owv69AZHnVaMyIbYIZG801jz1LUC7rQ7LfMNhR0IXxKd2BQZ48x1rqJO0B9PnBQ",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"user_profile_headline\" : \"<b>Python Enthuciast</b> | Retro Music | Problem Solving\",\r\n    \"user_bio\" : \"<p>It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).</p>\",\r\n    \"user_english_efficiency\" : 2,\r\n    \"user_git_profile\" : \"https://github.com/akash-sgta\",\r\n    \"user_profile_pic\" : null,\r\n    \"user_likedin_profile\" : \"https://www.linkedin.com/in/akash-sengupta-026a66146/\",\r\n    \"user_roll_number\" : 430117010049,\r\n    \"prime\" : true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}user/prof/",
+									"host": [
+										"{{LOCAL}}user"
+									],
+									"path": [
+										"prof",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[user] read",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Token QvGaXG1CeScETGsnhJolFokaWFl3hEA9v2lI3RlEcXKJngifvcd4K49KciTI8eJm",
+										"type": "text"
+									},
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}user/prof/0",
+									"host": [
+										"{{LOCAL}}user"
+									],
+									"path": [
+										"prof",
+										"0"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[user] edit",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token QR5UY32FHLbXqTzs1kqcyPHceI70LdIOt1UuGhiadFpBdCBrxa3s2czQvlELsK2u",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"user_profile_headline\" : \"<b>Python Enthuciast</b> | Retro Music | Problem Solving\",\r\n    \"user_bio\" : \"<p>It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).</p>\",\r\n    \"user_english_efficiency\" : 3,\r\n    \"user_git_profile\" : \"https://github.com/akash-sgta\",\r\n    \"user_likedin_profile\" : \"https://www.linkedin.com/in/akash-sengupta-026a66146/\",\r\n    \"user_profile_pic\" : 1,\r\n    \"user_roll_number\" : 430117010049,\r\n    \"prime\" : true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}user/prof/",
+									"host": [
+										"{{LOCAL}}user"
+									],
+									"path": [
+										"prof",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[user] delete",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Token QvGaXG1CeScETGsnhJolFokaWFl3hEA9v2lI3RlEcXKJngifvcd4K49KciTI8eJm",
+										"type": "text"
+									},
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}user/prof/0",
+									"host": [
+										"{{LOCAL}}user"
+									],
+									"path": [
+										"prof",
+										"0"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[admin] read all",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{LOCAL}}user/prof/87795962440396049328460600526719",
+									"host": [
+										"{{LOCAL}}user"
+									],
+									"path": [
+										"prof",
+										"87795962440396049328460600526719"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[admin] read user",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{LOCAL}}user/prof/4",
+									"host": [
+										"{{LOCAL}}user"
+									],
+									"path": [
+										"prof",
+										"4"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[admin] delete all",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{LOCAL}}user/prof/87795962440396049328460600526719",
+									"host": [
+										"{{LOCAL}}user"
+									],
+									"path": [
+										"prof",
+										"87795962440396049328460600526719"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[admin] delete user",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{LOCAL}}user/prof/4",
+									"host": [
+										"{{LOCAL}}user"
+									],
+									"path": [
+										"prof",
+										"4"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[univ] check options",
+							"request": {
+								"method": "OPTIONS",
+								"header": [],
+								"url": {
+									"raw": "{{LOCAL}}user/prof/",
+									"host": [
+										"{{LOCAL}}user"
+									],
+									"path": [
+										"prof",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "image_api_user_profile",
+					"item": [
+						{
+							"name": "[user] create",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token QR5UY32FHLbXqTzs1kqcyPHceI70LdIOt1UuGhiadFpBdCBrxa3s2czQvlELsK2u",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "image",
+											"contentType": "image/jpeg",
+											"type": "file",
+											"src": "/E:/DOWNLOADS/Pictures/Abella_Danger_Tux_2017.jpg"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{AWS}}user/image/",
+									"host": [
+										"{{AWS}}user"
+									],
+									"path": [
+										"image",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[user] get image",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{LOCAL}}user/image/3",
+									"host": [
+										"{{LOCAL}}user"
+									],
+									"path": [
+										"image",
+										"3"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[user] edit",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token bIAmWi7asaRujFHfQBRFRghks5mzItnynaY9UiJZbcceG4lFa8bkeolNrI5bQv1l",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "image",
+											"contentType": "image/jpeg",
+											"type": "file",
+											"src": "/C:/Users/AKASH SENGUPTA/OneDrive/Pictures/Camera Roll/WIN_20201124_17_39_56_Pro.jpg"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{LOCAL}}user/image/8",
+									"host": [
+										"{{LOCAL}}user"
+									],
+									"path": [
+										"image",
+										"8"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[user] delete",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token bIAmWi7asaRujFHfQBRFRghks5mzItnynaY9UiJZbcceG4lFa8bkeolNrI5bQv1l",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{LOCAL}}user/image/2",
+									"host": [
+										"{{LOCAL}}user"
+									],
+									"path": [
+										"image",
+										"2"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[admin] get all images",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token AdiNXnOkZIM4krFuMeENrvFjjdpHsEZMDzK5JezYypVthzN7hOfrikDw7WjsMA7Q",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{LOCAL}}user/image/87795962440396049328460600526719",
+									"host": [
+										"{{LOCAL}}user"
+									],
+									"path": [
+										"image",
+										"87795962440396049328460600526719"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[admin] edit",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"url": {
+									"raw": "{{LOCAL}}user/image/8",
+									"host": [
+										"{{LOCAL}}user"
+									],
+									"path": [
+										"image",
+										"8"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[admin] delete all",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{LOCAL}}user/image/87795962440396049328460600526719",
+									"host": [
+										"{{LOCAL}}user"
+									],
+									"path": [
+										"image",
+										"87795962440396049328460600526719"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[admin] delete specific",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{LOCAL}}user/image/2",
+									"host": [
+										"{{LOCAL}}user"
+									],
+									"path": [
+										"image",
+										"2"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[univ] check options",
+							"request": {
+								"method": "OPTIONS",
+								"header": [],
+								"url": {
+									"raw": "{{LOCAL}}user/image/",
+									"host": [
+										"{{LOCAL}}user"
+									],
+									"path": [
+										"image",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "admin_credential_api",
+					"item": [
+						{
+							"name": "[adminP] create",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token AdiNXnOkZIM4krFuMeENrvFjjdpHsEZMDzK5JezYypVthzN7hOfrikDw7WjsMA7Q",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"user_id\" : 1\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}admin/cred/",
+									"host": [
+										"{{LOCAL}}admin"
+									],
+									"path": [
+										"cred",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[admin] read",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token euiYpDd4QdGEwZtkcchCL1tdA6tYKcOvcAXTGfZXeYACE1WrUxePxN48GswQATil",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}admin/cred/0",
+									"host": [
+										"{{LOCAL}}admin"
+									],
+									"path": [
+										"cred",
+										"0"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[adminP] edit",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token T0PJYESFlrbWJvYRSqLA7dEvPjjZxWIA1rcRthYZBHZAWs8Sc83mR8E4EscFZuWS",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"privilege\" : 1\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}admin/cred/",
+									"host": [
+										"{{LOCAL}}admin"
+									],
+									"path": [
+										"cred",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[admin] delete self",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token ZM8uwdbgG87PHqGYeSvG4XkTZmvM49JJrS2pF2aME2smHe0QttJYpl1Z6AErIa7T",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}admin/cred/0",
+									"host": [
+										"{{LOCAL}}admin"
+									],
+									"path": [
+										"cred",
+										"0"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[adminP] read all",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{LOCAL}}admin/cred/87795962440396049328460600526719",
+									"host": [
+										"{{LOCAL}}admin"
+									],
+									"path": [
+										"cred",
+										"87795962440396049328460600526719"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[adminP] read admin",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{LOCAL}}admin/cred/8",
+									"host": [
+										"{{LOCAL}}admin"
+									],
+									"path": [
+										"cred",
+										"8"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[adminP] delete all",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{LOCAL}}admin/cred/87795962440396049328460600526719",
+									"host": [
+										"{{LOCAL}}admin"
+									],
+									"path": [
+										"cred",
+										"87795962440396049328460600526719"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[adminP] delete admin",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{LOCAL}}admin/cred/8",
+									"host": [
+										"{{LOCAL}}admin"
+									],
+									"path": [
+										"cred",
+										"8"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[univ] check options",
+							"request": {
+								"method": "OPTIONS",
+								"header": [],
+								"url": {
+									"raw": "{{LOCAL}}admin/cred/",
+									"host": [
+										"{{LOCAL}}admin"
+									],
+									"path": [
+										"cred",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "admin_privilege_api",
+					"item": [
+						{
+							"name": "[adminP] create",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token T0PJYESFlrbWJvYRSqLA7dEvPjjZxWIA1rcRthYZBHZAWs8Sc83mR8E4EscFZuWS",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"admin_privilege_name\" : \"CAGP\",\r\n    \"admin_privilege_description\" : \"Coordinator access grantinf privilege\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}admin/prev/",
+									"host": [
+										"{{LOCAL}}admin"
+									],
+									"path": [
+										"prev",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[admin] read",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token ZM8uwdbgG87PHqGYeSvG4XkTZmvM49JJrS2pF2aME2smHe0QttJYpl1Z6AErIa7T",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}admin/prev/0",
+									"host": [
+										"{{LOCAL}}admin"
+									],
+									"path": [
+										"prev",
+										"0"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[adminP] edit",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Token QvGaXG1CeScETGsnhJolFokaWFl3hEA9v2lI3RlEcXKJngifvcd4K49KciTI8eJm",
+										"type": "text"
+									},
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"admin_privilege_name\" : \"PD\",\r\n    \"admin_privilege_description\" : \"Privilege Description\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}admin/prev/12",
+									"host": [
+										"{{LOCAL}}admin"
+									],
+									"path": [
+										"prev",
+										"12"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[adminP] delete one",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Token QvGaXG1CeScETGsnhJolFokaWFl3hEA9v2lI3RlEcXKJngifvcd4K49KciTI8eJm",
+										"type": "text"
+									},
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}admin/prev/14",
+									"host": [
+										"{{LOCAL}}admin"
+									],
+									"path": [
+										"prev",
+										"14"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[adminP] delete all",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{LOCAL}}admin/prev/87795962440396049328460600526719",
+									"host": [
+										"{{LOCAL}}admin"
+									],
+									"path": [
+										"prev",
+										"87795962440396049328460600526719"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[univ] check options",
+							"request": {
+								"method": "OPTIONS",
+								"header": [],
+								"url": {
+									"raw": "{{LOCAL}}admin/prev/",
+									"host": [
+										"{{LOCAL}}admin"
+									],
+									"path": [
+										"prev",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "content_delivery",
+			"item": [
+				{
+					"name": "coordinator_api",
+					"item": [
+						{
+							"name": "[admin] create",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token T0PJYESFlrbWJvYRSqLA7dEvPjjZxWIA1rcRthYZBHZAWs8Sc83mR8E4EscFZuWS",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"user_id\" : 1\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/coordinator/",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"coordinator",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[user] read self",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token 7Z67xJpd6sJf5JCjbSZVIo49AbCYlFbim5e0fdLPzWArwkJdyjdkqNf2Ql6Ftkao",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/coordinator/0",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"coordinator",
+										"0"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[user] read specific",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token 7Z67xJpd6sJf5JCjbSZVIo49AbCYlFbim5e0fdLPzWArwkJdyjdkqNf2Ql6Ftkao",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/coordinator/4",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"coordinator",
+										"4"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[user] read all",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token 7Z67xJpd6sJf5JCjbSZVIo49AbCYlFbim5e0fdLPzWArwkJdyjdkqNf2Ql6Ftkao",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/coordinator/13416989436929794359012690353783",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"coordinator",
+										"13416989436929794359012690353783"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[admin] read all",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token 7Z67xJpd6sJf5JCjbSZVIo49AbCYlFbim5e0fdLPzWArwkJdyjdkqNf2Ql6Ftkao",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/coordinator/87795962440396049328460600526719",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"coordinator",
+										"87795962440396049328460600526719"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[admin] edit",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token T0PJYESFlrbWJvYRSqLA7dEvPjjZxWIA1rcRthYZBHZAWs8Sc83mR8E4EscFZuWS",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"subject_id\" : 1\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/coordinator/1",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"coordinator",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[coor] delete self",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/coordinator/0",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"coordinator",
+										"0"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[admin] delete one",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/coordinator/5",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"coordinator",
+										"5"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[admin] delete all",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/coordinator/87795962440396049328460600526719",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"coordinator",
+										"87795962440396049328460600526719"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "subject_api",
+					"item": [
+						{
+							"name": "[admin] create",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token T0PJYESFlrbWJvYRSqLA7dEvPjjZxWIA1rcRthYZBHZAWs8Sc83mR8E4EscFZuWS",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"subject_name\" : \"Object-oriented Programming\",\r\n    \"subject_description\" : \"Object-oriented programming (OOP) is a programming paradigm based on the concept of 'objects', which can contain data and code: data in the form of fields (often known as attributes or properties), and code, in the form of procedures (often known as methods).\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/subject/create/",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"subject",
+										"create",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[user] read all",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token DF9gAekapxAekfRYkNd00xOUn6Jxhfslfv69xjMdX0JmIX1wgZ6mvdux15FBsJxE",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/subject/0",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"subject",
+										"0"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[user] read specific",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token DF9gAekapxAekfRYkNd00xOUn6Jxhfslfv69xjMdX0JmIX1wgZ6mvdux15FBsJxE",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/subject/69",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"subject",
+										"69"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[coor] read allotted",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token DF9gAekapxAekfRYkNd00xOUn6Jxhfslfv69xjMdX0JmIX1wgZ6mvdux15FBsJxE",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/subject/87795962440396049328460600526719",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"subject",
+										"87795962440396049328460600526719"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[admin] edit",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"subject_name\" : \"object oriented programming\",\r\n    \"subject_description\" : \"Object-oriented programming (OOP) is a programming paradigm based on the concept of 'objects', which can contain data and code: data in the form of fields (often known as attributes or properties), and code, in the form of procedures (often known as methods).\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/subject/4",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"subject",
+										"4"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[admin] delete all",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/subject/0",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"subject",
+										"0"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[admin] delete specific",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/subject/69",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"subject",
+										"69"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "forum_api",
+					"item": [
+						{
+							"name": "[coor] create",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token T0PJYESFlrbWJvYRSqLA7dEvPjjZxWIA1rcRthYZBHZAWs8Sc83mR8E4EscFZuWS",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"forum_name\" : \"Test Post\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/forum/",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"forum",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[user] read",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token pbuBDU2aFCjHSfafJrTy8r5PcdimOaTH8rlfI55i4iRdI76G7biy9m6lBTycRY5J",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/forum/1",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"forum",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[coor] delete",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/forum/1",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"forum",
+										"1"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "reply_api",
+					"item": [
+						{
+							"name": "[user] create",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token T0PJYESFlrbWJvYRSqLA7dEvPjjZxWIA1rcRthYZBHZAWs8Sc83mR8E4EscFZuWS",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"forum_id\" : 1,\r\n    \"reply_body\" : \"TEST REPLY TO Forum 1 (TEST).....\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/reply/create/",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"reply",
+										"create",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[user] read",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token pbuBDU2aFCjHSfafJrTy8r5PcdimOaTH8rlfI55i4iRdI76G7biy9m6lBTycRY5J",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/reply/read/1",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"reply",
+										"read",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[user] edit",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"reply_body\" : \"C___TEST REPLY BODY\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/reply/1",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"reply",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[user] delete",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/api/content/reply/delete/0",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"api",
+										"content",
+										"reply",
+										"delete",
+										"0"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "reply2reply_api",
+					"item": [
+						{
+							"name": "[user] create",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token pbuBDU2aFCjHSfafJrTy8r5PcdimOaTH8rlfI55i4iRdI76G7biy9m6lBTycRY5J",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"reply_to_id\" : 6,\r\n    \"reply_body\" : \"R2R\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/reply2reply/",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"reply2reply",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[user] read",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token pbuBDU2aFCjHSfafJrTy8r5PcdimOaTH8rlfI55i4iRdI76G7biy9m6lBTycRY5J",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{LOCAL}}content/reply2reply/2",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"reply2reply",
+										"2"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[user] edit",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token pbuBDU2aFCjHSfafJrTy8r5PcdimOaTH8rlfI55i4iRdI76G7biy9m6lBTycRY5J",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"reply_to_id\" : 1,\r\n    \"reply_body\" : \"R2R\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/reply2reply/23",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"reply2reply",
+										"23"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[user] delete",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token pbuBDU2aFCjHSfafJrTy8r5PcdimOaTH8rlfI55i4iRdI76G7biy9m6lBTycRY5J",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{LOCAL}}content/reply2reply/48",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"reply2reply",
+										"48"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "lecture_api",
+					"item": [
+						{
+							"name": "create",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token T0PJYESFlrbWJvYRSqLA7dEvPjjZxWIA1rcRthYZBHZAWs8Sc83mR8E4EscFZuWS",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"lecture_name\" : \"Abela Danger\",\r\n    \"lecture_body\" : \"Learn How to cook a Hoe\",\r\n    \"lecture_external_url_1\" : null,\r\n    \"lecture_external_url_2\" : null\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/lecture/create/",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"lecture",
+										"create",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "read",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/api/content/lecture/read/11",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"api",
+										"content",
+										"lecture",
+										"read",
+										"11"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "edit",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"lecture_name\" : \"Ulululu\",\r\n    \"lecture_body\" : \"daasdad\",\r\n    \"lecture_external_url_1\" : null,\r\n    \"lecture_external_url_2\" : null\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/api/content/lecture/edit/1",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"api",
+										"content",
+										"lecture",
+										"edit",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"8jX6Kl2yPRS8kdjd9h14uM15tLxBr5F7ZKv2Bp6eNBa3PYWKvOtoWmZuVvJKznTf\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"delete\",\r\n        \"data\" : {\r\n            \"hash\": \"M8cNY3qBLF6G7aiINCQvhpG3qykwWNrW04LxxIEQVALR1nKtvrK9SZX91zwbeEs6\",\r\n            \"lecture_id\" : [1,\"s\",6,7,8,9,2,3,4]\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/api/content/lecture/delete/3",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"api",
+										"content",
+										"lecture",
+										"delete",
+										"3"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "assignment_api",
+					"item": [
+						{
+							"name": "create",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token T0PJYESFlrbWJvYRSqLA7dEvPjjZxWIA1rcRthYZBHZAWs8Sc83mR8E4EscFZuWS",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"assignment_name\" : \"Assignent Test\",\r\n    \"assignment_body\" : \"Assignent Test Assignent TestAssignent TestAssignent TestAssignent TestAssignent TestAssignent Test\",\r\n    \"assignment_external_url_1\" : null,\r\n    \"assignment_external_url_2\" : null\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/assignment/create/",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"assignment",
+										"create",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "read",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/api/content/assignment/read/0",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"api",
+										"content",
+										"assignment",
+										"read",
+										"0"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "edit",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"assignment_name\" : \"Assignent Test\",\r\n    \"assignment_body\" : \"Assignent Tessssssssssssssssssssssst Assignent TestAssignent TestAssignent TestAssignent TestAssignent TestAssignent Test\",\r\n    \"assignment_external_url_1\" : null,\r\n    \"assignment_external_url_2\" : null\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/api/content/assignment/edit/3",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"api",
+										"content",
+										"assignment",
+										"edit",
+										"3"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/api/content/assignment/delete/0",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"api",
+										"content",
+										"assignment",
+										"delete",
+										"0"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "editMarks",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token pbuBDU2aFCjHSfafJrTy8r5PcdimOaTH8rlfI55i4iRdI76G7biy9m6lBTycRY5J",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"submission_id\" : 1,\r\n    \"marks\" : 10\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/markAssignment/edit/1/",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"markAssignment",
+										"edit",
+										"1",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "readMarks",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token pbuBDU2aFCjHSfafJrTy8r5PcdimOaTH8rlfI55i4iRdI76G7biy9m6lBTycRY5J",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{LOCAL}}content/markAssignment/read/1/45",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"markAssignment",
+										"read",
+										"1",
+										"45"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "post_api",
+					"item": [
+						{
+							"name": "[user] create",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token oUQfXRaJN98XLE70f9FN9F6GhhZPtzPDLIn5xxtYwhRkt8EnJJUNuhS06MVvfjh4",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"video_id\" : null,\r\n\r\n    \"forum_id\" : null,\r\n    \"assignment_id\" : null,\r\n    \"lecture_id\" : null,\r\n    \"subject_id\" : 2,\r\n                \r\n    \"post_name\" : \"New Test Post\",\r\n    \"post_body\" : \"Who Let the dogs out WHO WHO WHo whO WhO..\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/post/",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"post",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[coor] read",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token oUQfXRaJN98XLE70f9FN9F6GhhZPtzPDLIn5xxtYwhRkt8EnJJUNuhS06MVvfjh4",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/post/0",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"post",
+										"0"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[stu] read all",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token pbuBDU2aFCjHSfafJrTy8r5PcdimOaTH8rlfI55i4iRdI76G7biy9m6lBTycRY5J",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/post/0",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"post",
+										"0"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[admin] read all",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token pbuBDU2aFCjHSfafJrTy8r5PcdimOaTH8rlfI55i4iRdI76G7biy9m6lBTycRY5J",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/post/87795962440396049328460600526719",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"post",
+										"87795962440396049328460600526719"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[user] edit",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"video_id\" : null,\r\n\r\n    \"subject_id\" : null,\r\n    \"forum_id\" : null,\r\n    \"lecture_id\" : null,\r\n    \"assignment_id\" : null,\r\n\r\n    \"post_name\" : \"New Test Post\",\r\n    \"post_body\" : \"Post body Post body Post body Post body Post body Post body Post body Post body\",\r\n    \"post_views\" : 0,\r\n    \"post_upvote\" : 0,\r\n    \"post_downvote\" : 0\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/post/3",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"post",
+										"3"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[user] delete",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token 7lXSNTMukklMXdWhjOPQRKGPPKhcBSJIMewt8r51MoFBQg85OimEdHVgqFGJEy7u",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/post/2",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"post",
+										"2"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[admin] delete all",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token 7lXSNTMukklMXdWhjOPQRKGPPKhcBSJIMewt8r51MoFBQg85OimEdHVgqFGJEy7u",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/post/87795962440396049328460600526719",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"post",
+										"87795962440396049328460600526719"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[admin] delete one",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token 7lXSNTMukklMXdWhjOPQRKGPPKhcBSJIMewt8r51MoFBQg85OimEdHVgqFGJEy7u",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/post/2",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"post",
+										"2"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "video_api [experimntal]",
+					"item": []
+				},
+				{
+					"name": "votes_api",
+					"item": [
+						{
+							"name": "changeVotes",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token pbuBDU2aFCjHSfafJrTy8r5PcdimOaTH8rlfI55i4iRdI76G7biy9m6lBTycRY5J",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{LOCAL}}content/votes/reply/1/-",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"votes",
+										"reply",
+										"1",
+										"-"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "user_personal",
+			"item": [
+				{
+					"name": "diary_api",
+					"item": [
+						{
+							"name": "create",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token pbuBDU2aFCjHSfafJrTy8r5PcdimOaTH8rlfI55i4iRdI76G7biy9m6lBTycRY5J",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"post_id\" : 1,\r\n    \"diary_name\" : \"Diary name\",\r\n    \"diary_body\" : \"Diary Body\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}personal/diary/create/",
+									"host": [
+										"{{LOCAL}}personal"
+									],
+									"path": [
+										"diary",
+										"create",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "read",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/api/personal/diary/read/0",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"api",
+										"personal",
+										"diary",
+										"read",
+										"0"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "edit",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"diary_name\" : \"Diary NAME\",\r\n    \"diary_body\" : \"Diary Body\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/api/personal/diary/edit/111",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"api",
+										"personal",
+										"diary",
+										"edit",
+										"111"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost/api/personal/diary/delete/10",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"api",
+										"personal",
+										"diary",
+										"delete",
+										"10"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "submission_api",
+					"item": [
+						{
+							"name": "create",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token pbuBDU2aFCjHSfafJrTy8r5PcdimOaTH8rlfI55i4iRdI76G7biy9m6lBTycRY5J",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"assignment_id\" : 1,\r\n    \"submission_name\" : \"name\",\r\n    \"submission_body\" : \"body\",\r\n    \"submission_external_url_1\" : null,\r\n    \"submission_external_url_2\" : null\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}personal/submission/create//",
+									"host": [
+										"{{LOCAL}}personal"
+									],
+									"path": [
+										"submission",
+										"create",
+										"",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "read",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token pbuBDU2aFCjHSfafJrTy8r5PcdimOaTH8rlfI55i4iRdI76G7biy9m6lBTycRY5J",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}personal/submission/read/0/1/",
+									"host": [
+										"{{LOCAL}}personal"
+									],
+									"path": [
+										"submission",
+										"read",
+										"0",
+										"1",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "edit",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"submission_name\" : \"name\",\r\n    \"submission_body\" : \"body\",\r\n    \"submission_external_url_1\" : null,\r\n    \"submission_external_url_2\" : null\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/api/personal/submission/edit/1/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"api",
+										"personal",
+										"submission",
+										"edit",
+										"1",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"ydDD80Y3BV9DEMeC3umI2wM2CKoKP8N4Ab07upmfL1EYCNfJhg8WOnTZmu8ROpcy\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"read\",\r\n        \"data\" : {\r\n            \"hash\": \"lfHIqjemCK5PwkvxDHj4vQj1fiq5TfgtaaZ26GY4MSe7eWFGGiFRNTRgcV0kc5Tl\",\r\n            \"submission_id\" : [1,2,3,4,5]\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/api/personal/submission/delete/2/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"api",
+										"personal",
+										"submission",
+										"delete",
+										"2",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "enroll_api",
+					"item": [
+						{
+							"name": "create",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token bNc5zmoPiWLtk6BM3xBrAbHKHCERaCUkSTqQI3d9O1UVKQsEb7pzDoKf6J6zyjPn",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"subject_id\" : 1\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{MAIN_URL}}personal/enroll/create/",
+									"host": [
+										"{{MAIN_URL}}personal"
+									],
+									"path": [
+										"enroll",
+										"create",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "read",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://localhost/api/personal/enroll/read/0",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"api",
+										"personal",
+										"enroll",
+										"read",
+										"0"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://localhost/api/personal/enroll/delete/5",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"api",
+										"personal",
+										"enroll",
+										"delete",
+										"5"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "apikey",
+		"apikey": [
+			{
+				"key": "value",
+				"value": "Token 5Xw78vKVSwY6mahmTrUDGJPMvLam7zGFmRY7TDAyiXRR3TZCOsL8Yd5A0riLQYmp",
+				"type": "string"
+			},
+			{
+				"key": "key",
+				"value": "Authorization",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "json",
+			"value": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"8jX6Kl2yPRS8kdjd9h14uM15tLxBr5F7ZKv2Bp6eNBa3PYWKvOtoWmZuVvJKznTf\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"create\",\r\n        \"data\" : {\r\n            \"hash\": \"M8cNY3qBLF6G7aiINCQvhpG3qykwWNrW04LxxIEQVALR1nKtvrK9SZX91zwbeEs6\",\r\n            \"data\" : {\r\n                \"lecture_name\" : \"Ulululu\",\r\n                \"lecture_body_1\" : \"Ulululululululululululu\",\r\n                \"lecture_body_2\" : null,\r\n                \"lecture_external_url\" : null\r\n            }\r\n        }\r\n    }\r\n}"
+		}
+	]
+}

@@ -1,6 +1,8 @@
 class Django_Auth_Router: # auth_db
     def __init__(self):
-        self.router_app_lables = {'admin', 'auth', 'contenttypes', 'sessions', 'messages'}
+        self.router_app_lables = {
+            'admin', 'auth', 'contenttypes', 'sessions', 'messages'
+        }
 
     def db_for_read(self, model, **hints):
         if(model._meta.app_label in self.router_app_lables):
@@ -30,7 +32,7 @@ class Django_Auth_Router: # auth_db
 class App_Router: # app_db
     def __init__(self):
         self.router_app_lables = {
-            'auth_prime', 'content_delivery', 'analytics', 'user_personal'
+            'auth_prime', 'content_delivery', 'analytics', 'user_personal', 'cronjobs'
         }
 
     def db_for_read(self, model, **hints):

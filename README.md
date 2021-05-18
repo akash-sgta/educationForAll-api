@@ -72,7 +72,7 @@ apt install python3 python3-pip python3-dev libmysqlclient-dev build-essential g
 
 python -m pip install -r requirements
 
-python manage.py makemigrations auth_prime analytics user_personal content_delivery
+python manage.py makemigrations auth_prime analytics user_personal content_delivery cronjobs
 
 python manage.py migrate --database=auth_db
 
@@ -84,6 +84,10 @@ python manage.py check --deploy
 
 python manage.py runserver
 ```
+
+***
+
+FOR BETTER CODE VISIBILITY : __fabiospampinato.vscode-highlight__
 
 ***
 
@@ -113,9 +117,27 @@ sudo /etc/init.d/nginx restart
 sudo /etc/init.d/nginx stop
 ```
 
+***
+
 #### LOC 
 
 ```
 find . -name '*.php' | xargs wc -l | tail -1
 8797
+```
+
+***
+
+#### Cronjob
+
+```
+sudo /etc/init.d/cron stop
+
+sudo /etc/init.d/cron start
+
+sudo /etc/init.d/cron restart
+
+python manage.py crontab add
+
+python manage.py crontab remove
 ```

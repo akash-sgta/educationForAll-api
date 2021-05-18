@@ -1,5 +1,4 @@
 server {
-    # server_names_hash_bucket_size  64;
 
     listen  80;
     listen [::]:80;
@@ -8,24 +7,39 @@ server {
 
     client_max_body_size    4M;
 
-    error_page 400 401 403 404 /40x.html;
-    location = /40x.html {
-                alias /home/<user>/repositories/education-for-all/src/djangorestapi/templates;
+    error_page 400 /400.html;
+    location = /400.html {
+                alias <path>/templates;
+                internal;
+    }
+    error_page 401 /401.html;
+    location = /401.html {
+                alias <path>/templates;
+                internal;
+    }
+    error_page 403 /403.html;
+    location = /403.html {
+                alias <path>/templates;
+                internal;
+    }
+    error_page 404 /404.html;
+    location = /404.html {
+                alias <path>/templates;
                 internal;
     }
 
-    error_page 500 502 503 504 /50x.html;
-    location = /50x.html {
-                alias /home/<user>/repositories/education-for-all/src/djangorestapi/templates;
+    error_page 500 /500.html;
+    location = /500.html {
+                alias <path>/templates;
                 internal;
     }
 
     location /media {
-        alias /home/<user>/repositories/education-for-all/src/djangorestapi/media;
+        alias <path>/media;
     }
 
     location /static {
-        alias /home/<user>/repositories/education-for-all/src/djangorestapi/static;
+        alias <path>/static;
     }
 
     location / {

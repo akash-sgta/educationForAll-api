@@ -4,22 +4,13 @@ import os
 # ----------OTHERS--------------
 
 ALLOWED_HOSTS = (
-    "*",
+    '127.0.0.1',
+    'localhost',
 )
 
 # ----------SSL--------------
 
 HTTP_SECURED = False
-if(HTTP_SECURED):
-    # HTTPS settings
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
-    SECURE_SSL_REDIRECT = True
-
-    #HSTS settings
-    SECURE_HSTS_SECONDS = 31536000 # 1y
-    SECURE_HSTS_RELOAD = True
-    SECURE_HSTS_INCLUDE_SUBDOMIANS = True
 
 # -----------DATABASE-------------
 
