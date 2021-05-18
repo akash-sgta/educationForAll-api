@@ -70,7 +70,7 @@ cd education-for-all/src/djangorestapi
 linux only**
 apt install python3 python3-pip python3-dev libmysqlclient-dev build-essential gcc nginx
 
-python -m pip install -r requirements
+python -m pip install -r requirements.txt
 
 python manage.py makemigrations auth_prime analytics user_personal content_delivery cronjobs
 
@@ -96,7 +96,7 @@ FOR BETTER CODE VISIBILITY : __fabiospampinato.vscode-highlight__
 ```
 create symbolic links for ease of access
 
-ln -s /home/<user>/repositories/education-for-all/src/djangorestapi/config/<production or development>/djangorestapi_uwsgi_aws.ini /home/<user>/uwsgi.ini
+ln -s /home/<user>/repositories/education-for-all/src/djangorestapi/config/uwsgi.ini /home/<user>/uwsgi.ini
 
 ln -s /home/<user>/repositories/education-for-all/src/djangorestapi/manage.py /home/<user>/manage.py
 ```
