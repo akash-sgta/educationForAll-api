@@ -13,7 +13,7 @@ class Ticket(models.Model):
     prime = models.BooleanField(default=False)  # solved tickets
 
     def __str__(self):
-        data = """T [{}] || {}""".format(self.ticket_id, self.user_credential_id)
+        data = f"T [{self.pk}] || {self.user_ref}"
         return data
 
 
@@ -24,5 +24,5 @@ class Log(models.Model):
     made_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        data = """L [{}] || {}""".format(self.log_id, self.api_token_id)
+        data = f"L [{self.pk}] || {self.api_token_ref}"
         return data
