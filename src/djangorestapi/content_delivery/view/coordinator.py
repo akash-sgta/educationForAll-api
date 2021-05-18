@@ -107,7 +107,7 @@ class Coordinator_View(APIView):
                         }
                         return Response(data=data, status=status.HTTP_202_ACCEPTED)
                 elif int(pk) == 87795962440396049328460600526719:  # TODO : Admin looks for all coordinator only CAGP
-                    if not do_I_Have_Privilege(request, "CAGP")[0]:
+                    if not do_I_Have_Privilege(request, "CAGP"):
                         data["success"] = False
                         data["message"] = "USER_NOT_ADMIN_OR_DOES_NOT_HAVE_CAGP_PRIVILEGE"
                         return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
@@ -263,7 +263,7 @@ class Coordinator_View(APIView):
                                         if id < 0:
                                             id = id * -1
                                             add_Subject = False
-                                        subject_ref = Subject.objects.get(subject_ref=id)
+                                        subject_ref = Subject.objects.get(pk=id)
                                     except Subject.DoesNotExist or ValueError or TypeError:
                                         data["success"] = False
                                         data["message"] = "ADMIN : SUBJECT_ID_INVALID"

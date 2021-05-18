@@ -1,7 +1,7 @@
 [uwsgi]
 
 # full path to Django project's root directory
-chdir            = /home/<user>/repositories/education-for-all/src/djangorestapi/
+chdir            = <path>/
 # Django's wsgi file
 module           = djangorestapi.wsgi
 # full path to python virtual env
@@ -13,7 +13,7 @@ master          = true
 processes       = 5
 enable-threads   = true
 # the socket (use the full path to be safe
-socket          = /home/<user>/repositories/education-for-all/src/djangorestapi/djangorestapi.sock
+socket          = <path>/djangorestapi.sock
 # socket permissions
 chmod-socket    = 664
 # clear environment on exit

@@ -99,7 +99,7 @@ class Admin_Credential_View(APIView):
                 else:
                     try:
                         if int(pk) == 0:  # TODO : Admin looking for self
-                            admin_ref = Admin.objects.get(pk=isAuthorizedUSER[1])
+                            admin_ref = Admin.objects.get(user_ref=isAuthorizedUSER[1])
                             privileges = Admin_Privilege.objects.filter(admin_ref=admin_ref).values("privilege_ref")
                             data["success"] = True
                             data["data"] = {
@@ -129,10 +129,10 @@ class Admin_Credential_View(APIView):
                                     return Response(data=data, status=status.HTTP_202_ACCEPTED)
                                 else:  # TODO : Only for prime admin to see indivisual selection
                                     try:
-                                        admin_ref = Admin.objects.get(pk=pk)
+                                        admin_ref = Admin.objects.get(user_ref=pk)
                                     except Admin.DoesNotExist:
                                         data["success"] = False
-                                        data["message"] = "ADMIN : USER_ID_INVALID"
+                                        data["message"] = "ADMIN : USER_NOT_ADMIN"
                                         return Response(data=data, status=status.HTTP_404_NOT_FOUND)
                                     else:
                                         privileges = Admin_Privilege.objects.filter(admin_ref=admin_ref).values("privilege_ref")

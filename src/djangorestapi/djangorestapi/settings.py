@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 from pathlib import Path
 import os
-import getpass
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -20,36 +20,27 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-with open(os.path.join(BASE_DIR, 'config', 'keys', 'S_KEY.txt'), 'r') as key_file:
+with open(os.path.join(BASE_DIR, "config", "keys", "S_KEY.txt"), "r") as key_file:
     SECRET_KEY = key_file.read().strip()[1:-2]
 
 # SECURITY WARNING: don't run with debug turned on in production!
-with open(os.path.join(BASE_DIR, 'config', 'debug.txt'), 'r') as key_file:
+with open(os.path.join(BASE_DIR, "config", "debug.txt"), "r") as key_file:
     DEBUG = key_file.read().strip()[1:-1]
-    if(DEBUG.lower() == 'true'):
+    if DEBUG.lower() == "true":
         DEBUG = True
-        from config.development.settings_extended import (
-            DATABASE_ROUTERS,
-            DATABASES,
-            ALLOWED_HOSTS
-        )
+        from config.development.settings_extended import DATABASE_ROUTERS, DATABASES, ALLOWED_HOSTS
     else:
         DEBUG = False
-        from config.production.settings_extended import (
-            DATABASE_ROUTERS,
-            DATABASES,
-            ALLOWED_HOSTS,
-            HTTP_SECURED
-        )
+        from config.production.settings_extended import DATABASE_ROUTERS, DATABASES, ALLOWED_HOSTS, HTTP_SECURED
 
-        if(HTTP_SECURED):
+        if HTTP_SECURED:
             # HTTPS settings
             SESSION_COOKIE_SECURE = True
             CSRF_COOKIE_SECURE = True
             SECURE_SSL_REDIRECT = True
 
-            #HSTS settings
-            SECURE_HSTS_SECONDS = 31536000 # 1y
+            # HSTS settings
+            SECURE_HSTS_SECONDS = 31536000  # 1y
             SECURE_HSTS_RELOAD = True
             SECURE_HSTS_INCLUDE_SUBDOMIANS = True
 
@@ -57,109 +48,96 @@ with open(os.path.join(BASE_DIR, 'config', 'debug.txt'), 'r') as key_file:
 # Database in configFile
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-#create user specific config and ini
+# create user specific config and ini
 try:
-    fp = open(os.path.join(BASE_DIR, 'config', 'server.conf'), 'r')
-    fp.close() # file found no action required
+    fp = open(os.path.join(BASE_DIR, "config", "server.conf"), "r")
+    fp.close()  # file found no action required
 except FileNotFoundError:
-    USER = getpass.getuser()
 
     # print server.config
-    fp_in = open(os.path.join(BASE_DIR, 'config', 'ambiguous', 'conf.draft'), 'r')
-    lines_in = fp_in.readlines()
-    fp_in.close()
-    fp_out = open(os.path.join(BASE_DIR, 'config', 'server.conf'), 'w')
-    for line in lines_in:
-        if(len(line.split("<user>")) > 1):
-            fp_out.write(USER.join(line.split("<user>")))
-        else:
+    with open(os.path.join(BASE_DIR, "config", "ambiguous", "conf.draft"), "r") as fp_in:
+        lines_in = fp_in.readlines()
+    with open(os.path.join(BASE_DIR, "config", "server.conf"), "w") as fp_out:
+        for line in lines_in:
+            line = line.replace("<path>", str(BASE_DIR))
             fp_out.write(line)
-    fp_out.close()
 
     # print uwsgi.ini
-    fp_in = open(os.path.join(BASE_DIR, 'config', 'ambiguous', 'ini.draft'), 'r')
-    lines_in = fp_in.readlines()
-    fp_in.close()
-    fp_out = open(os.path.join(BASE_DIR, 'config', 'uwsgi.ini'), 'w')
-    for line in lines_in:
-        if(len(line.split("<user>")) > 1):
-            fp_out.write(USER.join(line.split("<user>")))
-        else:
+    with open(os.path.join(BASE_DIR, "config", "ambiguous", "int.draft"), "r") as fp_in:
+        lines_in = fp_in.readlines()
+    with open(os.path.join(BASE_DIR, "config", "uwsgi.ini"), "w") as fp_out:
+        for line in lines_in:
+            line = line.replace("<path>", str(BASE_DIR))
             fp_out.write(line)
-    fp_out.close()
 
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-
-    'django.contrib.staticfiles',
-    
-    'rest_framework',
-    'corsheaders',
-    'django_crontab',
-    'drf_yasg',
-    
-    'auth_prime',
-    'user_personal',
-    'content_delivery',
-    'analytics',
-    'cronjobs'
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "rest_framework",
+    "corsheaders",
+    "django_crontab",
+    "drf_yasg",
+    "auth_prime",
+    "user_personal",
+    "content_delivery",
+    "analytics",
+    "cronjobs",
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
-    'corsheaders.middleware.CorsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
 ]
 
-ROOT_URLCONF = 'djangorestapi.urls'
+ROOT_URLCONF = "djangorestapi.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [
             os.path.join(BASE_DIR, "templates"),
         ],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'djangorestapi.wsgi.application'
+WSGI_APPLICATION = "djangorestapi.wsgi.application"
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
@@ -167,9 +145,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = 'Asia/Kolkata'
+TIME_ZONE = "Asia/Kolkata"
 
 USE_I18N = True
 
@@ -181,56 +159,48 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'Static'),
+    os.path.join(BASE_DIR, "Static"),
 ]
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
-DATA_UPLOAD_MAX_MEMORY_SIZE = 1048576*10 #10MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 1048576 * 10  # 10MB
 
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = [
-    'accept',
-    'accept-encoding',
-    'dnt',
-    'origin',
-    'user-agent',
-    'x-csrftoken',
-    'x-requested-with',
+    "accept",
+    "accept-encoding",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
     # -----------------
-    'authorization',
-    'uauth',
-    'content-type',
-    'Access-Control-Allow-Origin'    
+    "authorization",
+    "uauth",
+    "content-type",
+    "Access-Control-Allow-Origin",
 ]
 
 SWAGGER_SETTINGS = {
-    'SECURITY_DEFINITIONS': {
-        "API Token eg [Bearer (Token JWT) ]": {
-            "type": "apiKey",
-            "name": "Authorization",
-            "in": "header"
-        },
-        "User Token eg [Bearer (Token JWT) ]": {
-            "type": "apiKey",
-            "name": "uauth",
-            "in": "header"
-        }
+    "SECURITY_DEFINITIONS": {
+        "API Token eg [Bearer (Token JWT) ]": {"type": "apiKey", "name": "Authorization", "in": "header"},
+        "User Token eg [Bearer (Token JWT) ]": {"type": "apiKey", "name": "uauth", "in": "header"},
     }
 }
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 CRONTAB_LOCK_JOBS = True
-CRONTAB_COMMAND_SUFFIX = '2>&1' # log error
-FILE = os.path.join(BASE_DIR, 'log', 'cronlog.log')
+CRONTAB_COMMAND_SUFFIX = "2>&1"  # log error
+FILE = os.path.join(BASE_DIR, "log", "cronlog.log")
 CRONJOBS = [
     # ('*/1 * * * *', 'cronjobs.cron.test', f'>> {FILE}'), # test module for cronjob
-    ('0 */1 * * *', 'cronjobs.cron.token_checker', f'>> {FILE}'), # token expiry checker
-    ('*/1 * * * *', 'cronjobs.cron.telegram_notification', f'>> {FILE}'), # notifications via TG
+    ("0 */1 * * *", "cronjobs.cron.token_checker", f">> {FILE}"),  # token expiry checker
+    ("*/1 * * * *", "cronjobs.cron.telegram_notification", f">> {FILE}"),  # notifications via TG
 ]

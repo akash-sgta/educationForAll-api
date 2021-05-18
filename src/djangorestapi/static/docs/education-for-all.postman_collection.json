@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "16fb084c-cf6c-4038-8e2c-04304e524b44",
+		"_postman_id": "940acec9-e588-42fd-a3bd-1cc37af4510c",
 		"name": "education-for-all",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -238,6 +238,26 @@
 						}
 					]
 				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
 			]
 		},
 		{
@@ -259,7 +279,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"action\" : \"signup\",\r\n    \"data\" : {\r\n        \"user_f_name\" : \"Akash\",\r\n        \"user_m_name\" : null,\r\n        \"user_l_name\" : \"Sengupta\",\r\n        \"user_email\" : \"alphatrionakash@gmail.com\",\r\n        \"user_password\" : \"sengupta\",\r\n        \"user_security_question\" : \"Favourite Buttocks\",\r\n        \"user_security_answer\" : \"Abella Danger\"\r\n    }\r\n}",
+									"raw": "{\r\n    \"action\": \"signup\",\r\n    \"data\": {\r\n        \"first_name\": \"Akash\",\r\n        \"middle_name\": null,\r\n        \"last_name\": \"Sengupta\",\r\n        \"email\": \"alphatrionakash@gmail.com\",\r\n        \"password\": \"sengupta\",\r\n        \"security_question\": \"How high are you ?\",\r\n        \"security_answer\": \"High how are you ?\"\r\n    }\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -320,7 +340,7 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token DF9gAekapxAekfRYkNd00xOUn6Jxhfslfv69xjMdX0JmIX1wgZ6mvdux15FBsJxE",
+										"value": "Token EgwslPHsxC47meNY6fUQLw81N7crhEPIzR4mCAtSauh2VP2J2yMfmbLeoSxenL4z",
 										"type": "text"
 									}
 								],
@@ -357,7 +377,7 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token 0Owv69AZHnVaMyIbYIZG801jz1LUC7rQ7LfMNhR0IXxKd2BQZ48x1rqJO0B9PnBQ",
+										"value": "Token EgwslPHsxC47meNY6fUQLw81N7crhEPIzR4mCAtSauh2VP2J2yMfmbLeoSxenL4z",
 										"type": "text"
 									}
 								],
@@ -461,7 +481,7 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token 0Owv69AZHnVaMyIbYIZG801jz1LUC7rQ7LfMNhR0IXxKd2BQZ48x1rqJO0B9PnBQ",
+										"value": "Token 0rvf5KxCCHawW2TtfB8bZyaROHFIw42FJXW3E23SfXUxwA2T477bGiY9vnwszxxm",
 										"type": "text"
 									}
 								],
@@ -587,13 +607,13 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token 0Owv69AZHnVaMyIbYIZG801jz1LUC7rQ7LfMNhR0IXxKd2BQZ48x1rqJO0B9PnBQ",
+										"value": "Token 0rvf5KxCCHawW2TtfB8bZyaROHFIw42FJXW3E23SfXUxwA2T477bGiY9vnwszxxm",
 										"type": "text"
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"user_profile_headline\" : \"<b>Python Enthuciast</b> | Retro Music | Problem Solving\",\r\n    \"user_bio\" : \"<p>It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).</p>\",\r\n    \"user_english_efficiency\" : 2,\r\n    \"user_git_profile\" : \"https://github.com/akash-sgta\",\r\n    \"user_profile_pic\" : null,\r\n    \"user_likedin_profile\" : \"https://www.linkedin.com/in/akash-sengupta-026a66146/\",\r\n    \"user_roll_number\" : 430117010049,\r\n    \"prime\" : true\r\n}",
+									"raw": "{\r\n    \"headline\" : \"<b>Python Enthuciast</b> | Retro Music | Problem Solving\",\r\n    \"bio\" : \"<p>It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).</p>\",\r\n    \"english_efficiency\" : 2,\r\n    \"git_profile\" : \"https://github.com/akash-sgta\",\r\n    \"image_ref\" : null,\r\n    \"likedin_profile\" : \"https://www.linkedin.com/in/akash-sengupta-026a66146/\",\r\n    \"roll_number\" : 430117010049,\r\n    \"prime\" : true\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -801,7 +821,13 @@
 							"name": "[univ] check options",
 							"request": {
 								"method": "OPTIONS",
-								"header": [],
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token 0rvf5KxCCHawW2TtfB8bZyaROHFIw42FJXW3E23SfXUxwA2T477bGiY9vnwszxxm",
+										"type": "text"
+									}
+								],
 								"url": {
 									"raw": "{{LOCAL}}user/prof/",
 									"host": [
@@ -1129,13 +1155,13 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token T0PJYESFlrbWJvYRSqLA7dEvPjjZxWIA1rcRthYZBHZAWs8Sc83mR8E4EscFZuWS",
+										"value": "Token 0rvf5KxCCHawW2TtfB8bZyaROHFIw42FJXW3E23SfXUxwA2T477bGiY9vnwszxxm",
 										"type": "text"
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"privilege\" : 1\r\n}",
+									"raw": "{\r\n    \"privilege\" : 2\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1143,13 +1169,13 @@
 									}
 								},
 								"url": {
-									"raw": "{{LOCAL}}admin/cred/",
+									"raw": "{{LOCAL}}admin/cred/3",
 									"host": [
 										"{{LOCAL}}admin"
 									],
 									"path": [
 										"cred",
-										""
+										"3"
 									]
 								}
 							},
@@ -1192,7 +1218,13 @@
 							"name": "[adminP] read all",
 							"request": {
 								"method": "GET",
-								"header": [],
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token 0rvf5KxCCHawW2TtfB8bZyaROHFIw42FJXW3E23SfXUxwA2T477bGiY9vnwszxxm",
+										"type": "text"
+									}
+								],
 								"url": {
 									"raw": "{{LOCAL}}admin/cred/87795962440396049328460600526719",
 									"host": [
@@ -1210,15 +1242,21 @@
 							"name": "[adminP] read admin",
 							"request": {
 								"method": "GET",
-								"header": [],
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token 0rvf5KxCCHawW2TtfB8bZyaROHFIw42FJXW3E23SfXUxwA2T477bGiY9vnwszxxm",
+										"type": "text"
+									}
+								],
 								"url": {
-									"raw": "{{LOCAL}}admin/cred/8",
+									"raw": "{{LOCAL}}admin/cred/6",
 									"host": [
 										"{{LOCAL}}admin"
 									],
 									"path": [
 										"cred",
-										"8"
+										"6"
 									]
 								}
 							},
@@ -1290,13 +1328,13 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token T0PJYESFlrbWJvYRSqLA7dEvPjjZxWIA1rcRthYZBHZAWs8Sc83mR8E4EscFZuWS",
+										"value": "Token 0rvf5KxCCHawW2TtfB8bZyaROHFIw42FJXW3E23SfXUxwA2T477bGiY9vnwszxxm",
 										"type": "text"
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"admin_privilege_name\" : \"CAGP\",\r\n    \"admin_privilege_description\" : \"Coordinator access grantinf privilege\"\r\n}",
+									"raw": "{\r\n    \"name\" : \"SAGP\",\r\n    \"description\" : \"Subject access granting privilege\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1326,7 +1364,7 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token ZM8uwdbgG87PHqGYeSvG4XkTZmvM49JJrS2pF2aME2smHe0QttJYpl1Z6AErIa7T",
+										"value": "Token 0rvf5KxCCHawW2TtfB8bZyaROHFIw42FJXW3E23SfXUxwA2T477bGiY9vnwszxxm",
 										"type": "text"
 									}
 								],
@@ -1360,17 +1398,18 @@
 									{
 										"key": "Authorization",
 										"value": "Token QvGaXG1CeScETGsnhJolFokaWFl3hEA9v2lI3RlEcXKJngifvcd4K49KciTI8eJm",
-										"type": "text"
+										"type": "text",
+										"disabled": true
 									},
 									{
 										"key": "uauth",
-										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"value": "Token 0rvf5KxCCHawW2TtfB8bZyaROHFIw42FJXW3E23SfXUxwA2T477bGiY9vnwszxxm",
 										"type": "text"
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"admin_privilege_name\" : \"PD\",\r\n    \"admin_privilege_description\" : \"Privilege Description\"\r\n}",
+									"raw": "{\r\n    \"name\" : \"CAGP\",\r\n    \"description\" : \"Coordinator access granting privilege\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1378,13 +1417,13 @@
 									}
 								},
 								"url": {
-									"raw": "{{LOCAL}}admin/prev/12",
+									"raw": "{{LOCAL}}admin/prev/1",
 									"host": [
 										"{{LOCAL}}admin"
 									],
 									"path": [
 										"prev",
-										"12"
+										"1"
 									]
 								}
 							},
@@ -1481,13 +1520,13 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token T0PJYESFlrbWJvYRSqLA7dEvPjjZxWIA1rcRthYZBHZAWs8Sc83mR8E4EscFZuWS",
+										"value": "Token 0rvf5KxCCHawW2TtfB8bZyaROHFIw42FJXW3E23SfXUxwA2T477bGiY9vnwszxxm",
 										"type": "text"
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"user_id\" : 1\r\n}",
+									"raw": "{\r\n    \"user_id\" : 6\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1625,7 +1664,7 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token 7Z67xJpd6sJf5JCjbSZVIo49AbCYlFbim5e0fdLPzWArwkJdyjdkqNf2Ql6Ftkao",
+										"value": "Token 0rvf5KxCCHawW2TtfB8bZyaROHFIw42FJXW3E23SfXUxwA2T477bGiY9vnwszxxm",
 										"type": "text"
 									}
 								],
@@ -1658,7 +1697,7 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token T0PJYESFlrbWJvYRSqLA7dEvPjjZxWIA1rcRthYZBHZAWs8Sc83mR8E4EscFZuWS",
+										"value": "Token 0rvf5KxCCHawW2TtfB8bZyaROHFIw42FJXW3E23SfXUxwA2T477bGiY9vnwszxxm",
 										"type": "text"
 									}
 								],
@@ -1672,13 +1711,13 @@
 									}
 								},
 								"url": {
-									"raw": "{{LOCAL}}content/coordinator/1",
+									"raw": "{{LOCAL}}content/coordinator/6",
 									"host": [
 										"{{LOCAL}}content"
 									],
 									"path": [
 										"coordinator",
-										"1"
+										"6"
 									]
 								}
 							},
@@ -1795,13 +1834,13 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token T0PJYESFlrbWJvYRSqLA7dEvPjjZxWIA1rcRthYZBHZAWs8Sc83mR8E4EscFZuWS",
+										"value": "Token 0rvf5KxCCHawW2TtfB8bZyaROHFIw42FJXW3E23SfXUxwA2T477bGiY9vnwszxxm",
 										"type": "text"
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"subject_name\" : \"Object-oriented Programming\",\r\n    \"subject_description\" : \"Object-oriented programming (OOP) is a programming paradigm based on the concept of 'objects', which can contain data and code: data in the form of fields (often known as attributes or properties), and code, in the form of procedures (often known as methods).\"\r\n}",
+									"raw": "{\r\n    \"name\" : \"Unga Bunga\",\r\n    \"description\" : \"Object-oriented programming (OOP) is a programming paradigm based on the concept of 'objects', which can contain data and code: data in the form of fields (often known as attributes or properties), and code, in the form of procedures (often known as methods).\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1809,13 +1848,12 @@
 									}
 								},
 								"url": {
-									"raw": "{{LOCAL}}content/subject/create/",
+									"raw": "{{LOCAL}}content/subject/",
 									"host": [
 										"{{LOCAL}}content"
 									],
 									"path": [
 										"subject",
-										"create",
 										""
 									]
 								}
@@ -2407,7 +2445,7 @@
 					"name": "lecture_api",
 					"item": [
 						{
-							"name": "create",
+							"name": "[coor] create",
 							"request": {
 								"method": "POST",
 								"header": [
@@ -2441,7 +2479,7 @@
 							"response": []
 						},
 						{
-							"name": "read",
+							"name": "[user] read",
 							"protocolProfileBehavior": {
 								"disableBodyPruning": true
 							},
@@ -2464,16 +2502,12 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost/api/content/lecture/read/11",
-									"protocol": "http",
+									"raw": "{{LOCAL}}content/lecture/11",
 									"host": [
-										"localhost"
+										"{{LOCAL}}content"
 									],
 									"path": [
-										"api",
-										"content",
 										"lecture",
-										"read",
 										"11"
 									]
 								}
@@ -2481,7 +2515,7 @@
 							"response": []
 						},
 						{
-							"name": "edit",
+							"name": "[coor] edit",
 							"request": {
 								"method": "PUT",
 								"header": [
@@ -2501,16 +2535,12 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost/api/content/lecture/edit/1",
-									"protocol": "http",
+									"raw": "{{LOCAL}}content/lecture/1",
 									"host": [
-										"localhost"
+										"{{LOCAL}}content"
 									],
 									"path": [
-										"api",
-										"content",
 										"lecture",
-										"edit",
 										"1"
 									]
 								}
@@ -2518,7 +2548,7 @@
 							"response": []
 						},
 						{
-							"name": "delete",
+							"name": "[coor] delete",
 							"request": {
 								"method": "DELETE",
 								"header": [
@@ -2538,16 +2568,12 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost/api/content/lecture/delete/3",
-									"protocol": "http",
+									"raw": "{{LOCAL}}content/lecture/3",
 									"host": [
-										"localhost"
+										"{{LOCAL}}content"
 									],
 									"path": [
-										"api",
-										"content",
 										"lecture",
-										"delete",
 										"3"
 									]
 								}
@@ -2560,7 +2586,7 @@
 					"name": "assignment_api",
 					"item": [
 						{
-							"name": "create",
+							"name": "[coor] create",
 							"request": {
 								"method": "POST",
 								"header": [
@@ -2580,13 +2606,12 @@
 									}
 								},
 								"url": {
-									"raw": "{{LOCAL}}content/assignment/create/",
+									"raw": "{{LOCAL}}content/assignment/",
 									"host": [
 										"{{LOCAL}}content"
 									],
 									"path": [
 										"assignment",
-										"create",
 										""
 									]
 								}
@@ -2594,7 +2619,7 @@
 							"response": []
 						},
 						{
-							"name": "read",
+							"name": "[user] read all for enrollSubject",
 							"protocolProfileBehavior": {
 								"disableBodyPruning": true
 							},
@@ -2617,16 +2642,84 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost/api/content/assignment/read/0",
-									"protocol": "http",
+									"raw": "{{LOCAL}}content/assignment/87795962440396049328460600526719",
 									"host": [
-										"localhost"
+										"{{LOCAL}}content"
 									],
 									"path": [
-										"api",
-										"content",
 										"assignment",
-										"read",
+										"87795962440396049328460600526719"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[user] read specific",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/assignment/69",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"assignment",
+										"69"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[coor] read all for accessSubject",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}content/assignment/0",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"assignment",
 										"0"
 									]
 								}
@@ -2634,7 +2727,7 @@
 							"response": []
 						},
 						{
-							"name": "edit",
+							"name": "[coor] edit",
 							"request": {
 								"method": "PUT",
 								"header": [
@@ -2654,16 +2747,12 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost/api/content/assignment/edit/3",
-									"protocol": "http",
+									"raw": "{{LOCAL}}content/assignment/3",
 									"host": [
-										"localhost"
+										"{{LOCAL}}content"
 									],
 									"path": [
-										"api",
-										"content",
 										"assignment",
-										"edit",
 										"3"
 									]
 								}
@@ -2671,7 +2760,7 @@
 							"response": []
 						},
 						{
-							"name": "delete",
+							"name": "[coor] delete",
 							"request": {
 								"method": "DELETE",
 								"header": [
@@ -2691,16 +2780,12 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost/api/content/assignment/delete/0",
-									"protocol": "http",
+									"raw": "{{LOCAL}}content/assignment/0",
 									"host": [
-										"localhost"
+										"{{LOCAL}}content"
 									],
 									"path": [
-										"api",
-										"content",
 										"assignment",
-										"delete",
 										"0"
 									]
 								}
@@ -2708,7 +2793,7 @@
 							"response": []
 						},
 						{
-							"name": "editMarks",
+							"name": "[coor] editMarks",
 							"request": {
 								"method": "PUT",
 								"header": [
@@ -2720,7 +2805,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"submission_id\" : 1,\r\n    \"marks\" : 10\r\n}",
+									"raw": "{\r\n    \"marks\" : 10\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -2728,22 +2813,21 @@
 									}
 								},
 								"url": {
-									"raw": "{{LOCAL}}content/markAssignment/edit/1/",
+									"raw": "{{LOCAL}}content/markAssignment/1/15",
 									"host": [
 										"{{LOCAL}}content"
 									],
 									"path": [
 										"markAssignment",
-										"edit",
 										"1",
-										""
+										"15"
 									]
 								}
 							},
 							"response": []
 						},
 						{
-							"name": "readMarks",
+							"name": "[coor] readMarks",
 							"request": {
 								"method": "GET",
 								"header": [
@@ -2754,13 +2838,12 @@
 									}
 								],
 								"url": {
-									"raw": "{{LOCAL}}content/markAssignment/read/1/45",
+									"raw": "{{LOCAL}}content/markAssignment/1/45",
 									"host": [
 										"{{LOCAL}}content"
 									],
 									"path": [
 										"markAssignment",
-										"read",
 										"1",
 										"45"
 									]
@@ -3050,7 +3133,104 @@
 				},
 				{
 					"name": "video_api [experimntal]",
-					"item": []
+					"item": [
+						{
+							"name": "[coor] create",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token sdadasdsad",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{LOCAL}}content/video/",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"video",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[user] read",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token sdadasdsad",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{LOCAL}}content/video/3",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"video",
+										"3"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[coor] edit",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token sdadasdsad",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{LOCAL}}content/video/3",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"video",
+										"3"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[coor] delete",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token sdadasdsad",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{LOCAL}}content/video/32",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"video",
+										"32"
+									]
+								}
+							},
+							"response": []
+						}
+					]
 				},
 				{
 					"name": "votes_api",
@@ -3092,7 +3272,7 @@
 					"name": "diary_api",
 					"item": [
 						{
-							"name": "create",
+							"name": "[user] create",
 							"request": {
 								"method": "POST",
 								"header": [
@@ -3112,13 +3292,12 @@
 									}
 								},
 								"url": {
-									"raw": "{{LOCAL}}personal/diary/create/",
+									"raw": "{{LOCAL}}personal/diary/",
 									"host": [
 										"{{LOCAL}}personal"
 									],
 									"path": [
 										"diary",
-										"create",
 										""
 									]
 								}
@@ -3126,7 +3305,7 @@
 							"response": []
 						},
 						{
-							"name": "read",
+							"name": "[user] read all",
 							"protocolProfileBehavior": {
 								"disableBodyPruning": true
 							},
@@ -3149,16 +3328,12 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost/api/personal/diary/read/0",
-									"protocol": "http",
+									"raw": "{{LOCAL}}personal/diary/0",
 									"host": [
-										"localhost"
+										"{{LOCAL}}personal"
 									],
 									"path": [
-										"api",
-										"personal",
 										"diary",
-										"read",
 										"0"
 									]
 								}
@@ -3166,7 +3341,43 @@
 							"response": []
 						},
 						{
-							"name": "edit",
+							"name": "[user] read specific",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}personal/diary/69",
+									"host": [
+										"{{LOCAL}}personal"
+									],
+									"path": [
+										"diary",
+										"69"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[user] edit",
 							"request": {
 								"method": "PUT",
 								"header": [
@@ -3186,24 +3397,21 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost/api/personal/diary/edit/111",
-									"protocol": "http",
+									"raw": "{{LOCAL}}personal/diary/edit/69",
 									"host": [
-										"localhost"
+										"{{LOCAL}}personal"
 									],
 									"path": [
-										"api",
-										"personal",
 										"diary",
 										"edit",
-										"111"
+										"69"
 									]
 								}
 							},
 							"response": []
 						},
 						{
-							"name": "delete",
+							"name": "[user] delete",
 							"request": {
 								"method": "DELETE",
 								"header": [
@@ -3218,17 +3426,13 @@
 									"raw": ""
 								},
 								"url": {
-									"raw": "http://localhost/api/personal/diary/delete/10",
-									"protocol": "http",
+									"raw": "{{LOCAL}}personal/diary/45",
 									"host": [
-										"localhost"
+										"{{LOCAL}}personal"
 									],
 									"path": [
-										"api",
-										"personal",
 										"diary",
-										"delete",
-										"10"
+										"45"
 									]
 								}
 							},
@@ -3240,7 +3444,7 @@
 					"name": "submission_api",
 					"item": [
 						{
-							"name": "create",
+							"name": "[user] create",
 							"request": {
 								"method": "POST",
 								"header": [
@@ -3260,13 +3464,12 @@
 									}
 								},
 								"url": {
-									"raw": "{{LOCAL}}personal/submission/create//",
+									"raw": "{{LOCAL}}personal/submission//",
 									"host": [
 										"{{LOCAL}}personal"
 									],
 									"path": [
 										"submission",
-										"create",
 										"",
 										""
 									]
@@ -3395,7 +3598,7 @@
 					"name": "enroll_api",
 					"item": [
 						{
-							"name": "create",
+							"name": "[user] create",
 							"request": {
 								"method": "POST",
 								"header": [
@@ -3415,13 +3618,12 @@
 									}
 								},
 								"url": {
-									"raw": "{{MAIN_URL}}personal/enroll/create/",
+									"raw": "{{LOCAL}}personal/enroll/",
 									"host": [
-										"{{MAIN_URL}}personal"
+										"{{LOCAL}}personal"
 									],
 									"path": [
 										"enroll",
-										"create",
 										""
 									]
 								}
@@ -3429,7 +3631,7 @@
 							"response": []
 						},
 						{
-							"name": "read",
+							"name": "[user] read",
 							"request": {
 								"method": "GET",
 								"header": [
@@ -3440,16 +3642,36 @@
 									}
 								],
 								"url": {
-									"raw": "http://localhost/api/personal/enroll/read/0",
-									"protocol": "http",
+									"raw": "{{LOCAL}}personal/enroll/87795962440396049328460600526719",
 									"host": [
-										"localhost"
+										"{{LOCAL}}personal"
 									],
 									"path": [
-										"api",
-										"personal",
 										"enroll",
-										"read",
+										"87795962440396049328460600526719"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[coor] read",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "uauth",
+										"value": "Token d6KjJQSfmjE9D7PC9JooTg9uCZGxrgJlPXFBZ5wdLvw1PCYWcBlS5VSRkHcTsj7Y",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{LOCAL}}personal/enroll/0",
+									"host": [
+										"{{LOCAL}}personal"
+									],
+									"path": [
+										"enroll",
 										"0"
 									]
 								}
@@ -3457,7 +3679,7 @@
 							"response": []
 						},
 						{
-							"name": "delete",
+							"name": "[user] delete",
 							"request": {
 								"method": "DELETE",
 								"header": [
@@ -3468,17 +3690,13 @@
 									}
 								],
 								"url": {
-									"raw": "http://localhost/api/personal/enroll/delete/5",
-									"protocol": "http",
+									"raw": "{{LOCAL}}personal/enroll/69",
 									"host": [
-										"localhost"
+										"{{LOCAL}}personal"
 									],
 									"path": [
-										"api",
-										"personal",
 										"enroll",
-										"delete",
-										"5"
+										"69"
 									]
 								}
 							},
@@ -3494,7 +3712,7 @@
 		"apikey": [
 			{
 				"key": "value",
-				"value": "Token 5Xw78vKVSwY6mahmTrUDGJPMvLam7zGFmRY7TDAyiXRR3TZCOsL8Yd5A0riLQYmp",
+				"value": "Token Z5klnvVR6CAqKjlzMXr7rUfaA1ac5lm0a8DNoevcwHZqw1w3rGFfuqm4Ly8wRblB",
 				"type": "string"
 			},
 			{
@@ -3526,6 +3744,7 @@
 	],
 	"variable": [
 		{
+			"id": "aae8d270-def6-49dc-ba32-8ca832adc348",
 			"key": "json",
 			"value": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"8jX6Kl2yPRS8kdjd9h14uM15tLxBr5F7ZKv2Bp6eNBa3PYWKvOtoWmZuVvJKznTf\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"create\",\r\n        \"data\" : {\r\n            \"hash\": \"M8cNY3qBLF6G7aiINCQvhpG3qykwWNrW04LxxIEQVALR1nKtvrK9SZX91zwbeEs6\",\r\n            \"data\" : {\r\n                \"lecture_name\" : \"Ulululu\",\r\n                \"lecture_body_1\" : \"Ulululululululululululu\",\r\n                \"lecture_body_2\" : null,\r\n                \"lecture_external_url\" : null\r\n            }\r\n        }\r\n    }\r\n}"
 		}

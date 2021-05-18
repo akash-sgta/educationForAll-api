@@ -12,7 +12,7 @@ class Coordinator(models.Model):
     prime = models.BooleanField(default=False)  # TODO : T =>
 
     def __str__(self):
-        data = f"{self.user_ref} || C [{self.coordinator_id} {self.prime}]"
+        data = f"{self.user_ref} || C [{self.pk} {self.prime}]"
         return data
 
 
@@ -22,7 +22,7 @@ class Subject(models.Model):
     prime = models.BooleanField(default=False)  # TODO : T => TO be shown to only logged users
 
     def __str__(self):
-        data = f"S [{self.subject_id} {self.subject_name}]"
+        data = f"S [{self.pk} {self.name}]"
         return data
 
 
@@ -93,7 +93,7 @@ class Post(models.Model):
     prime = models.BooleanField(default=False, null=False, blank=False)
 
     def __str__(self):
-        data = f"P [{self.post_id}] || {self.user_ref} ||{self.subject_ref} || {self.lecture_ref} || {self.forum_ref} || {self.assignment_ref} || {self.video_ref}"
+        data = f"P [{self.pk}] || {self.user_ref} ||{self.subject_ref} || {self.lecture_ref} || {self.forum_ref} || {self.assignment_ref} || {self.video_ref}"
         return data
 
 
@@ -111,7 +111,7 @@ class Reply(models.Model):
     made_date = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        data = f"R [{self.reply_id}] || {self.user_ref} || {self.forum_ref}"
+        data = f"R [{self.pk}] || {self.user_ref} || {self.forum_ref}"
         return data
 
 
@@ -127,7 +127,7 @@ class ReplyToReply(models.Model):
     made_date = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        data = f"R2 [{self.reply_id}] || {self.user_ref} || {self.reply_ref}"
+        data = f"R2 [{self.id}] || {self.user_ref} || {self.reply_ref}"
         return data
 
 

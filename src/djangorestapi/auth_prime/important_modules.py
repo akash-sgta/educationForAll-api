@@ -207,7 +207,7 @@ def do_I_Have_Privilege(request, key):
         headers = request.headers
         if "uauth" in headers:
             try:
-                user_token_ref = User_Token.objects.get(token_hash=headers["uauth"].split()[1])
+                user_token_ref = User_Token.objects.get(hash=headers["uauth"].split()[1])
             except User_Token.DoesNotExist:
                 return False
             else:
@@ -221,6 +221,7 @@ def do_I_Have_Privilege(request, key):
                     except Privilege.DoesNotExist:
                         return False
                     else:
+                        print(privilege_ref)
                         try:
                             Admin_Privilege.objects.get(
                                 admin_ref=admin_ref,
