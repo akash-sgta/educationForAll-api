@@ -90,9 +90,7 @@ class Post_View(APIView):
                     # TODO : create notification for concerned part(y/ies)
                     message = f"Date : {post_de_serialized.data['made_date'].split('T')[0]}"
                     try:
-                        message += (
-                            f"\n\n<b>{Subject.objects.get(subject_ref = post_de_serialized.data['subject_ref']).name}</b>"
-                        )
+                        message += f"\n\n<b>{Subject.objects.get(pk = post_de_serialized.data['subject_ref']).name}</b>"
                     except Subject.DoesNotExist:
                         message += f"\n\n<b>Ambiguous</b>"
                     message += f"\n\n<i>{post_de_serialized.data['name']}</i>"
@@ -157,7 +155,7 @@ class Post_View(APIView):
                     isAuthorizedADMIN = am_I_Authorized(request, "ADMIN")
                     if isAuthorizedADMIN > 0:
                         data["success"] = True
-                        data["data"] = Post_Serializer(Post.objects.all().order_by("-post_id"), many=True).data
+                        data["data"] = Post_Serializer(Post.objects.all().order_by("-id"), many=True).data
                         return Response(data=data, status=status.HTTP_202_ACCEPTED)
                     else:
                         data["success"] = False
@@ -178,7 +176,7 @@ class Post_View(APIView):
                         temp = list()
                         for sub_id in subjects:
                             temp.extend(
-                                Post_Serializer(Post.objects.filter(subject_ref=sub_id).order_by("-post_id"), many=True).data
+                                Post_Serializer(Post.objects.filter(subject_ref=sub_id).order_by("-id"), many=True).data
                             )
                         data["success"] = True
                         data["data"] = temp.copy()
@@ -189,9 +187,7 @@ class Post_View(APIView):
                     ]
                     temp = list()
                     for sub_id in subjects:
-                        temp.extend(
-                            Post_Serializer(Post.objects.filter(subject_ref=sub_id).order_by("-post_id"), many=True).data
-                        )
+                        temp.extend(Post_Serializer(Post.objects.filter(subject_ref=sub_id).order_by("-id"), many=True).data)
                     data["success"] = True
                     data["data"] = temp.copy()
                     return Response(data=data, status=status.HTTP_202_ACCEPTED)

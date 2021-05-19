@@ -209,7 +209,7 @@ class Submission_View(APIView):
             data["message"] = {"METHOD": "PUT", "URL_FORMAT": "/api/personal/submission/<id>/"}
             return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk_1=None, pk_2=None):
+    def delete(self, request, pk=None, pkk=None):
         data = dict()
 
         isAuthorizedAPI = am_I_Authorized(request, "API")
@@ -218,7 +218,7 @@ class Submission_View(APIView):
             data["message"] = "ENDPOINT_NOT_AUTHORIZED"
             return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
 
-        if pk_1 not in (None, ""):
+        if pk not in (None, ""):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if isAuthorizedUSER[0] == False:
                 data["success"] = False
@@ -226,7 +226,7 @@ class Submission_View(APIView):
                 return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
             else:
                 try:
-                    submission_ref = Submission.objects.get(user_ref=isAuthorizedUSER[1], pk=pk_1)
+                    submission_ref = Submission.objects.get(user_ref=isAuthorizedUSER[1], pk=pk)
                 except Submission.DoesNotExist:
                     data["success"] = False
                     data["message"] = "INVALID_SUBMISSION_ID"
@@ -241,7 +241,7 @@ class Submission_View(APIView):
             data["message"] = {"METHOD": "DELETE", "URL_FORMAT": "/api/personal/submission/<id>/"}
             return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
 
-    def options(self, request, pk=None):
+    def options(self, request, pk=None, pkk=None):
         data = dict()
 
         isAuthorizedAPI = am_I_Authorized(request, "API")

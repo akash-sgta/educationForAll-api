@@ -172,6 +172,8 @@ class Admin_Credential_View(APIView):
                     data["message"] = "ADMIN_NOT_ADMIN_PRIME"
                     return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
                 else:
+                    if pk == "0":
+                        pk = isAuthorizedUSER[1]
                     privilege = int(request.data["privilege"])
                     if privilege > 0:  # TODO : grant privilege
                         try:
