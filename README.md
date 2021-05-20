@@ -11,7 +11,7 @@ base_api
     │
     ├ analytics
     │    ├ Token  <analytics/ticket/>
-    │    └ Log    <analytics/log/>
+    │    └ Log*
     │
     ├ auth_prime
     │    ├ User_Credential  <user/cred/>
@@ -96,9 +96,9 @@ FOR BETTER CODE VISIBILITY : __fabiospampinato.vscode-highlight__
 ```
 create symbolic links for ease of access
 
-ln -s /home/<user>/repositories/education-for-all/src/djangorestapi/config/uwsgi.ini /home/<user>/uwsgi.ini
+ln -s /{your_path}/uwsgi.ini /home/<user>/uwsgi.ini
 
-ln -s /home/<user>/repositories/education-for-all/src/djangorestapi/manage.py /home/<user>/manage.py
+ln -s /{your_path}/manage.py /home/<user>/manage.py
 ```
 
 ***
@@ -122,8 +122,17 @@ sudo /etc/init.d/nginx stop
 #### LOC 
 
 ```
-find . -name '*.php' | xargs wc -l | tail -1
-8797
+find . -name '*.py' | xargs wc -l | tail -1
+7549
+
+find . -name '*.html' | xargs wc -l | tail -1
+1046
+
+find . -name '*.css' | xargs wc -l | tail -1
+7165
+
+find . -name '*.py' | xargs wc -l | tail -1
+28220
 ```
 
 ***
