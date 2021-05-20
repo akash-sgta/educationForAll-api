@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "940acec9-e588-42fd-a3bd-1cc37af4510c",
+		"_postman_id": "7e760c69-45e9-4af7-9944-0d9b6026b0da",
 		"name": "education-for-all",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -297,7 +297,83 @@
 									]
 								}
 							},
-							"response": []
+							"response": [
+								{
+									"name": "[user] signup",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "uauth",
+												"value": "Token alwZU3mbns1Suq99Zkr25wv6ZFN8VppZz9n2CrlTgDeR0cmjZvbobkR8zTSOpgyf",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"action\": \"signup\",\r\n    \"data\": {\r\n        \"first_name\": \"Akash\",\r\n        \"middle_name\": null,\r\n        \"last_name\": \"Sengupta\",\r\n        \"email\": \"alphatrionakash@gmail.com\",\r\n        \"password\": \"sengupta\",\r\n        \"security_question\": \"How high are you ?\",\r\n        \"security_answer\": \"High how are you ?\"\r\n    }\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{LOCAL}}user/cred/",
+											"host": [
+												"{{LOCAL}}user"
+											],
+											"path": [
+												"cred",
+												""
+											]
+										}
+									},
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Allow",
+											"value": "GET, POST, PUT, DELETE, HEAD, OPTIONS"
+										},
+										{
+											"key": "Content-Length",
+											"value": "365"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Date",
+											"value": "Wed, 19 May 2021 11:40:27 GMT"
+										},
+										{
+											"key": "Referrer-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Server",
+											"value": "nginx/1.14.0 (Ubuntu)"
+										},
+										{
+											"key": "Vary",
+											"value": "Origin, Cookie"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "DENY"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"success\": true,\n    \"data\": {\n        \"JWT\": \"MHNfVQjkeTpDpuGGpdb9pgd1c5IGNmGHYHSTKYRbXc1hDLI8AkxUImE4hqyWZn1e\",\n        \"data\": {\n            \"id\": 7,\n            \"first_name\": \"Akash\",\n            \"middle_name\": null,\n            \"last_name\": \"Sengupta\",\n            \"email\": \"alphatrionakash@gmail.com\",\n            \"password\": \"■■REDACTED■■\",\n            \"telegram_id\": null,\n            \"security_question\": \"How high are you ?\",\n            \"security_answer\": \"High how are you ?\",\n            \"profile_ref\": null\n        }\n    }\n}"
+								}
+							]
 						},
 						{
 							"name": "[user] signin",
@@ -481,7 +557,7 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token 0rvf5KxCCHawW2TtfB8bZyaROHFIw42FJXW3E23SfXUxwA2T477bGiY9vnwszxxm",
+										"value": "Token MHNfVQjkeTpDpuGGpdb9pgd1c5IGNmGHYHSTKYRbXc1hDLI8AkxUImE4hqyWZn1e",
 										"type": "text"
 									}
 								],
@@ -496,7 +572,74 @@
 									]
 								}
 							},
-							"response": []
+							"response": [
+								{
+									"name": "[admin] read all",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "uauth",
+												"value": "Token MHNfVQjkeTpDpuGGpdb9pgd1c5IGNmGHYHSTKYRbXc1hDLI8AkxUImE4hqyWZn1e",
+												"type": "text"
+											}
+										],
+										"url": {
+											"raw": "{{LOCAL}}user/cred/87795962440396049328460600526719",
+											"host": [
+												"{{LOCAL}}user"
+											],
+											"path": [
+												"cred",
+												"87795962440396049328460600526719"
+											]
+										}
+									},
+									"status": "Accepted",
+									"code": 202,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Server",
+											"value": "nginx/1.14.0 (Ubuntu)"
+										},
+										{
+											"key": "Date",
+											"value": "Wed, 19 May 2021 12:34:46 GMT"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Content-Length",
+											"value": "623"
+										},
+										{
+											"key": "Allow",
+											"value": "GET, POST, PUT, DELETE, HEAD, OPTIONS"
+										},
+										{
+											"key": "Vary",
+											"value": "Origin, Cookie"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "DENY"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "Referrer-Policy",
+											"value": "same-origin"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"success\": true,\n    \"data\": [\n        {\n            \"id\": 7,\n            \"first_name\": \"Akash\",\n            \"middle_name\": null,\n            \"last_name\": \"Sengupta\",\n            \"email\": \"alphatrionakash@gmail.com\",\n            \"password\": \"b'\\\\xe20\\\\xa4\\\\xf7V\\\\xc5_\\\\xa7i3\\\\x17\\\\x83{\\\\xf0o~\\\\xb9\\\\x05J\\\\xb0\\\\xbfL\\\\xd4\",\n            \"telegram_id\": null,\n            \"security_question\": \"How high are you ?\",\n            \"security_answer\": \"High how are you ?\",\n            \"profile_ref\": null\n        },\n        {\n            \"id\": 8,\n            \"first_name\": \"Souriya\",\n            \"middle_name\": null,\n            \"last_name\": \"Roy\",\n            \"email\": \"souriyaroy1998@gmail.com\",\n            \"password\": \"b'7O\\\\xf41\\\\xc4h\\\\xb4\\\\xe3Q\\\\x87F\\\\xaf\\\\x19`j\\\\xfdn\\\\xf3\\\\xf1\\\\x1a\\\\xa2\\\\x89U\",\n            \"telegram_id\": null,\n            \"security_question\": null,\n            \"security_answer\": null,\n            \"profile_ref\": null\n        }\n    ]\n}"
+								}
+							]
 						},
 						{
 							"name": "[admin] read user",
@@ -607,7 +750,7 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token 0rvf5KxCCHawW2TtfB8bZyaROHFIw42FJXW3E23SfXUxwA2T477bGiY9vnwszxxm",
+										"value": "Token MHNfVQjkeTpDpuGGpdb9pgd1c5IGNmGHYHSTKYRbXc1hDLI8AkxUImE4hqyWZn1e",
 										"type": "text"
 									}
 								],
@@ -1086,13 +1229,13 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token AdiNXnOkZIM4krFuMeENrvFjjdpHsEZMDzK5JezYypVthzN7hOfrikDw7WjsMA7Q",
+										"value": "Token MHNfVQjkeTpDpuGGpdb9pgd1c5IGNmGHYHSTKYRbXc1hDLI8AkxUImE4hqyWZn1e",
 										"type": "text"
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"user_id\" : 1\r\n}",
+									"raw": "{\r\n    \"user_id\" : 8\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1110,7 +1253,83 @@
 									]
 								}
 							},
-							"response": []
+							"response": [
+								{
+									"name": "[adminP] create",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "uauth",
+												"value": "Token MHNfVQjkeTpDpuGGpdb9pgd1c5IGNmGHYHSTKYRbXc1hDLI8AkxUImE4hqyWZn1e",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"user_id\" : 8\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{LOCAL}}admin/cred/",
+											"host": [
+												"{{LOCAL}}admin"
+											],
+											"path": [
+												"cred",
+												""
+											]
+										}
+									},
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Allow",
+											"value": "GET, POST, PUT, DELETE, HEAD, OPTIONS"
+										},
+										{
+											"key": "Content-Length",
+											"value": "84"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Date",
+											"value": "Wed, 19 May 2021 11:43:14 GMT"
+										},
+										{
+											"key": "Referrer-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Server",
+											"value": "nginx/1.14.0 (Ubuntu)"
+										},
+										{
+											"key": "Vary",
+											"value": "Origin, Cookie"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "DENY"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"success\": true,\n    \"data\": {\n        \"admin\": {\n            \"id\": 4,\n            \"prime\": false,\n            \"user_ref\": 8\n        },\n        \"privilege\": []\n    }\n}"
+								}
+							]
 						},
 						{
 							"name": "[admin] read",
@@ -1122,7 +1341,7 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token euiYpDd4QdGEwZtkcchCL1tdA6tYKcOvcAXTGfZXeYACE1WrUxePxN48GswQATil",
+										"value": "Token MHNfVQjkeTpDpuGGpdb9pgd1c5IGNmGHYHSTKYRbXc1hDLI8AkxUImE4hqyWZn1e",
 										"type": "text"
 									}
 								],
@@ -1155,7 +1374,7 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token 0rvf5KxCCHawW2TtfB8bZyaROHFIw42FJXW3E23SfXUxwA2T477bGiY9vnwszxxm",
+										"value": "Token MHNfVQjkeTpDpuGGpdb9pgd1c5IGNmGHYHSTKYRbXc1hDLI8AkxUImE4hqyWZn1e",
 										"type": "text"
 									}
 								],
@@ -1169,13 +1388,13 @@
 									}
 								},
 								"url": {
-									"raw": "{{LOCAL}}admin/cred/3",
+									"raw": "{{LOCAL}}admin/cred/0",
 									"host": [
 										"{{LOCAL}}admin"
 									],
 									"path": [
 										"cred",
-										"3"
+										"0"
 									]
 								}
 							},
@@ -1328,13 +1547,13 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token 0rvf5KxCCHawW2TtfB8bZyaROHFIw42FJXW3E23SfXUxwA2T477bGiY9vnwszxxm",
+										"value": "Token MHNfVQjkeTpDpuGGpdb9pgd1c5IGNmGHYHSTKYRbXc1hDLI8AkxUImE4hqyWZn1e",
 										"type": "text"
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"name\" : \"SAGP\",\r\n    \"description\" : \"Subject access granting privilege\"\r\n}",
+									"raw": "{\r\n    \"name\" : \"CAGP\",\r\n    \"description\" : \"Coordintor access granting privilege\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1403,7 +1622,7 @@
 									},
 									{
 										"key": "uauth",
-										"value": "Token 0rvf5KxCCHawW2TtfB8bZyaROHFIw42FJXW3E23SfXUxwA2T477bGiY9vnwszxxm",
+										"value": "Token MHNfVQjkeTpDpuGGpdb9pgd1c5IGNmGHYHSTKYRbXc1hDLI8AkxUImE4hqyWZn1e",
 										"type": "text"
 									}
 								],
@@ -1520,13 +1739,13 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token 0rvf5KxCCHawW2TtfB8bZyaROHFIw42FJXW3E23SfXUxwA2T477bGiY9vnwszxxm",
+										"value": "Token MHNfVQjkeTpDpuGGpdb9pgd1c5IGNmGHYHSTKYRbXc1hDLI8AkxUImE4hqyWZn1e",
 										"type": "text"
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"user_id\" : 6\r\n}",
+									"raw": "{\r\n    \"user_id\" : 9\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1697,13 +1916,13 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token 0rvf5KxCCHawW2TtfB8bZyaROHFIw42FJXW3E23SfXUxwA2T477bGiY9vnwszxxm",
+										"value": "Token MHNfVQjkeTpDpuGGpdb9pgd1c5IGNmGHYHSTKYRbXc1hDLI8AkxUImE4hqyWZn1e",
 										"type": "text"
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"subject_id\" : 1\r\n}",
+									"raw": "{\r\n    \"subject_id\" : 2\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1711,13 +1930,13 @@
 									}
 								},
 								"url": {
-									"raw": "{{LOCAL}}content/coordinator/6",
+									"raw": "{{LOCAL}}content/coordinator/9",
 									"host": [
 										"{{LOCAL}}content"
 									],
 									"path": [
 										"coordinator",
-										"6"
+										"9"
 									]
 								}
 							},
@@ -1821,6 +2040,24 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "[unv] check options",
+							"request": {
+								"method": "OPTIONS",
+								"header": [],
+								"url": {
+									"raw": "{{LOCAL}}content/coordinator/",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"coordinator",
+										""
+									]
+								}
+							},
+							"response": []
 						}
 					]
 				},
@@ -1834,13 +2071,13 @@
 								"header": [
 									{
 										"key": "uauth",
-										"value": "Token 0rvf5KxCCHawW2TtfB8bZyaROHFIw42FJXW3E23SfXUxwA2T477bGiY9vnwszxxm",
+										"value": "Token MHNfVQjkeTpDpuGGpdb9pgd1c5IGNmGHYHSTKYRbXc1hDLI8AkxUImE4hqyWZn1e",
 										"type": "text"
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"name\" : \"Unga Bunga\",\r\n    \"description\" : \"Object-oriented programming (OOP) is a programming paradigm based on the concept of 'objects', which can contain data and code: data in the form of fields (often known as attributes or properties), and code, in the form of procedures (often known as methods).\"\r\n}",
+									"raw": "{\r\n    \"name\" : \"Nanga Punga\",\r\n    \"description\" : \"Object-oriented programming (OOP) is a programming paradigm based on the concept of 'objects', which can contain data and code: data in the form of fields (often known as attributes or properties), and code, in the form of procedures (often known as methods).\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -2066,6 +2303,24 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "[unv] check options",
+							"request": {
+								"method": "OPTIONS",
+								"header": [],
+								"url": {
+									"raw": "{{LOCAL}}content/subject/",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"subject",
+										""
+									]
+								}
+							},
+							"response": []
 						}
 					]
 				},
@@ -2169,6 +2424,24 @@
 									"path": [
 										"forum",
 										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[unv] check options",
+							"request": {
+								"method": "OPTIONS",
+								"header": [],
+								"url": {
+									"raw": "{{LOCAL}}content/forum/",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"forum",
+										""
 									]
 								}
 							},
@@ -2319,6 +2592,24 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "[unv] check options",
+							"request": {
+								"method": "OPTIONS",
+								"header": [],
+								"url": {
+									"raw": "{{LOCAL}}content/reply/",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"reply",
+										""
+									]
+								}
+							},
+							"response": []
 						}
 					]
 				},
@@ -2346,12 +2637,12 @@
 									}
 								},
 								"url": {
-									"raw": "{{LOCAL}}content/reply2reply/",
+									"raw": "{{LOCAL}}content/replyD/",
 									"host": [
 										"{{LOCAL}}content"
 									],
 									"path": [
-										"reply2reply",
+										"replyD",
 										""
 									]
 								}
@@ -2370,12 +2661,12 @@
 									}
 								],
 								"url": {
-									"raw": "{{LOCAL}}content/reply2reply/2",
+									"raw": "{{LOCAL}}content/replyD/2",
 									"host": [
 										"{{LOCAL}}content"
 									],
 									"path": [
-										"reply2reply",
+										"replyD",
 										"2"
 									]
 								}
@@ -2403,12 +2694,12 @@
 									}
 								},
 								"url": {
-									"raw": "{{LOCAL}}content/reply2reply/23",
+									"raw": "{{LOCAL}}content/replyD/23",
 									"host": [
 										"{{LOCAL}}content"
 									],
 									"path": [
-										"reply2reply",
+										"replyD",
 										"23"
 									]
 								}
@@ -2427,13 +2718,31 @@
 									}
 								],
 								"url": {
-									"raw": "{{LOCAL}}content/reply2reply/48",
+									"raw": "{{LOCAL}}content/replyD/48",
 									"host": [
 										"{{LOCAL}}content"
 									],
 									"path": [
-										"reply2reply",
+										"replyD",
 										"48"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[unv] check options",
+							"request": {
+								"method": "OPTIONS",
+								"header": [],
+								"url": {
+									"raw": "{{LOCAL}}content/replyD/",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"replyD",
+										""
 									]
 								}
 							},
@@ -2465,13 +2774,12 @@
 									}
 								},
 								"url": {
-									"raw": "{{LOCAL}}content/lecture/create/",
+									"raw": "{{LOCAL}}content/lecture/",
 									"host": [
 										"{{LOCAL}}content"
 									],
 									"path": [
 										"lecture",
-										"create",
 										""
 									]
 								}
@@ -2575,6 +2883,24 @@
 									"path": [
 										"lecture",
 										"3"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[unv] check options",
+							"request": {
+								"method": "OPTIONS",
+								"header": [],
+								"url": {
+									"raw": "{{LOCAL}}content/lecture/",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"lecture",
+										""
 									]
 								}
 							},
@@ -2846,6 +3172,24 @@
 										"markAssignment",
 										"1",
 										"45"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[unv] check options",
+							"request": {
+								"method": "OPTIONS",
+								"header": [],
+								"url": {
+									"raw": "{{LOCAL}}content/assignment/",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"assignment",
+										""
 									]
 								}
 							},
@@ -3128,6 +3472,24 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "[unv] check options",
+							"request": {
+								"method": "OPTIONS",
+								"header": [],
+								"url": {
+									"raw": "{{LOCAL}}content/post/",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"post",
+										""
+									]
+								}
+							},
+							"response": []
 						}
 					]
 				},
@@ -3229,6 +3591,24 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "[unv] check options",
+							"request": {
+								"method": "OPTIONS",
+								"header": [],
+								"url": {
+									"raw": "{{LOCAL}}content/video/",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"video",
+										""
+									]
+								}
+							},
+							"response": []
 						}
 					]
 				},
@@ -3256,6 +3636,26 @@
 										"reply",
 										"1",
 										"-"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "[unv] check options",
+							"request": {
+								"method": "OPTIONS",
+								"header": [],
+								"url": {
+									"raw": "{{LOCAL}}content/votes///",
+									"host": [
+										"{{LOCAL}}content"
+									],
+									"path": [
+										"votes",
+										"",
+										"",
+										""
 									]
 								}
 							},
@@ -3437,6 +3837,24 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "[unv] check options",
+							"request": {
+								"method": "OPTIONS",
+								"header": [],
+								"url": {
+									"raw": "{{LOCAL}}personal/diary/",
+									"host": [
+										"{{LOCAL}}personal"
+									],
+									"path": [
+										"diary",
+										""
+									]
+								}
+							},
+							"response": []
 						}
 					]
 				},
@@ -3591,6 +4009,25 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "[unv] check options",
+							"request": {
+								"method": "OPTIONS",
+								"header": [],
+								"url": {
+									"raw": "{{LOCAL}}personal/submission//",
+									"host": [
+										"{{LOCAL}}personal"
+									],
+									"path": [
+										"submission",
+										"",
+										""
+									]
+								}
+							},
+							"response": []
 						}
 					]
 				},
@@ -3701,6 +4138,24 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "[unv] check options",
+							"request": {
+								"method": "OPTIONS",
+								"header": [],
+								"url": {
+									"raw": "{{LOCAL}}personal/enroll/",
+									"host": [
+										"{{LOCAL}}personal"
+									],
+									"path": [
+										"enroll",
+										""
+									]
+								}
+							},
+							"response": []
 						}
 					]
 				}
@@ -3712,7 +4167,7 @@
 		"apikey": [
 			{
 				"key": "value",
-				"value": "Token Z5klnvVR6CAqKjlzMXr7rUfaA1ac5lm0a8DNoevcwHZqw1w3rGFfuqm4Ly8wRblB",
+				"value": "Token fyUdIpAERQKQYM6o281Ca1R5WZLsF46GwpuDfmp36Jy3nzmDKdJlKYv5XoUaQi8b",
 				"type": "string"
 			},
 			{
@@ -3744,7 +4199,6 @@
 	],
 	"variable": [
 		{
-			"id": "aae8d270-def6-49dc-ba32-8ca832adc348",
 			"key": "json",
 			"value": "{\r\n    \"api\" : {\r\n        \"version\" : \"1.0\",\r\n        \"auth\" : \"8jX6Kl2yPRS8kdjd9h14uM15tLxBr5F7ZKv2Bp6eNBa3PYWKvOtoWmZuVvJKznTf\"\r\n    },\r\n    \"data\" : {\r\n        \"action\" : \"create\",\r\n        \"data\" : {\r\n            \"hash\": \"M8cNY3qBLF6G7aiINCQvhpG3qykwWNrW04LxxIEQVALR1nKtvrK9SZX91zwbeEs6\",\r\n            \"data\" : {\r\n                \"lecture_name\" : \"Ulululu\",\r\n                \"lecture_body_1\" : \"Ulululululululululululu\",\r\n                \"lecture_body_2\" : null,\r\n                \"lecture_external_url\" : null\r\n            }\r\n        }\r\n    }\r\n}"
 		}

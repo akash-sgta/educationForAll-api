@@ -1,3 +1,5 @@
+import threading
+
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
@@ -39,6 +41,51 @@ from user_personal.models import (
 # ------------------------------------------------------------
 
 host = ""
+
+
+class Post_Notification_Gen(threading.Thread):
+    def __init__(self, post):
+        super().__init__(post.name)
+        self.post = post
+
+    def run(self):
+        try:
+            post = Post_Serializer(self.post, many=False).data
+            message = f"Date : {post['made_date'].split('T')[0]}"
+            try:
+                message += f"\n\n<b>{Subject.objects.get(pk = post['subject_ref']).name}</b>"
+            except Subject.DoesNotExist:
+                message += f"\n\n<b>Ambiguous</b>"
+            message += f"\n\n<i>{post['name']}</i>"
+            message += f"\n{' '.join(post['body'].split()[:10])}...<a href='#'>[Read More]</a>"
+            try:
+                user = User.objects.get(user_ref=post["user_ref"])
+            except User.DoesNotExist:
+                message += f"\n\nCreated By : Anonymous"
+            else:
+                if user.profile_ref == None:
+                    message += f"\n\nCreated By : {user.first_name} {user.last_name}"
+                else:
+                    message += f"""\n\nCreated By : <a href="#">{user.first_name} {user.last_name}</a>"""
+                notification_ref_new = Notification(post_ref=Post.objects.get(pk=post["id"]), body=message)
+                notification_ref_new.save()
+                # ---------------------------------------------------
+                users = [one["user_ref"] for one in Enroll.objects.filter(subject_ref=post["subject_ref"]).values("user_ref")]
+                coordinators = [
+                    one["coordinator_ref"]
+                    for one in Subject_Coordinator.objects.filter(subject_ref=post["subject_ref"]).values("coordinator_ref")
+                ]
+                for one in users:
+                    User_Notification(notification_ref=notification_ref_new, user_ref=User.objects.get(pk=one)).save()
+                for one in coordinators:
+                    User_Notification(
+                        notification_ref=notification_ref_new, user_ref=Coordinator.objects.get(pk=one).user_ref
+                    ).save()
+        except Exception as ex:
+            print("[x] Notification EX : ", ex)
+            return False
+        else:
+            return True
 
 
 class Post_View(APIView):
@@ -86,47 +133,9 @@ class Post_View(APIView):
                 if post_de_serialized.is_valid():
                     post_de_serialized.save()
 
-                    # FIX : Check if this section can be put in a seperate thread ?
                     # TODO : create notification for concerned part(y/ies)
-                    message = f"Date : {post_de_serialized.data['made_date'].split('T')[0]}"
-                    try:
-                        message += (
-                            f"\n\n<b>{Subject.objects.get(subject_ref = post_de_serialized.data['subject_ref']).name}</b>"
-                        )
-                    except Subject.DoesNotExist:
-                        message += f"\n\n<b>Ambiguous</b>"
-                    message += f"\n\n<i>{post_de_serialized.data['name']}</i>"
-                    message += f"\n{' '.join(post_de_serialized.data['body'].split()[:10])}...<a href='#'>[Read More]</a>"
-                    try:
-                        user_ref = User.objects.get(user_ref=post_de_serialized.data["user_ref"])
-                    except User.DoesNotExist:
-                        message += f"\n\nCreated By : Anonymous"
-                    else:
-                        if user_ref.profile_ref == None:
-                            message += f"\n\nCreated By : {user_ref.first_name} {user_ref.last_name}"
-                        else:
-                            message += f"""\n\nCreated By : <a href="#">{user_ref.first_name} {user_ref.last_name}</a>"""
-                    notification_ref_new = Notification(
-                        post_ref=Post.objects.get(pk=post_de_serialized.data["pk"]), body=message
-                    )
-                    notification_ref_new.save()
-                    # ---------------------------------------------------
-                    users = [
-                        one["user_ref"]
-                        for one in Enroll.objects.filter(subject_ref=post_de_serialized.data["subject_ref"]).values("user_ref")
-                    ]
-                    coordinators = [
-                        one["coordinator_ref"]
-                        for one in Subject_Coordinator.objects.filter(
-                            subject_ref=post_de_serialized.data["subject_ref"]
-                        ).values("coordinator_ref")
-                    ]
-                    for one in users:
-                        User_Notification(notification_ref=notification_ref_new, user_ref=User.objects.get(pk=one)).save()
-                    for one in coordinators:
-                        User_Notification(
-                            notification_ref=notification_ref_new, user_ref=Coordinator.objects.get(pk=one).user_ref
-                        ).save()
+                    notification_thread = Post_Notification_Gen(Post.objects.get(pk=post_de_serialized.data["id"]))
+                    notification_thread.start()
                     # TODO : =================================================================
 
                     data["success"] = True
@@ -157,7 +166,7 @@ class Post_View(APIView):
                     isAuthorizedADMIN = am_I_Authorized(request, "ADMIN")
                     if isAuthorizedADMIN > 0:
                         data["success"] = True
-                        data["data"] = Post_Serializer(Post.objects.all().order_by("-post_id"), many=True).data
+                        data["data"] = Post_Serializer(Post.objects.all().order_by("-id"), many=True).data
                         return Response(data=data, status=status.HTTP_202_ACCEPTED)
                     else:
                         data["success"] = False
@@ -178,7 +187,7 @@ class Post_View(APIView):
                         temp = list()
                         for sub_id in subjects:
                             temp.extend(
-                                Post_Serializer(Post.objects.filter(subject_ref=sub_id).order_by("-post_id"), many=True).data
+                                Post_Serializer(Post.objects.filter(subject_ref=sub_id).order_by("-id"), many=True).data
                             )
                         data["success"] = True
                         data["data"] = temp.copy()
@@ -189,9 +198,7 @@ class Post_View(APIView):
                     ]
                     temp = list()
                     for sub_id in subjects:
-                        temp.extend(
-                            Post_Serializer(Post.objects.filter(subject_ref=sub_id).order_by("-post_id"), many=True).data
-                        )
+                        temp.extend(Post_Serializer(Post.objects.filter(subject_ref=sub_id).order_by("-id"), many=True).data)
                     data["success"] = True
                     data["data"] = temp.copy()
                     return Response(data=data, status=status.HTTP_202_ACCEPTED)

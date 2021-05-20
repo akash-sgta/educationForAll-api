@@ -5,7 +5,7 @@
 <!-- ----------------------------------------------------------------------------------- -->
 {% block head_block %}
 
-<script src="{% static 'main/js/main.js' %}"></script>
+<script src="{% static 'js/main.js' %}"></script>
 
 {% endblock %}
 <!-- ----------------------------------------------------------------------------------- -->
@@ -14,7 +14,8 @@
 <center>
     <table>
         <tbody>
-            <form action="{% url 'API_TOKEN' word='signup' %}" enctype="multipart/form-data" method="POST" autocomplete="on">
+            <form action="{% url 'API_TOKEN' word='signup' %}" enctype="multipart/form-data" method="POST"
+                autocomplete="on">
                 {% csrf_token %}
                 <input type="text" name="form_type" id="form_type" value="signup" hidden required>
                 <tr>
@@ -70,13 +71,13 @@
                 <tr>
                     <td colspan="2">
                         <center>
-                        {% if messages %}
-                        <ul style="list-style-type:none;" class="messages">
-                            {% for message in messages %}
-                            <li>{{ message }}</li>
-                            {% endfor %}
-                        </ul>
-                        {% endif %}
+                            {% if messages %}
+                            <ul style="list-style-type:none;" class="messages">
+                                {% for message in messages %}
+                                <li>{{ message }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
                         </center>
                     </td>
                 </tr>

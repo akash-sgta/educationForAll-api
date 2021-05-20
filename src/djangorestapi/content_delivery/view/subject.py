@@ -75,7 +75,7 @@ class Subject_View(APIView):
                         data["success"] = True
                         data["message"] = "SUBJECT_ALREADY_EXISTS"
                         data["data"] = Subject_Serializer(subject_ref, many=False).data
-                        return Response(data=data, status=status.HTTP_201_CREATED)
+                        return Response(data=data, status=status.HTTP_409_CONFLICT)
 
     def get(self, request, pk=None):
         data = dict()
@@ -107,11 +107,11 @@ class Subject_View(APIView):
                     else:
                         subject_coordinator_ref = Subject_Coordinator.objects.filter(coordinator_ref=coordinator_ref)
                         data["success"] = True
-                        data["data"] = [Subject_Serializer(one.subject_ref, many=True).data for one in subject_coordinator_ref]
+                        data["data"] = [Subject_Serializer(one.subject_ref, many=False).data for one in subject_coordinator_ref]
                         return Response(data=data, status=status.HTTP_202_ACCEPTED)
                 else:  # TODO : User asking for specific subjects
                     try:
-                        subject_ref = Subject.objects.get(subject_ref=int(pk))
+                        subject_ref = Subject.objects.get(pk=int(pk))
                     except Subject.DoesNotExist:
                         data["success"] = False
                         data["message"] = "INVALID_SUBJECT_ID"

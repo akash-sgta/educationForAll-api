@@ -81,7 +81,7 @@ class Votes_View(APIView):
             data["message"] = {"METHOD": "GET", "URL_FORMAT": "/api/content/votes/<post or reply or replyD>/<id>/<u or d>"}
             return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
 
-    def options(self, request, pk=None):
+    def options(self, request, word=None, pk=None, case=None):
         data = dict()
 
         isAuthorizedAPI = am_I_Authorized(request, "API")
@@ -102,7 +102,6 @@ class Votes_View(APIView):
 
         data["name"] = "Vote"
 
-        temp["POST"] = None
         data["method"] = temp.copy()
         temp.clear()
 

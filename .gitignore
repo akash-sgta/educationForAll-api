@@ -143,3 +143,4 @@ djangorestapi.sock
 Static/
 *.conf
 *.ini
+*.pk

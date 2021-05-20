@@ -69,12 +69,11 @@ class Admin_Credential_View(APIView):
                         data["success"] = True
                         data["message"] = f"ADMIN : USER_ALREADY_ADMIN"
                         privileges = Admin_Privilege.objects.filter(admin_ref=admin_ref).values("privilege_ref")
-                        data["success"] = True
                         data["data"] = {
                             "admin": Admin_Serializer(admin_ref, many=False).data,
                             "privilege": [one["privilege_ref"] for one in privileges],
                         }
-                        return Response(data=data, status=status.HTTP_201_CREATED)
+                        return Response(data=data, status=status.HTTP_409_CONFLICT)
 
     def get(self, request, pk=None):
         data = dict()
@@ -172,6 +171,8 @@ class Admin_Credential_View(APIView):
                     data["message"] = "ADMIN_NOT_ADMIN_PRIME"
                     return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
                 else:
+                    if pk == "0":
+                        pk = isAuthorizedUSER[1]
                     privilege = int(request.data["privilege"])
                     if privilege > 0:  # TODO : grant privilege
                         try:

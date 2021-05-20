@@ -151,6 +151,8 @@ def am_I_Authorized(request, key):
                     api_token_ref = Api_Token.objects.get(hash=headers["Authorization"].split()[1])
                 except Api_Token.DooesNotExist:
                     return (False, "API_KEY_UNAUTHORIZED")
+                except IndexError:
+                    return (False, "API_KEY_UNAUTHORIZED")
                 else:
                     return (True, api_token_ref.pk)
             else:
@@ -167,6 +169,8 @@ def am_I_Authorized(request, key):
                     user_token_ref = User_Token.objects.get(hash=headers["uauth"].split()[1])
                 except User_Token.DoesNotExist:
                     return (False, "USER_HASH_UNAUTHORIZED")
+                except IndexError:
+                    return (False, "USER_HASH_UNAUTHORIZED")
                 else:
                     return (True, user_token_ref.user_ref.pk)
             else:
@@ -182,6 +186,8 @@ def am_I_Authorized(request, key):
                 try:
                     user_token_ref = User_Token.objects.get(hash=headers["uauth"].split()[1])
                 except User_Token.DoesNotExist:
+                    return 0
+                except IndexError:
                     return 0
                 else:
                     try:
@@ -244,15 +250,12 @@ def do_I_Have_Privilege(request, key):
 def create_password_hashed(password):
     sha256_ref = sha256()
     sha256_ref.update(f"ooga{password}booga".encode("utf-8"))
-    return str(sha256_ref.digest())[:64]
+    return str(sha256_ref.digest())[:64].strip()
 
 
 def random_generator(length=64):
     password_characters = string.ascii_letters + string.digits
-    password = list()
-    for x in range(length):
-        password.append(random.choice(password_characters))
-
+    password = [random.choice(password_characters) for i in range(length)]
     return "".join(password)
 
 
