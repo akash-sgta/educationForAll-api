@@ -250,7 +250,7 @@ def do_I_Have_Privilege(request, key):
 def create_password_hashed(password):
     sha256_ref = sha256()
     sha256_ref.update(f"ooga{password}booga".encode("utf-8"))
-    return str(sha256_ref.digest())[:64]
+    return str(sha256_ref.digest())[:64].strip()
 
 
 def random_generator(length=64):

@@ -1,3 +1,5 @@
+import threading
+
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
@@ -15,6 +17,14 @@ from auth_prime.models import User, Profile, User_Token, Image
 from auth_prime.serializer import User_Serializer
 
 # ------------------------------------------------------------
+
+
+class Forgot_Password(threading.Thread):
+    def __init__(self, user):
+        super().__init__(user.name)
+
+    def run(self):
+        pass
 
 
 class User_Credential_View(APIView):
@@ -50,6 +60,8 @@ class User_Credential_View(APIView):
                     data["message"] = "EMAIL_NOT_REGISTERED"
                     return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
                 else:
+                    hash = create_password_hashed(myData["password"])
+                    old = user_ref.password
                     if user_ref.password != create_password_hashed(myData["password"]):
                         data["success"] = False
                         data["message"] = "PASSWORD_INCORRECT"
@@ -114,12 +126,12 @@ class User_Credential_View(APIView):
                         user_ref = User.objects.get(pk=isAuthorizedUSER[1])
                         data["success"] = True
                         data["data"] = User_Serializer(user_ref, many=False).data
-                        REDACTED = "■■REDACTED■■"
-                        data["data"]["password"] = REDACTED
-                        data["data"]["profile_ref"] = REDACTED
-                        data["data"]["telegram_id"] = REDACTED
-                        data["data"]["security_question"] = REDACTED
-                        data["data"]["security_answer"] = REDACTED
+
+                        del data["data"]["password"]
+                        del data["data"]["profile_ref"]
+                        del data["data"]["telegram_id"]
+                        del data["data"]["security_question"]
+                        del data["data"]["security_answer"]
                         return Response(data=data, status=status.HTTP_202_ACCEPTED)
                     elif int(pk) == 87795962440396049328460600526719:  # TODO : ADMIN asking to read everyone's cred
                         isAuthorizedADMIN = am_I_Authorized(request, "ADMIN")
@@ -127,6 +139,12 @@ class User_Credential_View(APIView):
                             user_ref_all = User.objects.all()
                             data["success"] = True
                             data["data"] = User_Serializer(user_ref_all, many=True).data
+                            for i in range(len(data["data"])):
+                                del data["data"][i]["password"]
+                                del data["data"][i]["profile_ref"]
+                                del data["data"][i]["telegram_id"]
+                                del data["data"][i]["security_question"]
+                                del data["data"][i]["security_answer"]
                             return Response(data=data, status=status.HTTP_202_ACCEPTED)
                         else:
                             data["success"] = False
@@ -144,12 +162,12 @@ class User_Credential_View(APIView):
                             else:
                                 data["success"] = True
                                 data["data"] = User_Serializer(user_ref, many=False).data
-                                REDACTED = "■■REDACTED■■"
-                                data["data"]["password"] = REDACTED
-                                data["data"]["profile_ref"] = REDACTED
-                                data["data"]["telegram_id"] = REDACTED
-                                data["data"]["security_question"] = REDACTED
-                                data["data"]["security_answer"] = REDACTED
+
+                                del data["data"]["password"]
+                                del data["data"]["profile_ref"]
+                                del data["data"]["telegram_id"]
+                                del data["data"]["security_question"]
+                                del data["data"]["security_answer"]
                                 return Response(data=data, status=status.HTTP_202_ACCEPTED)
                         else:
                             data["success"] = False
