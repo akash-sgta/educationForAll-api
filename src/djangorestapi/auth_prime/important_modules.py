@@ -255,10 +255,7 @@ def create_password_hashed(password):
 
 def random_generator(length=64):
     password_characters = string.ascii_letters + string.digits
-    password = list()
-    for x in range(length):
-        password.append(random.choice(password_characters))
-
+    password = [random.choice(password_characters) for i in range(length)]
     return "".join(password)
 
 
