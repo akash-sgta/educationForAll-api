@@ -68,7 +68,7 @@ class User_Profile_View(APIView):
                 data["success"] = True
                 data["message"] = "PROFILE_ALREADY_EXISTS"
                 data["data"] = Profile_Serializer(user_ref.profile_ref, many=False).data
-                return Response(data=data, status=status.HTTP_201_CREATED)
+                return Response(data=data, status=status.HTTP_409_CONFLICT)
 
     def get(self, request, pk=None):
         data = dict()

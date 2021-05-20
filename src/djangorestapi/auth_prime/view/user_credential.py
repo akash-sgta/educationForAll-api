@@ -16,7 +16,7 @@ from auth_prime.important_modules import (
 from auth_prime.models import User, Profile, User_Token, Image
 from auth_prime.serializer import User_Serializer
 
-from crontab.bot import bot
+from cronjobs.bot import bot
 
 # ------------------------------------------------------------
 

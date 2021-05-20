@@ -7,7 +7,7 @@ from datetime import datetime
 from hashlib import sha256
 
 from auth_prime.models import (
-    User_Credential,
+    User,
 )
 
 from django.conf import settings
@@ -48,8 +48,8 @@ class TG_BOT(Bot):
         log_data = list()
 
         try:
-            user_cred_ref = User_Credential.objects.get(user_tg_id=update.effective_chat.id)
-        except User_Credential.DoesNotExist:
+            user_cred_ref = User.objects.get(telegram_id=update.effective_chat.id)
+        except User.DoesNotExist:
             text = "User Not Logged In !"
             # ----------
             log_data.append(
@@ -64,7 +64,7 @@ class TG_BOT(Bot):
             # ----------
             log_data.append(f"\n{now.strftime('%Y-%m-%d %H:%M:%S')} :: TELEGRAM BOT CRONJOB\t\t:: [x] LOGOUT - {ex}")
         else:
-            user_cred_ref.user_tg_id = None
+            user_cred_ref.telegram_id = None
             user_cred_ref.save()
             text = "Successful."
             text += "\nTelegram Account removed from profile."
@@ -89,7 +89,7 @@ class TG_BOT(Bot):
         text = f"Hi, {update.effective_user.first_name}"
         text += "\nCommand List :"
         text += "\n/hello - Simple greeting"
-        if len(User_Credential.objects.filter(user_tg_id=update.effective_chat.id)) < 1:
+        if len(User.objects.filter(telegram_id=update.effective_chat.id)) < 1:
             text += "\n/login - To initiate login"
         else:
             text += "\n/logout - To initiate logout"
@@ -157,10 +157,8 @@ class TG_BOT(Bot):
             else:
                 data = self.IN_TRANSIT[update.effective_chat.id]
                 try:
-                    user_cred_ref = User_Credential.objects.get(
-                        user_email=data["email"].lower(), user_password=data["password"]
-                    )
-                except User_Credential.DoesNotExist:
+                    user_cred_ref = User.objects.get(email=data["email"].lower(), password=data["password"])
+                except User.DoesNotExist:
                     text = "<b>Invalid Credentials !</b>"
                     # ----------
                     log_data.append(
@@ -175,7 +173,7 @@ class TG_BOT(Bot):
                     # ----------
                     log_data.append(f"\n{now.strftime('%Y-%m-%d %H:%M:%S')} :: TELEGRAM BOT CRONJOB\t\t:: [x] LOGIN_P - {ex}")
                 else:
-                    user_cred_ref.user_tg_id = update.effective_chat.id
+                    user_cred_ref.telegram_id = update.effective_chat.id
                     user_cred_ref.save()
                     del self.IN_TRANSIT[update.effective_chat.id]
                     text = "Successful."

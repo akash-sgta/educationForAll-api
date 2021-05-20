@@ -73,7 +73,7 @@ class Coordinator_View(APIView):
                         data["success"] = True
                         data["message"] = "USER_ALREADY_COORDINATOR"
                         data["data"] = Coordinator_Serializer(coordinator_ref, many=False).data
-                        return Response(data=data, status=status.HTTP_201_CREATED)
+                        return Response(data=data, status=status.HTTP_409_CONFLICT)
 
     def get(self, request, pk=None):
         data = dict()

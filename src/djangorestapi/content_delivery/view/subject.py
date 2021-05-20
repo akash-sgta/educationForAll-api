@@ -75,7 +75,7 @@ class Subject_View(APIView):
                         data["success"] = True
                         data["message"] = "SUBJECT_ALREADY_EXISTS"
                         data["data"] = Subject_Serializer(subject_ref, many=False).data
-                        return Response(data=data, status=status.HTTP_201_CREATED)
+                        return Response(data=data, status=status.HTTP_409_CONFLICT)
 
     def get(self, request, pk=None):
         data = dict()

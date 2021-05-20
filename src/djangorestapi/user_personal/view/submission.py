@@ -48,7 +48,7 @@ class Submission_View(APIView):
             return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
         else:
             submission_de_serialized = Submission_Serializer(data=request.data)
-            submission_de_serialized.initial_data["user_credential_id"] = int(isAuthorizedUSER[1])
+            submission_de_serialized.initial_data["user_ref"] = int(isAuthorizedUSER[1])
             if submission_de_serialized.is_valid():
                 submission_de_serialized.save()
                 data["success"] = True
