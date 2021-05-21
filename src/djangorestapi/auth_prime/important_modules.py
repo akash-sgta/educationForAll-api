@@ -227,7 +227,6 @@ def do_I_Have_Privilege(request, key):
                     except Privilege.DoesNotExist:
                         return False
                     else:
-                        print(privilege_ref)
                         try:
                             Admin_Privilege.objects.get(
                                 admin_ref=admin_ref,

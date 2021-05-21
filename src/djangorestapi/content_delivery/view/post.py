@@ -45,12 +45,12 @@ host = ""
 
 class Post_Notification_Gen(threading.Thread):
     def __init__(self, post):
-        super().__init__(post.name)
+        super().__init__(name=post["name"])
         self.post = post
 
     def run(self):
         try:
-            post = Post_Serializer(self.post, many=False).data
+            post = self.post
             message = f"Date : {post['made_date'].split('T')[0]}"
             try:
                 message += f"\n\n<b>{Subject.objects.get(pk = post['subject_ref']).name}</b>"
@@ -59,7 +59,7 @@ class Post_Notification_Gen(threading.Thread):
             message += f"\n\n<i>{post['name']}</i>"
             message += f"\n{' '.join(post['body'].split()[:10])}...<a href='#'>[Read More]</a>"
             try:
-                user = User.objects.get(user_ref=post["user_ref"])
+                user = User.objects.get(pk=post["user_ref"])
             except User.DoesNotExist:
                 message += f"\n\nCreated By : Anonymous"
             else:
@@ -134,7 +134,7 @@ class Post_View(APIView):
                     post_de_serialized.save()
 
                     # TODO : create notification for concerned part(y/ies)
-                    notification_thread = Post_Notification_Gen(Post.objects.get(pk=post_de_serialized.data["id"]))
+                    notification_thread = Post_Notification_Gen(post_de_serialized.data)
                     notification_thread.start()
                     # TODO : =================================================================
 

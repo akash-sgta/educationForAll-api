@@ -68,7 +68,7 @@ class Notification(models.Model):
     prime = models.BooleanField(default=False)  # TODO : T -> Pinned Messages for show
 
     def __str__(self):
-        data = f"N [{self.notification_id}] || {self.post_ref}"
+        data = f"N [{self.pk}] || {self.post_ref}"
         return data
 
 
