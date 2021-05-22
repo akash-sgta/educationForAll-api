@@ -149,7 +149,7 @@ def am_I_Authorized(request, key):
             if "Authorization" in headers:
                 try:
                     api_token_ref = Api_Token.objects.get(hash=headers["Authorization"].split()[1])
-                except Api_Token.DooesNotExist:
+                except Api_Token.DoesNotExist:
                     return (False, "API_KEY_UNAUTHORIZED")
                 except IndexError:
                     return (False, "API_KEY_UNAUTHORIZED")
