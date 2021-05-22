@@ -2,35 +2,40 @@ server {
 
     listen  80;
     listen [::]:80;
-    server_name localhost *.ngrok.io;
+    server_name localhost *.compute.amazonaws.com *.ngrok.io;
     charset utf-8;
 
     client_max_body_size    4M;
 
     error_page 400 /400.html;
     location = /400.html {
-                alias <path>/templates;
+                alias <path>/templates/400.html;
                 internal;
     }
     error_page 401 /401.html;
     location = /401.html {
-                alias <path>/templates;
+                alias <path>/templates/401.html;
                 internal;
     }
     error_page 403 /403.html;
     location = /403.html {
-                alias <path>/templates;
+                alias <path>/templates/403.html;
                 internal;
     }
     error_page 404 /404.html;
     location = /404.html {
-                alias <path>/templates;
+                alias <path>/templates/404.html;
                 internal;
     }
 
     error_page 500 /500.html;
     location = /500.html {
-                alias <path>/templates;
+                alias <path>/templates/500.html;
+                internal;
+    }
+    error_page 502 /502.html;
+    location = /502.html {
+                alias <path>/templates/502.html;
                 internal;
     }
 
