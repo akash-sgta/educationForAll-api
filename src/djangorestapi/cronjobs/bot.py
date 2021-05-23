@@ -34,39 +34,6 @@ class TG_BOT(Bot):
         # self.dispatcher.add_handler(CommandHandler("email", self.email_function))
         # self.dispatcher.add_handler(CommandHandler("pass", self.password_function))
 
-    def json_check(self, action=None, *args):
-        json_file = os.path.join(BASE_DIR, "log", "intransit.json")
-        if action == None:
-            raise Exception("No action specified")
-        else:
-            if not os.path.exists(json_file):
-                with open(json_file, "w") as json_target:
-                    json.dump(dict(), json_target)
-
-            action = action.lower()
-            json_payload = json.load(json_file)
-            if action == "id_list":
-                return json_payload.keys()
-            elif action == "email_list":
-                try:
-                    emails = [value["email"] for value in json_payload.values()]
-                    return emails
-                except KeyError:
-                    return []
-            elif action == "password_list":
-                try:
-                    passwords = [value["password"] for value in json_payload.values()]
-                    return passwords
-                except KeyError:
-                    return []
-            elif action == "add_user":
-                json_payload[args[0]] = {"email": None, "password": None}
-            elif action == "add_email":
-                json_payload[args[0]]["email"] = args[1].lower()
-
-            with open(json_file, "w") as json_target:
-                json.dump(json_payload, json_target)
-
     def parse_message(self, update, CallbackContext):
         now = datetime.now()
         log_data = list()
