@@ -144,3 +144,4 @@ Static/
 *.conf
 *.ini
 *.pk
+secret.sh

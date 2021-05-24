@@ -1,7 +1,6 @@
-cd src/djangorestapi
-python3 manage.py makemigrations auth_prime analytics user_personal content_delivery cronjobs
-python3 manage.py migrate --database=auth_db
-python3 manage.py migrate --database=app_db
+~/education-for-all/venv/bin/python3 ~/education-for-all/src/djangorestapi/manage.py makemigrations auth_prime analytics user_personal content_delivery cronjobs
+~/education-for-all/venv/bin/python3 ~/education-for-all/src/djangorestapi/manage.py migrate --database=auth_db
+~/education-for-all/venv/bin/python3 ~/education-for-all/src/djangorestapi/manage.py migrate --database=app_db
 echo "\n"
 echo "Do you want to automatically create a superuser ? [y/n]"
 read -n1 ans

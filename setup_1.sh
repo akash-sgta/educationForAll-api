@@ -2,13 +2,11 @@ sudo apt install python3 python3-pip python3-dev libmysqlclient-dev build-essent
 python3 -m pip install virtualenv
 
 python3 -m virtualenv venv
-source venv/bin/activate
 
-cd src/djangorestapi
-python3 -m pip install -r requirements.txt
+~/education-for-all/venv/bin/python3 -m pip install -r ~/education-for-all/src/djangorestapi/requirements.txt
 
 echo "\n"
-echo "[--Things to do before running runme2.sh--]"
+echo "[--Things to do before running setup_2.sh--]"
 sleep 1
 echo "[.] Setup the secter keys for all aspects"
 sleep 1
