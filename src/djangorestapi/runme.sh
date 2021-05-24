@@ -1,10 +1,8 @@
 sudo apt install python3 python3-pip python3-dev libmysqlclient-dev build-essential gcc nginx git
 python3 -m pip install virtualenv
 
-cd education-for-all
-python3 -m virtualenv venv
-source venv/bin/activate
-cd src/djangorestapi
+python3 -m virtualenv ../venv
+source ../venv/bin/activate
 
 python3 -m pip install -r requirements.txt
 python3 manage.py makemigrations auth_prime analytics user_personal content_delivery cronjobs
