@@ -4,16 +4,17 @@
 echo "\n"
 echo "Do you want to automatically create a superuser ? [y/n]"
 read ans
-if [ ans == "y" ]
+opt="y"
+if [ $ans = $opt ]
 then
-    python3 manage.py createsuperuser --database=auth_db
+    ~/education-for-all/venv/bin/python3 ~/education-for-all/src/djangorestapi/manage.py createsuperuser --database=auth_db
 else
     echo "All set. Only a few things are left to assemble."
 fi
 
 # Creating symbolic links
-ln -s config/uwsgi.ini ~/uwsgi.ini
-ln -s manage.py ~/manage.py
+ln -s ~/education-for-all/src/djangorestapi/config/uwsgi.ini ~/uwsgi.ini
+ln -s ~/education-for-all/src/djangorestapi/manage.py ~/manage.py
 
 echo "Setting up nginx or apache server will have to be done manually"
 sleep 2
