@@ -19,16 +19,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # =================================================================================================
 
 
-def check_for_drafts():
+def check_for_drafts(flag=True):
     # create user specific config and ini
     try:
         fp = open(os.path.join(BASE_DIR, "config", "server.conf"), "r")
         fp.close()  # file found no action required
         return True
     except FileNotFoundError:
-
         try:
-            venv = os.environ["VIRTUAL_ENV"]
+            if flag:
+                venv = os.environ["VIRTUAL_ENV"]
+            else:
+                venv = f"/home/{os.environ['USER']}/education-for-all/venv/"
         except KeyError:
             try:
                 venv = os.environ["PYTHONPATH"]
@@ -95,7 +97,7 @@ with open(os.path.join(BASE_DIR, "config", "debug.txt"), "r") as key_file:
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
 # create user specific config and ini
-if check_for_drafts():
+if check_for_drafts(False):
     print("Config and ini checked")
 else:
     exit(1)
