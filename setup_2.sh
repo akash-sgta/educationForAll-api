@@ -1,16 +1,15 @@
-sudo apt install python3 python3-pip python3-dev libmysqlclient-dev build-essential gcc nginx git
-python3 -m pip install virtualenv
-
-python3 -m virtualenv ../venv
-source ../venv/bin/activate
-
-python3 -m pip install -r requirements.txt
+cd src/djangorestapi
 python3 manage.py makemigrations auth_prime analytics user_personal content_delivery cronjobs
 python3 manage.py migrate --database=auth_db
 python3 manage.py migrate --database=app_db
-echo "Window will wait for 10s then ask for confirmation"
-sleep 8
-python3 manage.py createsuperuser --database=auth_db
+echo "\n"
+echo "Do you want to automatically create a superuser ? [y/n]"
+read -n1 ans
+if [ "$ans" = "y" ]; then
+    python3 manage.py createsuperuser --database=auth_db
+else
+    echo "All set. Only a few things are left to assemble."
+fi
 
 # Creating symbolic links
 ln -s config/uwsgi.ini ~/uwsgi.ini
