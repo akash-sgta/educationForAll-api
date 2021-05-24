@@ -45,7 +45,7 @@ base_api
 
 ### POSTMAN EXPORT FILE
 
-##### <https://github.com/akash-sgta/education-for-all/blob/main/src/djangorestapi/static/docs/education-for-all.postman_collection.json>
+##### <https://www.getpostman.com/collections/90fa56e39ac2fa25ec66>
 
 ***
 

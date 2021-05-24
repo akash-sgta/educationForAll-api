@@ -2,6 +2,7 @@ from django.db import models
 
 from content_delivery.models import (
     Assignment,
+    AssignmentCode,
     Post,
     Subject,
 )
@@ -42,7 +43,24 @@ class Submission(models.Model):
     marks = models.PositiveSmallIntegerField(default=0)  # TODO : Only accessible by Coordinator
 
     def __str__(self):
-        data = f"S [{self.submission_id}] || {self.user_ref} || {self.post_ref}"
+        data = f"S [{self.submission_id}] || {self.user_ref} || {self.assignment_ref}"
+        return data
+
+
+# TODO : Assignment <=1======N=> SubmissionCode
+# TODO : User       <=1======N=> SubmissionCode
+class SubmissionCode(models.Model):
+    user_ref = models.ForeignKey(User, null=False, blank=False, on_delete=models.CASCADE)
+    assignment_ref = models.ForeignKey(AssignmentCode, null=True, blank=False, on_delete=models.SET_NULL)
+
+    body = models.TextField(null=False, blank=False)
+
+    made_date = models.DateTimeField(auto_now=True)
+
+    marks = models.PositiveSmallIntegerField(default=0)  # TODO : Only accessible by Coordinator
+
+    def __str__(self):
+        data = f"S [{self.submission_id}] || {self.user_ref} || {self.assignment_ref}"
         return data
 
 

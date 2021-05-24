@@ -38,10 +38,12 @@ class Notification_View(APIView):
                 data["message"] = f"USER_NOT_AUTHORIZED"
                 return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
             else:
-                if int(pk) == 0:  # TODO : User needs all notifications
+                if int(pk) == 0:  # TODO : User needs all notifications that have not been sent to TG
                     notifications = [
                         one.notification_ref
-                        for one in User_Notification.objects.filter(pk=isAuthorizedUSER[1]).order_by("-notification_ref")
+                        for one in User_Notification.objects.filter(pk=isAuthorizedUSER[1], prime_1=False).order_by(
+                            "-notification_ref"
+                        )
                     ]
                     data["success"] = True
                     data["data"] = Notification_Serializer(notifications, many=True).data

@@ -74,6 +74,20 @@ class Assignment(models.Model):
         return data
 
 
+class AssignmentCode(models.Model):
+    body = models.TextField(null=False, blank=False)
+    testdoc = models.FileField(null=True, upload_to="uploads/%Y/%m/%d/")
+    total_score = models.PositiveSmallIntegerField(default=100, null=True, blank=True)
+
+    def delete(self, *args, **kwargs):
+        self.testdoc.delete()
+        super().delete(*args, **kwargs)
+
+    def __str__(self):
+        data = f"A [{self.pk}]"
+        return data
+
+
 class Post(models.Model):
     user_ref = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
     subject_ref = models.ForeignKey(Subject, null=True, blank=True, on_delete=models.CASCADE)

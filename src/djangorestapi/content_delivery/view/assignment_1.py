@@ -127,29 +127,30 @@ class Assignment_1_View(APIView):
                                     {
                                         "assignment": Assignment_Serializer(assignment_ref, many=False).data,
                                         "submission": [
-                                            one["submission_ref"]
-                                            for one in Submission.objects.filter(assignment_ref=assignment_ref).values(
-                                                "submission_ref"
-                                            )
+                                            one["pk"]
+                                            for one in Submission.objects.filter(assignment_ref=assignment_ref).values("pk")
                                         ],
                                     }
                                 )
                         return Response(data=data, status=status.HTTP_202_ACCEPTED)
                 else:  # TODO : Any user looking for assignment
                     try:
-                        assignment_ref = Assignment.objects.get(assignment_ref=int(pk))
+                        assignment_ref = Assignment.objects.get(pk=int(pk))
                     except Assignment.DoesNotExist:
                         data["success"] = False
                         data["message"] = "INVALID_ASSIGNMENT_ID"
                         return Response(data=data, status=status.HTTP_404_NOT_FOUND)
                     else:
                         data["success"] = True
+                        try:
+                            submission_pk = Submission.objects.get(
+                                assignment_ref=assignment_ref, user_ref=isAuthorizedUSER[1]
+                            ).pk
+                        except Submission.DoesNotExist:
+                            submission_pk = None
                         data["data"] = {
                             "assignment": Assignment_Serializer(assignment_ref, many=False).data,
-                            "submission": [
-                                one["subject_ref"]
-                                for one in Submission.objects.filter(assignment_ref=assignment_ref).values("subject_ref")
-                            ],
+                            "submission": submission_pk,
                         }
                         return Response(data=data, status=status.HTTP_202_ACCEPTED)
         else:

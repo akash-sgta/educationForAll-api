@@ -40,7 +40,7 @@ class Enroll_View(APIView):
             return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
         else:
             try:
-                enroll_ref = Enroll.objects.get(user_ref=isAuthorizedUSER[1], subject_ref=request.data["subject_id"])
+                enroll_ref = Enroll.objects.get(user_ref=isAuthorizedUSER[1], subject_ref=request.data["subject_ref"])
             except Enroll.DoesNotExist:
                 enroll_de_serialized = Enroll_Serializer(data=request.data)
                 enroll_de_serialized.initial_data["user_ref"] = int(isAuthorizedUSER[1])
