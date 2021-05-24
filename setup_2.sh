@@ -3,7 +3,7 @@
 ~/education-for-all/venv/bin/python3 ~/education-for-all/src/djangorestapi/manage.py migrate --database=app_db
 echo "\n"
 echo "Do you want to automatically create a superuser ? [y/n]"
-read -n1 ans
+read -p ans
 if [ "$ans" = "y" ]; then
     python3 manage.py createsuperuser --database=auth_db
 else
