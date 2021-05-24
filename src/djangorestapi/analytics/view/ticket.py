@@ -212,7 +212,7 @@ class Ticket_View(APIView):
 
         temp["POST"] = {"body": "String : unl"}
         temp["GET"] = None
-        temp["PUT"] = {"prime": "Boolean"}
+        temp["PUT"] = {"solved": "Boolean"}
         temp["DELETE"] = None
         data["method"] = temp.copy()
         temp.clear()

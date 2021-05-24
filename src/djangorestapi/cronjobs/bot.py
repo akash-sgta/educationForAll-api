@@ -12,6 +12,8 @@ from auth_prime.models import (
 
 from django.conf import settings
 
+import json
+
 # ------------------------------------------------------------
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,15 +24,54 @@ class TG_BOT(Bot):
     def __init__(self, api_key):
         super().__init__(api_key)
         self.API_KEY = api_key
-        self.IN_TRANSIT = dict()
 
     def add_handlers(self):
         self.dispatcher.add_handler(CommandHandler("start", self.start_function))
         self.dispatcher.add_handler(CommandHandler("hello", self.start_function))
         self.dispatcher.add_handler(CommandHandler("logout", self.logout_function))
         self.dispatcher.add_handler(CommandHandler("login", self.login_function))
-        self.dispatcher.add_handler(CommandHandler("email", self.email_function))
-        self.dispatcher.add_handler(CommandHandler("pass", self.password_function))
+        self.dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, self.parse_message))
+        # self.dispatcher.add_handler(CommandHandler("email", self.email_function))
+        # self.dispatcher.add_handler(CommandHandler("pass", self.password_function))
+
+    def parse_message(self, update, CallbackContext):
+        now = datetime.now()
+        log_data = list()
+
+        # if update.effective_chat.id not in self.json_check("id_list"):
+        #     self.json_check('ADD_USER', update.effective_chat.id)
+
+        data = update.message.text.strip().split()
+        if len(data) < 2 and len(User.objects.filter(telegram_id=update.effective_chat.id)) < 1:
+            text = "<b>NOT LOGGED IN.</b>/nSend your registered email id and password.\nFormat : email password"
+            self.send(update.effective_chat.id, text)
+        else:
+            try:
+                text = "initial"
+                user_ref = User.objects.get(email=data[0].lower())
+            except User.DoesNotExist:
+                text = "<b>Email id not registered.</b>\nCheck and send again.\nFormat : email password"
+                log_data.append(
+                    f"\n{now.strftime('%Y-%m-%d %H:%M:%S')} :: TELEGRAM BOT CRONJOB\t\t:: [.] LOGIN_E - {update.effective_chat.id}"
+                )
+            else:
+                if user_ref.password != self.create_password_hashed(data[1]):
+                    text = "<b>Invalid Password.</b>\nCheck and send again.\nFormat : email password"
+                    log_data.append(
+                        f"\n{now.strftime('%Y-%m-%d %H:%M:%S')} :: TELEGRAM BOT CRONJOB\t\t:: [.] LOGIN_P - {update.effective_chat.id}"
+                    )
+                else:
+                    user_ref.telegram_id = update.effective_chat.id
+                    user_ref.save()
+                    text = "<b>Successful.</b>\nTelegram Account added to profile. 😀"
+                    log_data.append(
+                        f"\n{now.strftime('%Y-%m-%d %H:%M:%S')} :: TELEGRAM BOT CRONJOB\t\t:: [.] LOGIN - Sucessful"
+                    )
+            finally:
+                self.send(update.effective_chat.id, text)
+
+        with open(FILE, "a") as log_file:
+            log_file.writelines(log_data)
 
     def send(self, chat_id, message, extras=None):
         if extras == None:
@@ -105,9 +146,10 @@ class TG_BOT(Bot):
         now = datetime.now()
         log_data = list()
 
-        if update.effective_chat.id not in self.IN_TRANSIT:
-            self.IN_TRANSIT[update.effective_chat.id] = dict()
-        text = "<b>/email</b> <i>email@domain.com</i>"
+        if len(User.objects.filter(telegram_id=update.effective_chat.id)) < 1:
+            text = "<b>Send your registered email id and password.</b>\nFormat : email password"
+        else:
+            text = f"<b>Already Logged IN as {update.effective_user.first_name}</b>"
         self.send(update.effective_chat.id, text)
         # ----------
         log_data.append(
@@ -116,88 +158,13 @@ class TG_BOT(Bot):
         with open(FILE, "a") as log_file:
             log_file.writelines(log_data)
 
-    def email_function(self, update, CallbackContext):
-        now = datetime.now()
-        log_data = list()
-
-        # in case login command was not used
-        if update.effective_chat.id not in self.IN_TRANSIT:
-            self.IN_TRANSIT[update.effective_chat.id] = dict()
-        try:
-            self.IN_TRANSIT[update.effective_chat.id]["email"] = update.message["text"].split()[1]
-        except Exception as ex:
-            text = "<b>/email</b> <i>email@domain.com</i>"
-            # ----------
-            log_data.append(f"\n{now.strftime('%Y-%m-%d %H:%M:%S')} :: TELEGRAM BOT CRONJOB\t\t:: [x] LOGIN_E - {ex}")
-        else:
-            text = "<b>/pass</b> <i>your_password</i>"
-        self.send(update.effective_chat.id, text)
-        # ----------
-        log_data.append(
-            f"\n{now.strftime('%Y-%m-%d %H:%M:%S')} :: TELEGRAM BOT CRONJOB\t\t:: [.] LOGIN_E - {update.effective_chat.id}"
-        )
-        with open(FILE, "a") as log_file:
-            log_file.writelines(log_data)
-
-    def password_function(self, update, CallbackContext):
-        now = datetime.now()
-        log_data = list()
-
-        if update.effective_chat.id not in self.IN_TRANSIT:
-            self.login_function(update, CallbackContext)  # if login or email none was initialized
-        else:
-            try:
-                self.IN_TRANSIT[update.effective_chat.id]["password"] = self.create_password_hashed(
-                    update.message["text"].split()[1]
-                )
-            except Exception as ex:
-                text = """<b>/pass</b> <i>your_password</i>"""
-                # ----------
-                log_data.append(f"\n{now.strftime('%Y-%m-%d %H:%M:%S')} :: TELEGRAM BOT CRONJOB\t\t:: [x] LOGIN_P - {ex}")
-            else:
-                data = self.IN_TRANSIT[update.effective_chat.id]
-                try:
-                    user_cred_ref = User.objects.get(email=data["email"].lower(), password=data["password"])
-                except User.DoesNotExist:
-                    text = "<b>Invalid Credentials !</b>"
-                    # ----------
-                    log_data.append(
-                        f"\n{now.strftime('%Y-%m-%d %H:%M:%S')} :: TELEGRAM BOT CRONJOB\t\t:: [.] LOGIN_P - Unsucessful"
-                    )
-                except Exception as ex:
-                    if settings.DEBUG == True:
-                        text += f"\n{ex}"
-                    else:
-                        text = "Unsuccessful."
-                        text += "\nError At : <b>Login_P</b>"
-                    # ----------
-                    log_data.append(f"\n{now.strftime('%Y-%m-%d %H:%M:%S')} :: TELEGRAM BOT CRONJOB\t\t:: [x] LOGIN_P - {ex}")
-                else:
-                    user_cred_ref.telegram_id = update.effective_chat.id
-                    user_cred_ref.save()
-                    del self.IN_TRANSIT[update.effective_chat.id]
-                    text = "Successful."
-                    text += "\nTelegram Account added to profile. 😀"
-                    # ----------
-                    log_data.append(
-                        f"\n{now.strftime('%Y-%m-%d %H:%M:%S')} :: TELEGRAM BOT CRONJOB\t\t:: [.] LOGIN_P - Sucessful"
-                    )
-            finally:
-                self.send(update.effective_chat.id, text)
-                # ----------
-                log_data.append(
-                    f"\n{now.strftime('%Y-%m-%d %H:%M:%S')} :: TELEGRAM BOT CRONJOB\t\t:: [.] LOGIN_P - {update.effective_chat.id}"
-                )
-                with open(FILE, "a") as log_file:
-                    log_file.writelines(log_data)
-
     def send_notifications(self, user_id, text):
         self.send(user_id, text)
 
     def create_password_hashed(self, password):
         sha256_ref = sha256()
         sha256_ref.update(f"ooga{password}booga".encode("utf-8"))
-        return str(sha256_ref.digest())
+        return str(sha256_ref.digest())[:64].strip()
 
     def run(self, key=None):
         if key == None:

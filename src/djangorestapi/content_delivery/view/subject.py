@@ -152,7 +152,7 @@ class Subject_View(APIView):
                         return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
                     else:
                         try:
-                            subject_ref = Subject.objects.get(subject_ref=int(pk))
+                            subject_ref = Subject.objects.get(pk=int(pk))
                         except Subject.DoesNotExist:
                             data["success"] = False
                             data["message"] = "INVALID_SUBJECT_ID"

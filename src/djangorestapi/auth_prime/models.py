@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 # ---------------------------------------------------------------------------------------------------------------------------------------
 # TODO : Profile <=1======N=> Image
 class Image(models.Model):
-    image = models.ImageField(max_length=255, null=True, upload_to="uploads/%Y/%m/%d/")
+    image = models.ImageField(null=False, upload_to="uploads/%Y/%m/%d/")
 
     def delete(self, *args, **kwargs):
         self.image.delete()

@@ -16,6 +16,52 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# =================================================================================================
+
+
+def check_for_drafts():
+    # create user specific config and ini
+    try:
+        fp = open(os.path.join(BASE_DIR, "config", "server.conf"), "r")
+        fp.close()  # file found no action required
+        return True
+    except FileNotFoundError:
+
+        try:
+            venv = os.environ["VIRTUAL_ENV"]
+        except KeyError:
+            try:
+                venv = os.environ["PYTHONPATH"]
+            except KeyError:
+                print("[x] Activate VIRTUAL_ENV or set correct PYTHONPATH")
+                check = (os.path.join(BASE_DIR, "config", "server.conf"), os.path.join(BASE_DIR, "config", "uwsgi.ini"))
+                for one in check:
+                    if os.path.exists(one):
+                        os.remove(one)
+                return False
+
+        # print server.config
+        with open(os.path.join(BASE_DIR, "config", "ambiguous", "conf.draft"), "r") as fp_in:
+            lines_in = fp_in.readlines()
+        with open(os.path.join(BASE_DIR, "config", "server.conf"), "w") as fp_out:
+            for line in lines_in:
+                line = line.replace("<path>", str(BASE_DIR))
+                fp_out.write(line)
+
+        # print uwsgi.ini
+        with open(os.path.join(BASE_DIR, "config", "ambiguous", "ini.draft"), "r") as fp_in:
+            lines_in = fp_in.readlines()
+
+        with open(os.path.join(BASE_DIR, "config", "uwsgi.ini"), "w") as fp_out:
+            for line in lines_in:
+                line = line.replace("<path>", str(BASE_DIR))
+                line = line.replace("<venv>", venv)
+                fp_out.write(line)
+            return True
+
+
+# =================================================================================================
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
@@ -49,26 +95,10 @@ with open(os.path.join(BASE_DIR, "config", "debug.txt"), "r") as key_file:
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
 # create user specific config and ini
-try:
-    fp = open(os.path.join(BASE_DIR, "config", "server.conf"), "r")
-    fp.close()  # file found no action required
-except FileNotFoundError:
-
-    # print server.config
-    with open(os.path.join(BASE_DIR, "config", "ambiguous", "conf.draft"), "r") as fp_in:
-        lines_in = fp_in.readlines()
-    with open(os.path.join(BASE_DIR, "config", "server.conf"), "w") as fp_out:
-        for line in lines_in:
-            line = line.replace("<path>", str(BASE_DIR))
-            fp_out.write(line)
-
-    # print uwsgi.ini
-    with open(os.path.join(BASE_DIR, "config", "ambiguous", "ini.draft"), "r") as fp_in:
-        lines_in = fp_in.readlines()
-    with open(os.path.join(BASE_DIR, "config", "uwsgi.ini"), "w") as fp_out:
-        for line in lines_in:
-            line = line.replace("<path>", str(BASE_DIR))
-            fp_out.write(line)
+if check_for_drafts():
+    print("Config and ini checked")
+else:
+    exit(1)
 
 # Application definition
 

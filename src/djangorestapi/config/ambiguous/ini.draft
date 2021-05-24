@@ -1,11 +1,11 @@
 [uwsgi]
 
 # full path to Django project's root directory
-chdir            = <path>/
+chdir            = <path>
 # Django's wsgi file
 module           = djangorestapi.wsgi
 # full path to python virtual env
-home             = /home/<user>/repositories/pyenvs/venv_education_for_all
+home             = <venv>
 
 # enable uwsgi master process
 master          = true
@@ -19,5 +19,5 @@ chmod-socket    = 664
 # clear environment on exit
 vacuum          = true
 # daemonize uwsgi and write messages into given log
-# daemonize       = /home/udoms/uwsgi-emperor.log
+# daemonize       = <path>/log/uwsgi-emperor.log
 http            = 127.0.0.1:8000
