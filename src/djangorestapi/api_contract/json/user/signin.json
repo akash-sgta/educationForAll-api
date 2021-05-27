@@ -1,0 +1,7 @@
+{
+    "action": "signin",
+    "data": {
+        "email": "nuser@gmail.com",
+        "password": "nuser1234"
+    }
+}
