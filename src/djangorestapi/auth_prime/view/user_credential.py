@@ -174,8 +174,6 @@ class User_Credential_View(APIView):
                         data["data"] = User_Serializer(user_ref, many=False).data
 
                         del data["data"]["password"]
-                        del data["data"]["profile_ref"]
-                        del data["data"]["telegram_id"]
                         del data["data"]["security_question"]
                         del data["data"]["security_answer"]
                         return Response(data=data, status=status.HTTP_202_ACCEPTED)
@@ -242,6 +240,7 @@ class User_Credential_View(APIView):
                     user_de_serialized = User_Serializer(user_ref, data=request.data)
                     user_de_serialized.initial_data["pk"] = isAuthorizedUSER[1]
                     user_de_serialized.initial_data["email"] = user_de_serialized.initial_data["email"].lower()
+                    user_de_serialized.initial_data["password"] = user_ref.password
                     try:
                         email_check = User.objects.get(email=user_de_serialized.initial_data["email"])
                     except User.DoesNotExist:
@@ -261,6 +260,7 @@ class User_Credential_View(APIView):
                                 user_de_serialized.save()
                                 data["success"] = True
                                 data["data"] = user_de_serialized.data
+                                del data["data"]["password"]
                                 return Response(data=data, status=status.HTTP_201_CREATED)
                             else:
                                 data["success"] = False

@@ -2,9 +2,9 @@
     "action": "signup",
     "data": {
         "first_name": "Normal",
-        "middle_name": null,
+        "middle_name": "Lil",
         "last_name": "User",
-        "email": "nuser@gmail.com",
+        "email": "nliluser@gmail.com",
         "password": "nuser1234",
         "security_question": "Who let the dogs out ?",
         "security_answer": "How should I know"
