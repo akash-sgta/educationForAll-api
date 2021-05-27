@@ -52,7 +52,7 @@ class Log_View(APIView):  # FIX : EXPERIMENTAL
             data["message"] = {"METHOD": "GET", "URL_FORMAT": "/api/analytics/log/dd/mm/yyyy"}
             return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
 
-    def options(self, request, pk=None):
+    def options(self, request, dd=None, mm=None, yyyy=None):
         data = dict()
 
         isAuthorizedAPI = am_I_Authorized(request, "API")

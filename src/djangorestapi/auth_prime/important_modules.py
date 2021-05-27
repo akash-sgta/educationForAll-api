@@ -14,10 +14,13 @@ from auth_prime.models import (
     Admin_Privilege,
 )
 
+from analytics.models import Log
+
 from hashlib import sha256
 import string
 import random
 import json
+import threading
 
 # --------------------------------------------------------
 
@@ -273,8 +276,19 @@ def create_token(user_ref):
 # --------------------------------------------------------
 
 
-def logger(api_key, message):
-    import logging
+class Logger(threading.Thread):
+    def __init__(self, api_id=None, method=None, action=None):
+        super().__init__(name=f"{api_id}_{random_generator(8)}")
+        self.api_id = api_id
+        self.method = method.upper()
+        self.action = action.upper()
+        self.body = None
 
-    logging.basicConfig(filename="api_access.log", filemode="w", format="%(asctime)s | %(message)s")
-    logging.warning(f"{api_key} -> {message}")
+    def run(self, message=None):
+        if message == None or method == None:
+            pass
+        else:
+            self.body = message
+            self.body["method"] = self.method
+            log_ref_new = Log(api_ref=Api_Token.objects.get(pk=self.api_id), body=json.dumps(self.body, indent=4))
+            log_ref_new.save()

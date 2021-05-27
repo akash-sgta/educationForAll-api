@@ -1,0 +1,12 @@
+{
+    "action": "signup",
+    "data": {
+        "user_f_name": "Normal",
+        "user_m_name": null,
+        "user_l_name": "User",
+        "user_email": "nuser@gmail.com",
+        "user_password": "nuser1234",
+        "user_security_question": "Who let the dogs out ?",
+        "user_security_answer": "How should I know"
+    }
+}
