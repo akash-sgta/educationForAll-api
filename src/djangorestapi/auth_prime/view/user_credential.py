@@ -196,29 +196,23 @@ class User_Credential_View(APIView):
                             data["success"] = False
                             data["message"] = "USER_NOT_ADMIN"
                             return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
-                    else:  # TODO : ADMIN asking to read indivisual select user cred
-                        isAuthorizedADMIN = am_I_Authorized(request, "ADMIN")
-                        if isAuthorizedADMIN > 0:
-                            try:
-                                user_ref = User.objects.get(pk=int(pk))
-                            except User.DoesNotExist:
-                                data["success"] = False
-                                data["message"] = "USER_ID_INVALID"
-                                return Response(data=data, status=status.HTTP_404_NOT_FOUND)
-                            else:
-                                data["success"] = True
-                                data["data"] = User_Serializer(user_ref, many=False).data
-
-                                del data["data"]["password"]
-                                del data["data"]["profile_ref"]
-                                del data["data"]["telegram_id"]
-                                del data["data"]["security_question"]
-                                del data["data"]["security_answer"]
-                                return Response(data=data, status=status.HTTP_202_ACCEPTED)
-                        else:
+                    else:  # TODO : USER asking to read indivisual select user cred
+                        try:
+                            user_ref = User.objects.get(pk=int(pk))
+                        except User.DoesNotExist:
                             data["success"] = False
-                            data["message"] = "USER_NOT_ADMIN"
-                            return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
+                            data["message"] = "USER_ID_INVALID"
+                            return Response(data=data, status=status.HTTP_404_NOT_FOUND)
+                        else:
+                            data["success"] = True
+                            data["data"] = User_Serializer(user_ref, many=False).data
+
+                            del data["data"]["password"]
+                            del data["data"]["profile_ref"]
+                            del data["data"]["telegram_id"]
+                            del data["data"]["security_question"]
+                            del data["data"]["security_answer"]
+                            return Response(data=data, status=status.HTTP_202_ACCEPTED)
                 except Exception as ex:
                     print("USER_GET_EX : ", ex)
                     return Response(status=status.HTTP_400_BAD_REQUEST)
