@@ -3,7 +3,7 @@ import os
 import platform
 from pathlib import Path
 
-from client.user import User
+from client_py.user import User
 
 if __name__ == "__main__":
 

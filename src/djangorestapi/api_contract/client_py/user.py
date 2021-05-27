@@ -1,4 +1,4 @@
-from client.jass_education import Jass_Education
+from client_py.jass_education import Jass_Education
 import json
 
 
