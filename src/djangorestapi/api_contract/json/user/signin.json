@@ -1,7 +1,4 @@
 {
-    "action": "signin",
-    "data": {
-        "email": "nliluser@gmail.com",
-        "password": "nuser1234"
-    }
+    "email": "nliluser@gmail.com",
+    "password": "nuser1234"
 }

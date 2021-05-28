@@ -106,7 +106,7 @@ class User_Profile_View(APIView):
                             data["success"] = False
                             data["message"] = "USER_NOT_ADMIN"
                             return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
-                    else:  # TODO : Admin reads selected user profile
+                    else:  # TODO : User reads selected user profile
                         try:
                             user_ref = User.objects.get(pk=pk)
                         except User.DoesNotExist:

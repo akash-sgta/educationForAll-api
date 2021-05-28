@@ -1,21 +1,15 @@
 import requests
+import json
 
 
 class Jass_Education(object):
-    def __init__(self, api_key=None, url=None):
+    def __init__(self, api_key=None, base_url=None):
         super().__init__()
 
-        self.__api_key = None
-        self.__url = None
+        self.__api_key = api_key
+        self.__base_url = base_url
         self.__request = requests.Session()
-        self.__action = ("get", "post", "put", "delete", "options")
-
-        if api_key != None:
-            self.api_key = api_key
-        if url != None:
-            self.url = url
-
-    # ----------------------------------------------------
+        self.__action = "GET POST PUT DELETE OPTIONS".split()
 
     @property
     def api_key(self):
@@ -26,12 +20,12 @@ class Jass_Education(object):
         self.__api_key = data
 
     @property
-    def url(self):
-        return self.__url
+    def base_url(self):
+        return self.__base_url
 
-    @url.setter
-    def url(self, data):
-        self.__url = data
+    @base_url.setter
+    def base_url(self, data):
+        self.__base_url = data
 
     @property
     def REQUEST(self):
@@ -45,18 +39,19 @@ class Jass_Education(object):
     def action(self, data):
         self.__action = data
 
-    # ----------------------------------------------------
-
-    def url_join(self, *args):
-        return "/".join(args) + "/"
+    @staticmethod
+    def url_join(*args):
+        return "/".join(args)
 
     def check_server(self):
-        if (self.url == None) or (self.api_key == None):
-            return (False, "[URL, API_KEY] required")
+        if (self.base_url == None) or (self.api_key == None):
+            ret_data = (False, "[URL, API_KEY] required")
         else:
             try:
-                data = self.REQUEST.get(url=self.url_join(self.url, "checkserver"))
+                data = self.REQUEST.get(url=self.url_join(self.base_url, "checkserver"))
+                if data.status_code // 100 == 2:
+                    ret_data = (True, data.json())
+                else:
+                    ret_data = (True, json.loads(data.text)["message"])
             except Exception as ex:
-                return (False, "Server unresponsive. Try again later !")
-            else:
-                return (True, (data.status_code, data.json()))
+                return (False, None)
