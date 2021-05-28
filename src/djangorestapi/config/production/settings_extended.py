@@ -14,13 +14,6 @@ HTTP_SECURED = False
 
 # -----------DATABASE-------------
 
-DATABASE_ROUTERS = (
-    "routers.db_routers.Django_Auth_Router",
-    "routers.db_routers.App_Router",
-)
-
-# -----------------------------------------------
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 with open(os.path.join(BASE_DIR, "keys", "DB_KEY.pk"), "r") as db:
     text = db.readlines()
@@ -28,7 +21,6 @@ with open(os.path.join(BASE_DIR, "keys", "DB_KEY.pk"), "r") as db:
         text[i] = text[i].strip()[1:-2]
 
 DATABASES = dict()
-DATABASES["default"] = {}
 DATABASES["auth_db"] = {
     "ENGINE": "django.db.backends.mysql",
     "OPTIONS": {
@@ -39,6 +31,9 @@ DATABASES["auth_db"] = {
     "PASSWORD": text[1],
     "HOST": text[2],
     "PORT": text[3],
+    "TEST": {
+        "DEPENDENCIES": [],
+    },
 }
 DATABASES["app_db"] = {
     "ENGINE": "django.db.backends.mysql",
@@ -50,4 +45,7 @@ DATABASES["app_db"] = {
     "PASSWORD": text[1],
     "HOST": text[2],
     "PORT": text[3],
+    "TEST": {
+        "DEPENDENCIES": [],
+    },
 }

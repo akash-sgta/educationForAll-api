@@ -71,15 +71,25 @@ def check_for_drafts(flag=True):
 with open(os.path.join(BASE_DIR, "config", "keys", "S_KEY.pk"), "r") as key_file:
     SECRET_KEY = key_file.read().strip()[1:-2]
 
+# Database in configFile
+DB_DEFAULT = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": os.path.join(BASE_DIR, "test_databases", "default.db.sqlite3"),
+        "TEST": {
+            "DEPENDENCIES": ["app_db"],
+        },
+    }
+}
 # SECURITY WARNING: don't run with debug turned on in production!
 with open(os.path.join(BASE_DIR, "config", "debug.txt"), "r") as key_file:
     DEBUG = key_file.read().strip()[1:-1]
     if DEBUG.lower() == "true":
         DEBUG = True
-        from config.development.settings_extended import DATABASE_ROUTERS, DATABASES, ALLOWED_HOSTS
+        from config.development.settings_extended import DATABASES as DB_CUSTOM, ALLOWED_HOSTS
     else:
         DEBUG = False
-        from config.production.settings_extended import DATABASE_ROUTERS, DATABASES, ALLOWED_HOSTS, HTTP_SECURED
+        from config.production.settings_extended import DATABASES as DB_CUSTOM, ALLOWED_HOSTS, HTTP_SECURED
 
         if HTTP_SECURED:
             # HTTPS settings
@@ -91,9 +101,15 @@ with open(os.path.join(BASE_DIR, "config", "debug.txt"), "r") as key_file:
             SECURE_HSTS_SECONDS = 31536000  # 1y
             SECURE_HSTS_RELOAD = True
             SECURE_HSTS_INCLUDE_SUBDOMIANS = True
+DATABASES = dict(DB_DEFAULT, **DB_CUSTOM)
 
 # ALLOWED_HOSTS in configFile
-# Database in configFile
+
+DATABASE_ROUTERS = (
+    "routers.db_routers.Django_Auth_Router",
+    "routers.db_routers.App_Router",
+)
+
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
 # create user specific config and ini

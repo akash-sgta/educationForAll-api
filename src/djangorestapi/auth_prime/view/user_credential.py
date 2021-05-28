@@ -71,7 +71,7 @@ class User_Credential_View(APIView):
         isAuthorizedAPI = am_I_Authorized(request, "API")
         if not isAuthorizedAPI[0]:
             data["success"] = False
-            data["message"] = "ENDPOINT_NOT_AUTHORIZED"
+            data["message"] = "ENDPOINT_NOT_AUTHORIZED : " + isAuthorizedAPI[1]
             return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
 
         isAuthorizedUSER = am_I_Authorized(request, "USER")

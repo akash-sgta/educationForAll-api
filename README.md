@@ -62,27 +62,34 @@ gcc 7.5.0
 
 ### STEPS
 
+**linux only**
+```
+apt install python3 python3-pip python3-dev libmysqlclient-dev build-essential gcc nginx
+```
+
+**universal**
 ```
 git clone https://github.com/akash-sgta/education-for-all.git
 
 cd education-for-all/src/djangorestapi
-
-linux only**
-apt install python3 python3-pip python3-dev libmysqlclient-dev build-essential gcc nginx
 
 python -m pip install -r requirements.txt
 
 python manage.py makemigrations auth_prime analytics user_personal content_delivery cronjobs
 
 python manage.py migrate --database=auth_db
+python manage.py migrate --database=app_db
+python manage.py migrate --database=default
 
 python manage.py createsuperuser --database=auth_db
 
-python manage.py migrate --database=app_db
-
-python manage.py check --deploy
-
+python manage.py test
 python manage.py runserver
+```
+
+**only if willing to test production readyness**
+```
+python manage.py check --deploy
 ```
 
 ***

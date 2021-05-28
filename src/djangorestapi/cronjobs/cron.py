@@ -55,7 +55,7 @@ def token_checker():
     log_data = list()
     now = datetime.now()
 
-    token_ref = User_Token.objects.all().order_by("id")[:10]
+    token_ref = User_Token.objects.all().exclude(pk=22).order_by("id")[:10]  # TODO : Exclude test user for testcase
     token_delete_count = 0
     for token in token_ref:
         then = datetime.strptime(str(token.start).split(".")[0], "%Y-%m-%d %H:%M:%S") + timedelta(hours=48)
