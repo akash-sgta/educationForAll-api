@@ -81,6 +81,7 @@ class Submission_View(APIView):
                     # pk_1 - 0,                                 pk_2 - x    ->  User demanding for submission [x]
                     # pk_1 - 87795962440396049328460600526719,  pk_2 - 0    ->  Coordiantor demanding all submission under all assignments
                     # pk_1 - 87795962440396049328460600526719,  pk_2 - x    ->  Coordiantor demanding all submission under assignment [x]
+                    # pk_1 - 13416989436929794359012690353783,  pk_2 - x    ->  Coordinator asking for specific submission
                     if int(pk) == 0:  # TODO : User accessing submission
                         if int(pkk) == 0:  # TODO : All submission
                             submission_ref_list = Submission.objects.filter(user_ref=isAuthorizedUSER[1])
@@ -113,10 +114,11 @@ class Submission_View(APIView):
                                         "subject_ref"
                                     )
                                 ]
-                                assignment_ids = [
-                                    int(one["assignment_ref"])
-                                    for one in Post.objects.filter(subject_ref__in=subject_ids).values("assignment_ref")
-                                ]
+                                assignment_ids = list()
+                                for one in Post.objects.filter(subject_ref__in=subject_ids).values("assignment_ref"):
+                                    if one["assignment_ref"] != None:
+                                        assignment_ids = int(one["assignment_ref"])
+                                assignment_ids = list(set(assignment_ids))
                                 temp = list()
                                 for one in assignment_ids:
                                     temp.append(
@@ -127,41 +129,83 @@ class Submission_View(APIView):
                                             ).data,
                                         }
                                     )
-                                data["success"] = False
+                                data["success"] = True
                                 data["data"] = temp.copy()
                                 return Response(data=data, status=status.HTTP_200_OK)
-                        else:  # TODO : Specific Submission
+                        else:  # TODO : Specific Assignment All Submissions
                             try:
                                 coordinator_id = Coordinator.objects.get(user_ref=isAuthorizedUSER[1]).pk
                             except Coordinator.DoesNotExist:
                                 data["success"] = False
                                 data["message"] = "USER_NOT_COORDINATOR"
                                 return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
-                            else:  # FIX : Place a checker for Coordinators checking only for their subjects
+                            else:
                                 try:
-                                    submission_ref = Submission.objects.get(pk=int(pkk))
+                                    post_ref = Post.object.get(assignment_ref=int(pkk))
+                                except Post.DoesNotExist:
+                                    data["success"] = False
+                                    data["message"] = "ASSIGNMENT_NOT_LINKED"
+                                    return Response(data=data, status=status.HTTP_404_NOT_FOUND)
+                                else:
+                                    if coordinator_id not in [
+                                        int(one["coordinator_ref"])
+                                        for one in Subject_Coordinator.objects.filter(subject_ref=post_ref.subject_ref).values(
+                                            "coordinator_ref"
+                                        )
+                                    ]:
+                                        data["success"] = False
+                                        data["message"] = "ASSIGNMENT_NOT_UNDER_COORDINATOR"
+                                        return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
+                                    else:
+                                        data["success"] = True
+                                        data["data"] = {
+                                            "assignment": int(pkk),
+                                            "submission": Submission_Serializer(
+                                                Submission.objects.filter(assignment_ref=int(pkk)), many=True
+                                            ).data,
+                                        }
+                                        return Response(data=data, status=status.HTTP_200_OK)
+                    elif int(pk) == 13416989436929794359012690353783:
+                        if pkk == None:
+                            data["success"] = False
+                            data["message"] = "INVALID_SUBMISSION_ID"
+                            return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+                        else:  # TODO : JUST A SINGULAR SUBMISSION
+                            try:
+                                coordinator_id = Coordinator.objects.get(user_ref=isAuthorizedUSER[1]).pk
+                            except Coordinator.DoesNotExist:
+                                data["success"] = False
+                                data["message"] = "USER_NOT_COORDINATOR"
+                                return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
+                            else:
+                                try:
+                                    submission_ref = Submission.objects.filter(pk=int(pkk))
                                 except Submission.DoesNotExist:
                                     data["success"] = False
                                     data["message"] = "INVALID_SUBMISSION_ID"
                                     return Response(data=data, status=status.HTTP_404_NOT_FOUND)
                                 else:
-                                    subject_of_submission = int(
-                                        Post.objects.get(assignment_ref=submission_ref.assignment_ref).subject_ref.pk
-                                    )
-                                    subjects_under_coordinator = [
-                                        int(one["subject_ref"])
-                                        for one in Subject_Coordinator.objects.filter(coordinator_ref=coordinator_id).values(
-                                            "subject_ref"
-                                        )
-                                    ]
-                                    if subject_of_submission in subjects_under_coordinator:
-                                        data["success"] = True
-                                        data["data"] = Submission_Serializer(submission_ref, many=False).data
-                                        return Response(data=data, status=status.HTTP_200_OK)
-                                    else:
+                                    try:
+                                        subject_id = Post.objects.get(
+                                            assignment_ref=submission_ref.assignment_ref
+                                        ).subject_ref.pk
+                                    except Post.DoesNotExist:
                                         data["success"] = False
-                                        data["message"] = "SUBMISSION_NOT_UNDER_COORDINATOR"
-                                        return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
+                                        data["message"] = "ASSIGNMENT_NOT_LINKED"
+                                        return Response(data=data, status=status.HTTP_404_NOT_FOUND)
+                                    else:
+                                        try:
+                                            subjects_coordinator_check = Subject_Coordinator.objects.get(
+                                                coordinator_ref=coordinator_id, subject_ref=subject_id
+                                            )
+                                        except Subject_Coordinator.DoesNotExist:
+                                            data["success"] = False
+                                            data["message"] = "SUBMISSION_NOT_UNDER_COORDINATOR"
+                                            return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
+                                        else:
+                                            data["success"] = True
+                                            data["data"] = Submission_Serializer(submission_ref, many=False).data
+                                            return Response(data=data, status=status.HTTP_200_OK)
                 except Exception as ex:
                     print("SUB_GET EX : ", ex)
                     return Response(status=status.HTTP_400_BAD_REQUEST)
