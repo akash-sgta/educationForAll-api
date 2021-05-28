@@ -37,7 +37,28 @@ class Admin(Jass_Education):
             if data.status_code // 100 == 2:
                 ret_data = (True, data.json())
             else:
-                ret_data = (True, json.loads(data.text)["message"])
+                ret_data = (True, json.loads(data.text))
+        except Exception as ex:
+            ret_data = (False, f"[EX] {ex}")
+
+        return ret_data
+
+    def getAllProfile(self, uauth=None):
+        if uauth == None:
+            uauth = self.uauth
+        try:
+            data = self.REQUEST.get(
+                url=Admin.url_join(self.url, "user", "prof", "87795962440396049328460600526719"),
+                headers={
+                    "uauth": f"Token {uauth}",
+                    "Authorization": f"Token {self.api_key}",
+                    "Content-Type": "application/json",
+                },
+            )
+            if data.status_code // 100 == 2:
+                ret_data = (True, data.json())
+            else:
+                ret_data = (True, json.loads(data.text))
         except Exception as ex:
             ret_data = (False, f"[EX] {ex}")
 
@@ -64,7 +85,7 @@ class Admin(Jass_Education):
             if data.status_code // 100 == 2:
                 ret_data = (True, data.json())
             else:
-                ret_data = (True, json.loads(data.text)["message"])
+                ret_data = (True, json.loads(data.text))
         except Exception as ex:
             ret_data = (False, f"[EX] {ex}")
 
@@ -85,7 +106,49 @@ class Admin(Jass_Education):
             if data.status_code // 100 == 2:
                 ret_data = (True, data.json())
             else:
-                ret_data = (True, json.loads(data.text)["message"])
+                ret_data = (True, json.loads(data.text))
+        except Exception as ex:
+            ret_data = (False, f"[EX] {ex}")
+
+        return ret_data
+
+    def deleteSpecificProfile(self, pk=None, uauth=None):
+        if uauth == None:
+            uauth = self.uauth
+        try:
+            data = self.REQUEST.get(
+                url=Admin.url_join(self.url, "user", "prof", f"{pk}"),
+                headers={
+                    "uauth": f"Token {uauth}",
+                    "Authorization": f"Token {self.api_key}",
+                    "Content-Type": "application/json",
+                },
+            )
+            if data.status_code // 100 == 2:
+                ret_data = (True, data.json())
+            else:
+                ret_data = (True, json.loads(data.text))
+        except Exception as ex:
+            ret_data = (False, f"[EX] {ex}")
+
+        return ret_data
+
+    def deleteAllProfile(self, uauth=None):
+        if uauth == None:
+            uauth = self.uauth
+        try:
+            data = self.REQUEST.get(
+                url=Admin.url_join(self.url, "user", "prof", "87795962440396049328460600526719"),
+                headers={
+                    "uauth": f"Token {uauth}",
+                    "Authorization": f"Token {self.api_key}",
+                    "Content-Type": "application/json",
+                },
+            )
+            if data.status_code // 100 == 2:
+                ret_data = (True, data.json())
+            else:
+                ret_data = (True, json.loads(data.text))
         except Exception as ex:
             ret_data = (False, f"[EX] {ex}")
 
