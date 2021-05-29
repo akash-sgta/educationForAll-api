@@ -1,70 +1,45 @@
-"""djangorestapi URL Configuration
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/3.1/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
+from django.conf import settings
+from django.conf.urls import include, url
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
-from django.conf.urls import (
-        url,
-        include
-    )
-
-from django.conf.urls.static import static
-from django.views.static import serve 
-from django.conf import settings
+from django.views.static import serve
+from drf_yasg import openapi
+from drf_yasg.views import get_schema_view
+from rest_framework import permissions
 
 from djangorestapi import views
 
-from rest_framework import permissions
-from drf_yasg.views import get_schema_view
-from drf_yasg import openapi
-
 schema_view = get_schema_view(
-   openapi.Info(
-      title="JASS EDUCATION-BACKEND API",
-      default_version='v1',
-      description="For frontend developers",
-      terms_of_service="https://www.google.com/policies/terms/",
-      contact=openapi.Contact(email="akashofficial1998@gmail.com"),
-      license=openapi.License(name="MIT License"),
-   ),
-   public=True,
-   permission_classes=(permissions.AllowAny,),
+    openapi.Info(
+        title="JASS EDUCATION-BACKEND API",
+        default_version="v1",
+        description="For frontend developers",
+        terms_of_service="https://www.google.com/policies/terms/",
+        contact=openapi.Contact(email="akashofficial1998@gmail.com"),
+        license=openapi.License(name="MIT License"),
+    ),
+    public=True,
+    permission_classes=(permissions.AllowAny,),
 )
 
 urlpatterns = [
-
     # url(r'^docs/swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     # url(r'^docs/swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     # url(r'^docs/redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
-    
-    url(r'djadmin/', admin.site.urls),
-
-    url(r'^', include('auth_prime.urls')),
-    url(r'^', include('content_delivery.urls')),
-    url(r'^', include('user_personal.urls')),
-    url(r'^', include('analytics.urls')),
-
-    url(r'^checkserver/', views.check_server_status, name="CHECK_SERVER_STATUS"),
-
+    url(r"^djadmin", admin.site.urls),
+    url(r"^api/auth/", include("auth_prime.urls")),
+    url(r"^api/content/", include("content_delivery.urls")),
+    url(r"^api/personal/", include("user_personal.urls")),
+    url(r"^api/analytics/", include("analytics.urls")),
+    url(r"^checkserver/", views.check_server_status, name="CHECK_SERVER_STATUS"),
 ]
 
-if(settings.DEBUG):
+if settings.DEBUG:
     urlpatterns.extend(
         [
-            url(r'^media/(?P<path>.*)$', serve,{'document_root': settings.MEDIA_ROOT}, name="MEDIA_SERVE"),
-            url(r'^static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT}, name="STATIC_SERVE"),
+            url(r"^media/(?P<path>.*)$", serve, {"document_root": settings.MEDIA_ROOT}, name="MEDIA_SERVE"),
+            url(r"^static/(?P<path>.*)$", serve, {"document_root": settings.STATIC_ROOT}, name="STATIC_SERVE"),
         ]
     )
 
