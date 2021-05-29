@@ -81,7 +81,7 @@ class Forum_View(APIView):
                     data["success"] = True
                     data["data"] = {
                         "forum": Forum_Serializer(forum_ref, many=False).data,
-                        "reply": [one["pk"] for one in Reply.objects.filter(forum_ref=int(pk)).values("pk")],
+                        "reply": [one["pk"] for one in Reply.objects.filter(forum_ref=int(pk)).order_by("-pk").values("pk")],
                     }
                     return Response(data=data, status=status.HTTP_202_ACCEPTED)
         else:

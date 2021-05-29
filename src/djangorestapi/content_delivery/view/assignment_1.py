@@ -143,11 +143,18 @@ class Assignment_1_View(APIView):
                     else:
                         data["success"] = True
                         try:
-                            submission_pk = Submission.objects.get(
-                                assignment_ref=assignment_ref, user_ref=isAuthorizedUSER[1]
-                            ).pk
+                            submission_pk = [
+                                Submission.objects.get(assignment_ref=assignment_ref, user_ref=isAuthorizedUSER[1]).pk
+                            ]
                         except Submission.DoesNotExist:
                             submission_pk = None
+                        except Submission.MultipleObjectsReturned:
+                            submission_pk = (
+                                Submission.objects.filter(assignment_ref=assignment_ref, user_ref=isAuthorizedUSER[1])
+                                .order_by("-pk")
+                                .values("pk")
+                            )
+                            submission_pk = [one["pk"] for one in submission_pk]
                         data["data"] = {
                             "assignment": Assignment_Serializer(assignment_ref, many=False).data,
                             "submission": submission_pk,

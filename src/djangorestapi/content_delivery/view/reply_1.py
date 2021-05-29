@@ -75,7 +75,9 @@ class Reply_1_View(APIView):
                     data["success"] = True
                     data["data"] = {
                         "reply": Reply_Serializer(reply_ref, many=False).data,
-                        "reply2": [one["pk"] for one in ReplyToReply.objects.filter(reply_ref=reply_ref).values("pk")],
+                        "reply2": [
+                            one["pk"] for one in ReplyToReply.objects.filter(reply_ref=reply_ref).order_by("-pk").values("pk")
+                        ],
                     }
                     return Response(data=data, status=status.HTTP_202_ACCEPTED)
         else:

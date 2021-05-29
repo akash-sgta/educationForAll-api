@@ -24,7 +24,7 @@ class Diary(models.Model):
     made_date = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        data = f"D [{self.diary_id}] || {self.post_ref} || {self.user_ref}"
+        data = f"D [{self.pk}] || {self.post_ref} || {self.user_ref}"
         return data
 
 
@@ -43,7 +43,7 @@ class Submission(models.Model):
     marks = models.PositiveSmallIntegerField(default=0)  # TODO : Only accessible by Coordinator
 
     def __str__(self):
-        data = f"S [{self.submission_id}] || {self.user_ref} || {self.assignment_ref}"
+        data = f"S [{self.pk}] || {self.user_ref} || {self.assignment_ref}"
         return data
 
 
@@ -60,7 +60,7 @@ class SubmissionCode(models.Model):
     marks = models.PositiveSmallIntegerField(default=0)  # TODO : Only accessible by Coordinator
 
     def __str__(self):
-        data = f"S [{self.submission_id}] || {self.user_ref} || {self.assignment_ref}"
+        data = f"S [{self.pk}] || {self.user_ref} || {self.assignment_ref}"
         return data
 
 
