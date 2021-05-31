@@ -19,7 +19,7 @@ class Auto_Mark_MCQ(threading.Thread):
         self.submission_ref = SubmissionMCQ.objects.get(pk=int(name))
         self.assignment_ref = self.submission_ref.assignment_ref
         self.assignment = self.assignment_ref.body
-        self.submission = self.submission.body
+        self.submission = self.submission_ref.body
 
     def run(self):
         total, count, scored = self.assignment_ref.total_score, 0, 0
@@ -29,18 +29,18 @@ class Auto_Mark_MCQ(threading.Thread):
             count += 1
         if count == total:
             self.submission_ref.marks = scored
-            self.submission_ref.save()
         else:
-            self.assignment_ref.total_marks = 100
+            self.assignment_ref.total_score = 100
             self.submission_ref.marks = round((scored / count) * 100, 2)
             self.assignment_ref.save()
-            self.submission_ref.save()
+        self.submission_ref.checked = True
+        self.submission_ref.save()
 
 
 # ------------------------------------------------------------
 
 
-class Submission_MCQ_View(APIView):
+class Submission_View(APIView):
 
     renderer_classes = [JSONRenderer]
 

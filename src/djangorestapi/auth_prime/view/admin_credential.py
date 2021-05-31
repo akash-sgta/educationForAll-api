@@ -1,21 +1,13 @@
-from rest_framework.views import APIView
+from auth_prime.important_modules import am_I_Authorized
+from auth_prime.models import Admin, Admin_Privilege, Privilege, User
+from auth_prime.serializer import Admin_Serializer
 from rest_framework import status
-from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 # ------------------------------------------------------------
 
-from auth_prime.important_modules import (
-    am_I_Authorized,
-)
-
-from auth_prime.models import (
-    User,
-    Admin,
-    Privilege,
-    Admin_Privilege,
-)
-from auth_prime.serializer import Admin_Serializer
 
 # ------------------------------------------------------------
 
@@ -203,7 +195,7 @@ class Admin_Credential_View(APIView):
                         else:
                             data["success"] = True
                             data["message"] = "ADMINP : ADMIN_ALREADY_HAS_PRIVILEGE"
-                            return Response(data=data, status=status.HTTP_201_CREATED)
+                            return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
                     else:  # TODO : revoke privilge
                         privilege = privilege * -1
                         try:
@@ -218,9 +210,9 @@ class Admin_Credential_View(APIView):
                         except Admin_Privilege.DoesNotExist:
                             data["success"] = True
                             data["message"] = "ADMINP : ADMIN_DOES_NOT_HAVE_PRIVILEGE"
-                            return Response(data=data, status=status.HTTP_202_ACCEPTED)
+                            return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
                         else:
-                            many_to_many[0].delete()
+                            many_to_many.delete()
                             data["success"] = True
                             data["message"] = "ADMINP : PRIVILEG_REVOKED_FROM_ADMIN"
                             return Response(data=data, status=status.HTTP_202_ACCEPTED)

@@ -27,7 +27,7 @@ urlpatterns = [
     # url(r'^docs/swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     # url(r'^docs/swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     # url(r'^docs/redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
-    url(r"^djadmin", admin.site.urls),
+    url(r"^djadmin/", admin.site.urls),
     url(r"^api/auth/", include("auth_prime.urls")),
     url(r"^api/content/", include("content_delivery.urls")),
     url(r"^api/personal/", include("user_personal.urls")),

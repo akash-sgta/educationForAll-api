@@ -26,8 +26,8 @@ base_api
     │    ├ Forum  <content/forum/>
     │    ├ Reply <nested>  <content/reply/>  <content/reply2reply/>
     │    ├ Lecture  <content/lecture/>
-    │    ├ Assignment  <content/assignment/> <content/mark/>
-    │    ├ AssignmentMCQ*  
+    │    ├ Assignment  <content/assignment/> <content/assignment_mark//>
+    │    ├ AssignmentMCQ  <content/multi/> <content/multi_mark//>
     │    ├ Video  <content/video/>
     │    └ Post  <content/post/>
     │
@@ -36,8 +36,8 @@ base_api
     │    └ Token_Cleaner*
     │
     └ user_personal
-        ├ Submission  <personal/submission/>
-        ├ SubmissionMCQ*
+        ├ Submission  <personal/submission_normal//>
+        ├ SubmissionMCQ    <personal/submission_multi//>
         ├ Diary  <personal/diary/>
         ├ Enroll  <personal/enroll/>
         └ Notification  <personal/notification/>

@@ -191,7 +191,7 @@ class Assignment_View(APIView):
                     return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
                 else:
                     try:
-                        assignment_ref = Assignment.objects.get(assignment_ref=int(pk))
+                        assignment_ref = Assignment.objects.get(pk=int(pk))
                     except Assignment.DoesNotExist:
                         data["success"] = False
                         data["message"] = "INVALID_ASSIGNMENT_ID"
@@ -200,6 +200,9 @@ class Assignment_View(APIView):
                         assignment_de_serialized = Assignment_Serializer(assignment_ref, data=request.data)
                         if assignment_de_serialized.is_valid():
                             assignment_de_serialized.save()
+                            for sub in Submission.objects.filter(assignment_ref=int(assignment_de_serialized.data["id"])):
+                                sub.checked = False
+                                sub.save()
                             data["success"] = True
                             data["data"] = assignment_de_serialized.data
                             return Response(data=data, status=status.HTTP_201_CREATED)
