@@ -1,31 +1,46 @@
-from rest_framework.views import APIView
+import threading
+
+from auth_prime.important_modules import am_I_Authorized
+from content_delivery.models import AssignmentMCQ, Coordinator, Post, Subject_Coordinator
+from content_delivery.serializer import AssignmentMCQ_Serializer
 from rest_framework import status
-from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
-
-# ------------------------------------------------------------
-
-from auth_prime.important_modules import (
-    am_I_Authorized,
-)
-
-from content_delivery.models import (
-    Coordinator,
-    Assignment,
-    Subject_Coordinator,
-    Post,
-)
-from content_delivery.serializer import Assignment_Serializer
-
-from user_personal.models import (
-    Submission,
-)
-from user_personal.serializer import Submission_Serializer
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from user_personal.models import SubmissionMCQ
+from user_personal.serializer import SubmissionMCQ_Serializer
 
 # ------------------------------------------------------------
 
 
-class Submission_View(APIView):
+class Auto_Mark_MCQ(threading.Thread):
+    def __init__(self, name):
+        super().__init__(name=f"AMMC_{name}")
+        self.submission_ref = SubmissionMCQ.objects.get(pk=int(name))
+        self.assignment_ref = self.submission_ref.assignment_ref
+        self.assignment = self.assignment_ref.body
+        self.submission = self.submission.body
+
+    def run(self):
+        total, count, scored = self.assignment_ref.total_score, 0, 0
+        for ans in self.submission.items():
+            if ans[1] == self.assignment[ans[0]]["ans"]:
+                scored += 1
+            count += 1
+        if count == total:
+            self.submission_ref.marks = scored
+            self.submission_ref.save()
+        else:
+            self.assignment_ref.total_marks = 100
+            self.submission_ref.marks = round((scored / count) * 100, 2)
+            self.assignment_ref.save()
+            self.submission_ref.save()
+
+
+# ------------------------------------------------------------
+
+
+class Submission_MCQ_View(APIView):
 
     renderer_classes = [JSONRenderer]
 
@@ -47,10 +62,12 @@ class Submission_View(APIView):
             data["message"] = f"USER_NOT_AUTHORIZED"
             return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
         else:
-            submission_de_serialized = Submission_Serializer(data=request.data)
+            submission_de_serialized = SubmissionMCQ_Serializer(data=request.data)
             submission_de_serialized.initial_data["user_ref"] = int(isAuthorizedUSER[1])
             if submission_de_serialized.is_valid():
                 submission_de_serialized.save()
+                auto_mark = Auto_Mark_MCQ(submission_de_serialized.data["id"])
+                auto_mark.start()
                 data["success"] = True
                 data["data"] = submission_de_serialized.data
                 return Response(data=data, status=status.HTTP_201_CREATED)
@@ -84,20 +101,20 @@ class Submission_View(APIView):
                     # pk_1 - 13416989436929794359012690353783,  pk_2 - x    ->  Coordinator asking for specific submission
                     if int(pk) == 0:  # TODO : User accessing submission
                         if int(pkk) == 0:  # TODO : All submission
-                            submission_ref_list = Submission.objects.filter(user_ref=isAuthorizedUSER[1])
+                            submission_ref_list = SubmissionMCQ.objects.filter(user_ref=isAuthorizedUSER[1])
                             data["success"] = True
-                            data["data"] = [Submission_Serializer(one, many=False).data for one in submission_ref_list]
+                            data["data"] = [SubmissionMCQ_Serializer(one, many=False).data for one in submission_ref_list]
                             return Response(data=data, status=status.HTTP_202_ACCEPTED)
                         else:  # TODO : Specific Submission
                             try:
-                                submission_ref = Submission.objects.get(user_ref=isAuthorizedUSER[1], pk=int(pkk))
-                            except Submission.DoesNotExist:
+                                submission_ref = SubmissionMCQ.objects.get(user_ref=isAuthorizedUSER[1], pk=int(pkk))
+                            except SubmissionMCQ.DoesNotExist:
                                 data["success"] = False
                                 data["message"] = "INVALID_SUBMISSION_ID"
                                 return Response(data=data, status=status.HTTP_404_NOT_FOUND)
                             else:
                                 data["success"] = True
-                                data["data"] = Submission_Serializer(submission_ref, many=False).data
+                                data["data"] = SubmissionMCQ_Serializer(submission_ref, many=False).data
                                 return Response(data=data, status=status.HTTP_202_ACCEPTED)
                     elif int(pk) == 87795962440396049328460600526719:  # TODO : Coordinator accessing submission
                         if int(pkk) == 0:  # TODO : All submission
@@ -124,8 +141,8 @@ class Submission_View(APIView):
                                     temp.append(
                                         {
                                             "assignment": one,
-                                            "submission": Submission_Serializer(
-                                                Submission.objects.filter(assignment_ref=one), many=True
+                                            "submission": SubmissionMCQ_Serializer(
+                                                SubmissionMCQ.objects.filter(assignment_ref=one), many=True
                                             ).data,
                                         }
                                     )
@@ -160,8 +177,8 @@ class Submission_View(APIView):
                                         data["success"] = True
                                         data["data"] = {
                                             "assignment": int(pkk),
-                                            "submission": Submission_Serializer(
-                                                Submission.objects.filter(assignment_ref=int(pkk)), many=True
+                                            "submission": SubmissionMCQ_Serializer(
+                                                SubmissionMCQ.objects.filter(assignment_ref=int(pkk)), many=True
                                             ).data,
                                         }
                                         return Response(data=data, status=status.HTTP_200_OK)
@@ -179,8 +196,8 @@ class Submission_View(APIView):
                                 return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
                             else:
                                 try:
-                                    submission_ref = Submission.objects.get(pk=int(pkk))
-                                except Submission.DoesNotExist:
+                                    submission_ref = SubmissionMCQ.objects.get(pk=int(pkk))
+                                except SubmissionMCQ.DoesNotExist:
                                     data["success"] = False
                                     data["message"] = "INVALID_SUBMISSION_ID"
                                     return Response(data=data, status=status.HTTP_404_NOT_FOUND)
@@ -204,7 +221,7 @@ class Submission_View(APIView):
                                             return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
                                         else:
                                             data["success"] = True
-                                            data["data"] = Submission_Serializer(submission_ref, many=False).data
+                                            data["data"] = SubmissionMCQ_Serializer(submission_ref, many=False).data
                                             return Response(data=data, status=status.HTTP_200_OK)
                 except Exception as ex:
                     print("SUB_GET EX : ", ex)
@@ -231,16 +248,18 @@ class Submission_View(APIView):
                 return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
             else:
                 try:
-                    submission_ref = Submission.objects.get(user_ref=isAuthorizedUSER[1], pk=pk)
-                except Submission.DoesNotExist:
+                    submission_ref = SubmissionMCQ.objects.get(user_ref=isAuthorizedUSER[1], pk=pk)
+                except SubmissionMCQ.DoesNotExist:
                     data["success"] = False
                     data["message"] = "INVALID_SUBMISSION_ID"
                     return Response(data=data, status=status.HTTP_404_NOT_FOUND)
                 else:
-                    submission_serialized = Submission_Serializer(submission_ref, data=request.data)
+                    submission_serialized = SubmissionMCQ_Serializer(submission_ref, data=request.data)
                     submission_serialized.initial_data["user_ref"] = isAuthorizedUSER[1]
                     if submission_serialized.is_valid():
                         submission_serialized.save()
+                        auto_mark = Auto_Mark_MCQ(submission_serialized.data["id"])
+                        auto_mark.start()
                         data["success"] = True
                         data["data"] = submission_serialized.data
                         return Response(data=data, status=status.HTTP_202_ACCEPTED)
@@ -270,8 +289,8 @@ class Submission_View(APIView):
                 return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
             else:
                 try:
-                    submission_ref = Submission.objects.get(user_ref=isAuthorizedUSER[1], pk=pk)
-                except Submission.DoesNotExist:
+                    submission_ref = SubmissionMCQ.objects.get(user_ref=isAuthorizedUSER[1], pk=pk)
+                except SubmissionMCQ.DoesNotExist:
                     data["success"] = False
                     data["message"] = "INVALID_SUBMISSION_ID"
                     return Response(data=data, status=status.HTTP_404_NOT_FOUND)
@@ -308,16 +327,12 @@ class Submission_View(APIView):
 
         temp["POST"] = {
             "assignment_ref": "Number [FK]",
-            "body": "String : unl",
-            "external_url_1": "String : 255 / null",
-            "external_url_2": "String : 255 / null",
+            "body": "JSON DATA",
         }
         temp["GET"] = None
         temp["PUT"] = {
             "assignment_ref": "Number [FK]",
-            "body": "String : unl",
-            "external_url_1": "String : 255 / null",
-            "external_url_2": "String : 255 / null",
+            "body": "JSON DATA",
         }
         temp["DELETE"] = None
         data["method"] = temp.copy()

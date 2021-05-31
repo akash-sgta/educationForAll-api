@@ -1,31 +1,16 @@
-from rest_framework.views import APIView
+from auth_prime.important_modules import am_I_Authorized
+from content_delivery.models import AssignmentMCQ, Coordinator, Post, Subject_Coordinator
+from content_delivery.serializer import AssignmentMCQ_Serializer
 from rest_framework import status
-from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
-
-# ------------------------------------------------------------
-
-from auth_prime.important_modules import (
-    am_I_Authorized,
-)
-
-from content_delivery.models import (
-    Coordinator,
-    Assignment,
-    Subject_Coordinator,
-    Post,
-)
-from content_delivery.serializer import Assignment_Serializer
-
-from user_personal.models import (
-    Submission,
-    Enroll,
-)
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from user_personal.models import Enroll, SubmissionMCQ
 
 # ------------------------------------------------------------
 
 
-class Assignment_1_View(APIView):
+class Assignment_View(APIView):
 
     renderer_classes = [JSONRenderer]
 
@@ -54,7 +39,7 @@ class Assignment_1_View(APIView):
                 data["message"] = "USER_NOT_COORDINATOR"
                 return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
             else:
-                assignment_de_serialized = Assignment_Serializer(data=request.data)
+                assignment_de_serialized = AssignmentMCQ_Serializer(data=request.data)
                 if assignment_de_serialized.is_valid():
                     assignment_de_serialized.save()
                     data["success"] = True
@@ -92,12 +77,12 @@ class Assignment_1_View(APIView):
                             assignment_ref = post.assignment_ref
                             data["data"].append(
                                 {
-                                    "assignment": Assignment_Serializer(assignment_ref, many=False).data,
+                                    "assignment": AssignmentMCQ_Serializer(assignment_ref, many=False).data,
                                     "submission": [
-                                        one["submission_ref"]
-                                        for one in Submission.objects.filter(assignment_ref=assignment_ref).values(
-                                            "submission_ref"
-                                        )
+                                        one["pk"]
+                                        for one in SubmissionMCQ.objects.filter(assignment_ref=assignment_ref)
+                                        .order_by("-pk")
+                                        .values("pk")
                                     ],
                                 }
                             )
@@ -121,22 +106,24 @@ class Assignment_1_View(APIView):
                         data["success"] = True
                         data["data"] = list()
                         for post in post_ref:
-                            if post.assignment_ref != None:
-                                assignment_ref = post.assignment_ref
+                            if post.assignmentMCQ_ref != None:
+                                assignment_ref = post.assignmentMCQ_ref
                                 data["data"].append(
                                     {
-                                        "assignment": Assignment_Serializer(assignment_ref, many=False).data,
+                                        "assignment": AssignmentMCQ_Serializer(assignment_ref, many=False).data,
                                         "submission": [
                                             one["pk"]
-                                            for one in Submission.objects.filter(assignment_ref=assignment_ref).values("pk")
+                                            for one in SubmissionMCQ.objects.filter(assignment_ref=assignment_ref)
+                                            .order_by("-pk")
+                                            .values("pk")
                                         ],
                                     }
                                 )
                         return Response(data=data, status=status.HTTP_202_ACCEPTED)
                 else:  # TODO : Any user looking for assignment
                     try:
-                        assignment_ref = Assignment.objects.get(pk=int(pk))
-                    except Assignment.DoesNotExist:
+                        assignment_ref = AssignmentMCQ.objects.get(pk=int(pk))
+                    except AssignmentMCQ.DoesNotExist:
                         data["success"] = False
                         data["message"] = "INVALID_ASSIGNMENT_ID"
                         return Response(data=data, status=status.HTTP_404_NOT_FOUND)
@@ -144,19 +131,21 @@ class Assignment_1_View(APIView):
                         data["success"] = True
                         try:
                             submission_pk = [
-                                Submission.objects.get(assignment_ref=assignment_ref, user_ref=isAuthorizedUSER[1]).pk
+                                SubmissionMCQ.objects.get(assignment_ref=assignment_ref, user_ref=isAuthorizedUSER[1]).pk
                             ]
-                        except Submission.DoesNotExist:
-                            submission_pk = None
-                        except Submission.MultipleObjectsReturned:
-                            submission_pk = (
-                                Submission.objects.filter(assignment_ref=assignment_ref, user_ref=isAuthorizedUSER[1])
+                        except SubmissionMCQ.DoesNotExist:
+                            submission_pk = []
+                        except SubmissionMCQ.MultipleObjectsReturned:
+                            submission_pk = [
+                                one["pk"]
+                                for one in SubmissionMCQ.objects.filter(
+                                    assignment_ref=assignment_ref, user_ref=isAuthorizedUSER[1]
+                                )
                                 .order_by("-pk")
                                 .values("pk")
-                            )
-                            submission_pk = [one["pk"] for one in submission_pk]
+                            ]
                         data["data"] = {
-                            "assignment": Assignment_Serializer(assignment_ref, many=False).data,
+                            "assignment": AssignmentMCQ_Serializer(assignment_ref, many=False).data,
                             "submission": submission_pk,
                         }
                         return Response(data=data, status=status.HTTP_202_ACCEPTED)
@@ -189,13 +178,13 @@ class Assignment_1_View(APIView):
                     return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
                 else:
                     try:
-                        assignment_ref = Assignment.objects.get(assignment_ref=int(pk))
-                    except Assignment.DoesNotExist:
+                        assignment_ref = AssignmentMCQ.objects.get(assignment_ref=int(pk))
+                    except AssignmentMCQ.DoesNotExist:
                         data["success"] = False
                         data["message"] = "INVALID_ASSIGNMENT_ID"
                         return Response(data=data, status=status.HTTP_404_NOT_FOUND)
                     else:
-                        assignment_de_serialized = Assignment_Serializer(assignment_ref, data=request.data)
+                        assignment_de_serialized = AssignmentMCQ_Serializer(assignment_ref, data=request.data)
                         if assignment_de_serialized.is_valid():
                             assignment_de_serialized.save()
                             data["success"] = True
@@ -234,8 +223,8 @@ class Assignment_1_View(APIView):
                     return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
                 else:
                     try:
-                        assignment_ref = Assignment.objects.get(assignment_ref=int(pk))
-                    except Assignment.DoesNotExist:
+                        assignment_ref = AssignmentMCQ.objects.get(assignment_ref=int(pk))
+                    except AssignmentMCQ.DoesNotExist:
                         data["success"] = False
                         data["message"] = "INVALID_ASSIGNMENT_ID"
                         return Response(data=data, status=status.HTTP_404_NOT_FOUND)
@@ -271,16 +260,12 @@ class Assignment_1_View(APIView):
         data["name"] = "Assignment"
 
         temp["POST"] = {
-            "body": "String : unl",
-            "external_url_1": "String : 255 / null",
-            "external_url_2": "String : 255 / null",
+            "body": "JSON DATA",
             "total_marks": "Number",
         }
         temp["GET"] = None
         temp["PUT"] = {
-            "body": "String : unl",
-            "external_url_1": "String : 255 / null",
-            "external_url_2": "String : 255 / null",
+            "body": "JSON DATA",
             "total_marks": "Number",
         }
         temp["DELETE"] = None

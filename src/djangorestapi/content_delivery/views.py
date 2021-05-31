@@ -23,8 +23,11 @@ from content_delivery.view.lecture import Lecture_View as lView
 
 # -----------------------ASSIGNMENT-------------------------------
 
-from content_delivery.view.assignment_1 import Assignment_1_View as a1View
-from content_delivery.view.assignment_2 import Assignment_2_View as a2View
+from content_delivery.view.assignment_normal import Assignment_View as a11View
+from content_delivery.view.assignment_normal_mark import Assignment_Mark_View as a12View
+
+from content_delivery.view.assignment_mcq import Assignment_View as a21View
+from content_delivery.view.assignment_mcq_mark import Assignment_Mark_View as a22View
 
 # -----------------------POST-------------------------------
 

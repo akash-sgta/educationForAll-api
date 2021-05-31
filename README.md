@@ -14,11 +14,11 @@ base_api
     │    └ Log*
     │
     ├ auth_prime
-    │    ├ User_Credential  <user/cred/>
-    │    ├ User_Profile <user/prof/>
-    │    ├ Admin_Credential <admin/cred/>  
-    │    ├ Admin_Privilege  <admin/priv/>
-    │    └ Image    <user/image/>
+    │    ├ User_Credential  <auth/user/cred/>
+    │    ├ User_Profile <auth/user/prof/>
+    │    ├ Admin_Credential <auth/admin/cred/>  
+    │    ├ Admin_Privilege  <auth/admin/priv/>
+    │    └ Image    <auth/user/image/>
     │
     ├ content_delivery
     │    ├ Coordinator  <content/cordinator/>
@@ -27,6 +27,7 @@ base_api
     │    ├ Reply <nested>  <content/reply/>  <content/reply2reply/>
     │    ├ Lecture  <content/lecture/>
     │    ├ Assignment  <content/assignment/> <content/mark/>
+    │    ├ AssignmentMCQ*  
     │    ├ Video  <content/video/>
     │    └ Post  <content/post/>
     │
@@ -36,6 +37,7 @@ base_api
     │
     └ user_personal
         ├ Submission  <personal/submission/>
+        ├ SubmissionMCQ*
         ├ Diary  <personal/diary/>
         ├ Enroll  <personal/enroll/>
         └ Notification  <personal/notification/>
@@ -45,7 +47,7 @@ base_api
 
 ### POSTMAN EXPORT FILE
 
-##### <https://www.getpostman.com/collections/90fa56e39ac2fa25ec66>
+##### __soon__
 
 ***
 
@@ -104,7 +106,6 @@ FOR BETTER CODE VISIBILITY : __fabiospampinato.vscode-highlight__
 create symbolic links for ease of access
 
 ln -s /{your_path}/uwsgi.ini /home/<user>/uwsgi.ini
-
 ln -s /{your_path}/manage.py /home/<user>/manage.py
 ```
 
@@ -118,9 +119,7 @@ sudo nano /etc/nginx/conf.d/djangoproj.conf
 >> paste all from respective *.conf in /config <<
 
 sudo /etc/init.d/nginx start
-
 sudo /etc/init.d/nginx restart
-
 sudo /etc/init.d/nginx stop
 ```
 
@@ -148,12 +147,22 @@ find . -name '*.py' | xargs wc -l | tail -1
 
 ```
 sudo /etc/init.d/cron stop
-
 sudo /etc/init.d/cron start
-
 sudo /etc/init.d/cron restart
 
 python manage.py crontab add
-
 python manage.py crontab remove
+```
+
+***
+
+__for contributing developers__
+```
+{
+    "python.formatting.provider": "black"
+    "python.formatting.blackArgs": [
+        "--line-length",
+        "128"
+    ],
+}
 ```

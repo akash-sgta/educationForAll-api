@@ -1,29 +1,17 @@
-from rest_framework.views import APIView
+from auth_prime.important_modules import am_I_Authorized
+from content_delivery.models import AssignmentMCQ, Coordinator
+from content_delivery.serializer import AssignmentMCQ_Serializer
 from rest_framework import status
-from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
-
-# ------------------------------------------------------------
-
-from auth_prime.important_modules import (
-    am_I_Authorized,
-)
-
-from content_delivery.models import (
-    Coordinator,
-    Assignment,
-)
-from content_delivery.serializer import (
-    Assignment_Serializer,
-)
-
-from user_personal.models import Submission
-from user_personal.serializer import Submission_Serializer
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from user_personal.models import SubmissionMCQ
+from user_personal.serializer import SubmissionMCQ_Serializer
 
 # ------------------------------------------------------------
 
 
-class Assignment_2_View(APIView):
+class Assignment_Mark_View(APIView):
 
     renderer_classes = [JSONRenderer]
 
@@ -47,22 +35,22 @@ class Assignment_2_View(APIView):
                 return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
             else:
                 try:
-                    submission_ref = Submission.objects.get(assignment_ref=pk_a, submission_ref=pk_s)
-                except Submission.DoesNotExist:
+                    submission_ref = SubmissionMCQ.objects.get(assignment_ref=pk_a, pk=pk_s)
+                except SubmissionMCQ.DoesNotExist:
                     data["success"] = False
                     data["message"] = "INVALID_ASSIGNMENT_SUBMISSION_PAIR"
                     return Response(data=data, status=status.HTTP_404_NOT_FOUND)
                 except ValueError or TypeError:
                     data["success"] = False
-                    data["message"] = {"URL_FORMAT": "/api/content/mark/<assignent_id>/<submission_id>"}
+                    data["message"] = {"URL_FORMAT": "/api/content/multi_mark/<assignent_id>/<submission_id>"}
                     return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
                 else:
                     data["success"] = True
-                    data["data"] = Submission_Serializer(submission_ref, many=False).data
+                    data["data"] = SubmissionMCQ_Serializer(submission_ref, many=False).data
                     return Response(data=data, status=status.HTTP_202_ACCEPTED)
         else:
             data["success"] = False
-            data["message"] = {"METHOD": "GET", "URL_FORMAT": "/api/content/mark/<assignent_id>/<submission_id>"}
+            data["message"] = {"METHOD": "GET", "URL_FORMAT": "/api/content/multi_mark/<assignent_id>/<submission_id>"}
             return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, pk_a=None, pk_s=None):  # TODO : Only Coordinator can change marks
@@ -95,8 +83,8 @@ class Assignment_2_View(APIView):
                     else:
                         marks = request.data["marks"]
                         try:
-                            submission_ref = Submission.objects.get(assignment_ref=pk_a, submission_ref=pk_s)
-                        except Submission.DoesNotExist:
+                            submission_ref = SubmissionMCQ.objects.get(assignment_ref=pk_a, pk=pk_s)
+                        except SubmissionMCQ.DoesNotExist:
                             data["success"] = False
                             data["message"] = "INVALID_ASSIGNMENT_SUBMISSION_PAIR"
                             return Response(data=data, status=status.HTTP_404_NOT_FOUND)
@@ -107,6 +95,7 @@ class Assignment_2_View(APIView):
                         else:
                             try:
                                 submission_ref.marks = int(marks)
+                                submission_ref.checked = True
                             except ValueError or TypeError:
                                 data["success"] = False
                                 data["message"] = "MARKS_SHOULD_BE_INTEGER"
@@ -114,11 +103,11 @@ class Assignment_2_View(APIView):
                             else:
                                 submission_ref.save()
                                 data["success"] = True
-                                data["data"] = Submission_Serializer(submission_ref, many=False).data
+                                data["data"] = SubmissionMCQ_Serializer(submission_ref, many=False).data
                                 return Response(data=data, status=status.HTTP_201_CREATED)
         else:
             data["success"] = False
-            data["message"] = {"METHOD": "PUT", "URL_FORMAT": "/api/content/mark/<assignent_id>/<submission_id>"}
+            data["message"] = {"METHOD": "PUT", "URL_FORMAT": "/api/content/multi_mark/<assignent_id>/<submission_id>"}
             return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
 
     def options(self, request, pk=None):

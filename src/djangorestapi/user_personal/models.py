@@ -2,7 +2,7 @@ from django.db import models
 
 from content_delivery.models import (
     Assignment,
-    AssignmentCode,
+    AssignmentMCQ,
     Post,
     Subject,
 )
@@ -41,6 +41,7 @@ class Submission(models.Model):
     made_date = models.DateTimeField(auto_now=True)
 
     marks = models.PositiveSmallIntegerField(default=0)  # TODO : Only accessible by Coordinator
+    checked = models.BooleanField(default=False)  # TODO : Only accessible by Coordinator
 
     def __str__(self):
         data = f"S [{self.pk}] || {self.user_ref} || {self.assignment_ref}"
@@ -49,15 +50,16 @@ class Submission(models.Model):
 
 # TODO : Assignment <=1======N=> SubmissionCode
 # TODO : User       <=1======N=> SubmissionCode
-class SubmissionCode(models.Model):
+class SubmissionMCQ(models.Model):
     user_ref = models.ForeignKey(User, null=False, blank=False, on_delete=models.CASCADE)
-    assignment_ref = models.ForeignKey(AssignmentCode, null=True, blank=False, on_delete=models.SET_NULL)
+    assignment_ref = models.ForeignKey(AssignmentMCQ, null=True, blank=False, on_delete=models.SET_NULL)
 
-    body = models.TextField(null=False, blank=False)
+    body = models.JSONField(null=False, blank=False)
 
     made_date = models.DateTimeField(auto_now=True)
 
     marks = models.PositiveSmallIntegerField(default=0)  # TODO : Only accessible by Coordinator
+    checked = models.BooleanField(default=False)  # TODO : Only accessible by Coordinator
 
     def __str__(self):
         data = f"S [{self.pk}] || {self.user_ref} || {self.assignment_ref}"

@@ -74,9 +74,8 @@ class Assignment(models.Model):
         return data
 
 
-class AssignmentCode(models.Model):
-    body = models.TextField(null=False, blank=False)
-    testdoc = models.FileField(null=True, upload_to="uploads/%Y/%m/%d/")
+class AssignmentMCQ(models.Model):
+    body = models.JSONField(null=False, blank=False)
     total_score = models.PositiveSmallIntegerField(default=100, null=True, blank=True)
 
     def delete(self, *args, **kwargs):
@@ -94,6 +93,7 @@ class Post(models.Model):
     lecture_ref = models.ForeignKey(Lecture, null=True, blank=True, on_delete=models.SET_NULL)
     forum_ref = models.ForeignKey(Forum, null=True, blank=True, on_delete=models.SET_NULL)
     assignment_ref = models.ForeignKey(Assignment, null=True, blank=True, on_delete=models.SET_NULL)
+    assignmentMCQ_ref = models.ForeignKey(AssignmentMCQ, null=True, blank=True, on_delete=models.SET_NULL)
     video_ref = models.ForeignKey(Video, null=True, blank=True, on_delete=models.SET_NULL)
 
     name = models.CharField(max_length=128, null=False, blank=False)

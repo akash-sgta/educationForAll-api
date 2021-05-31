@@ -8,6 +8,7 @@ from content_delivery.models import (
     Lecture,
     Video,
     Assignment,
+    AssignmentMCQ,
     Forum,
     Reply,
     ReplyToReply,
@@ -22,6 +23,7 @@ admin.site.register(Subject_Coordinator)
 admin.site.register(Post)
 admin.site.register(Lecture)
 admin.site.register(Assignment)
+admin.site.register(AssignmentMCQ)
 admin.site.register(Video)
 
 admin.site.register(Forum)
