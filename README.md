@@ -4,8 +4,7 @@
 
 ***
 
-## Structure
-
+__Structure__
 ```
 base_api
     │
@@ -45,14 +44,12 @@ base_api
 
 ***
 
-### POSTMAN EXPORT FILE
-
-##### __soon__
+__POSTMAN EXPORT FILE__\
+link : __soon__
 
 ***
 
-### System
-
+__System__
 ```
 ubuntu 18.04 LTS
 nginx 1.14.0
@@ -64,12 +61,12 @@ gcc 7.5.0
 
 ### STEPS
 
-**linux only**
+__linux only__
 ```
 apt install python3 python3-pip python3-dev libmysqlclient-dev build-essential gcc nginx
 ```
 
-**universal**
+__universal__
 ```
 git clone https://github.com/akash-sgta/education-for-all.git
 
@@ -89,19 +86,18 @@ python manage.py test
 python manage.py runserver
 ```
 
-**only if willing to test production readyness**
+__only if willing to test production readyness__
 ```
 python manage.py check --deploy
 ```
 
 ***
-
-FOR BETTER CODE VISIBILITY : __fabiospampinato.vscode-highlight__
+__FOR BETTER CODE VISIBILITY__\
+vs-code-extension : __fabiospampinato.vscode-highlight__
 
 ***
 
-### Intermediate
-
+__Intermediate__
 ```
 create symbolic links for ease of access
 
@@ -111,8 +107,7 @@ ln -s /{your_path}/manage.py /home/<user>/manage.py
 
 ***
 
-#### Nginx
-
+__Nginx__
 ```
 sudo nano /etc/nginx/conf.d/djangoproj.conf
 
@@ -125,26 +120,21 @@ sudo /etc/init.d/nginx stop
 
 ***
 
-#### LOC 
-
+__LOC__
 ```
 find . -name '*.py' | xargs wc -l | tail -1
-7549
+9331
 
 find . -name '*.html' | xargs wc -l | tail -1
-1046
+1063
 
 find . -name '*.css' | xargs wc -l | tail -1
 7165
-
-find . -name '*.py' | xargs wc -l | tail -1
-28220
 ```
 
 ***
 
-#### Cronjob
-
+__Cronjob__
 ```
 sudo /etc/init.d/cron stop
 sudo /etc/init.d/cron start
@@ -165,4 +155,13 @@ __for contributing developers__
         "128"
     ],
 }
+```
+
+***
+
+__Certbot__
+```
+sudo add-apt-repository ppa:certbot/certbot
+sudo apt-get update
+sudo apt-get install python3-certbot-nginx
 ```

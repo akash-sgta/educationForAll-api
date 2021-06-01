@@ -1,3 +1,5 @@
+import threading
+
 from auth_prime.important_modules import am_I_Authorized
 from content_delivery.models import AssignmentMCQ, Coordinator, Post, Subject_Coordinator
 from content_delivery.serializer import AssignmentMCQ_Serializer
@@ -10,6 +12,31 @@ from user_personal.models import Enroll, SubmissionMCQ
 # ------------------------------------------------------------
 
 
+class Auto_Mark_MCQ(threading.Thread):
+    def __init__(self, name):
+        super().__init__(name=f"AMMC_{name}")
+        self.submission_ref = SubmissionMCQ.objects.get(pk=int(name))
+        self.assignment_ref = self.submission_ref.assignment_ref
+        self.assignment = self.assignment_ref.body
+        self.submission = self.submission_ref.body
+
+    def run(self):
+        total, count, scored = self.assignment_ref.total_score, 0, 0
+        for ans in self.submission.items():
+            if ans[1] == self.assignment[ans[0]]["ans"]:
+                scored += 1
+            count += 1
+        if count == total:
+            self.submission_ref.marks = scored
+        else:
+            self.assignment_ref.total_score = 100
+            self.submission_ref.marks = round((scored / count) * 100, 2)
+            self.assignment_ref.save()
+        self.submission_ref.checked = True
+        self.submission_ref.save()
+
+
+# ------------------------------------------------------------
 class Assignment_View(APIView):
 
     renderer_classes = [JSONRenderer]
@@ -187,9 +214,10 @@ class Assignment_View(APIView):
                         assignment_de_serialized = AssignmentMCQ_Serializer(assignment_ref, data=request.data)
                         if assignment_de_serialized.is_valid():
                             assignment_de_serialized.save()
-                            for sub in SubmissionMCQ.objects.filter(assignment_ref=int(assignment_de_serialized.data["id"])):
-                                sub.checked = False
-                                sub.save()
+                            for sub in SubmissionMCQ.objects.filter(
+                                assignment_ref=int(assignment_de_serialized.data["id"])
+                            ).values("pk"):
+                                Auto_Mark_MCQ(sub["pk"]).run()
                             data["success"] = True
                             data["data"] = assignment_de_serialized.data
                             return Response(data=data, status=status.HTTP_201_CREATED)
