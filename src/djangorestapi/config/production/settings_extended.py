@@ -23,7 +23,7 @@ DATABASES["auth_db"] = {
     "OPTIONS": {
         "sql_mode": "traditional",
     },
-    "NAME": text[0] + "1",
+    "NAME": text[0] + "_auth",
     "USER": text[0],
     "PASSWORD": text[1],
     "HOST": text[2],
@@ -37,7 +37,7 @@ DATABASES["app_db"] = {
     "OPTIONS": {
         "sql_mode": "traditional",
     },
-    "NAME": text[0] + "2",
+    "NAME": text[0] + "_app",
     "USER": text[0],
     "PASSWORD": text[1],
     "HOST": text[2],
