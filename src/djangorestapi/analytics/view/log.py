@@ -42,14 +42,56 @@ class Log_View(APIView):  # FIX : EXPERIMENTAL
             else:
                 data["success"] = True
                 date = f"{dd}-{mm}-{yyyy}"
-                data["date"] = Log_Serializer(
-                    Log.objects.filter(made_date__contains=date, api_token_ref=isAuthorizedAPI[1]).order_by("-log_id"),
+                data["data"] = Log_Serializer(
+                    Log.objects.filter(made_date__contains=date, api_token_ref=isAuthorizedAPI[1]).order_by("-pk"),
                     many=True,
                 ).data
                 return Response(data=data, status=status.HTTP_202_ACCEPTED)
         else:
             data["success"] = False
             data["message"] = {"METHOD": "GET", "URL_FORMAT": "/api/analytics/log/dd/mm/yyyy"}
+            return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, dd=None, mm=None, yyyy=None):
+        data = dict()
+
+        isAuthorizedAPI = am_I_Authorized(request, "API")
+        if not isAuthorizedAPI[0]:
+            data["success"] = False
+            data["message"] = "ENDPOINT_NOT_AUTHORIZED"
+            return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
+
+        if yyyy not in (None, ""):
+            isAuthorizedUSER = am_I_Authorized(request, "USER")
+            if not isAuthorizedUSER[0]:
+                data["success"] = False
+                data["message"] = f"USER_NOT_AUTHORIZED"
+                return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
+            else:
+                if am_I_Authorized(request, "ADMIN") < 1:
+                    data["success"] = False
+                    data["message"] = f"USER_NOT_ADMIN"
+                    return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
+                else:
+                    if int(yyyy) == 0:
+                        Log.all().delete()
+                        data["success"] = True
+                        data["message"] = "All Logs Cleared"
+                        return Response(data=data, status=status.HTTP_202_ACCEPTED)
+                    else:
+                        try:
+                            log_ref = Log.objects.get(pk=int(yyyy))
+                        except Log.DoesNotExist:
+                            data["success"] = False
+                            data["message"] = "Invalid Log Id"
+                            return Response(data=data, status=status.HTTP_404_NOT_FOUND)
+                        else:
+                            data["success"] = True
+                            data["message"] = "ADMIN : Log Cleared"
+                            return Response(data=data, status=status.HTTP_202_ACCEPTED)
+        else:
+            data["success"] = False
+            data["message"] = {"METHOD": "DELETE", "URL_FORMAT": "/api/analytics/log///id"}
             return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
 
     def options(self, request, dd=None, mm=None, yyyy=None):
@@ -63,7 +105,7 @@ class Log_View(APIView):  # FIX : EXPERIMENTAL
 
         temp = dict()
 
-        data["Allow"] = "GET OPTIONS".split()
+        data["Allow"] = "GET DELETE OPTIONS".split()
 
         temp["Content-Type"] = "application/json"
         temp["Authorization"] = "Token JWT"
@@ -74,6 +116,7 @@ class Log_View(APIView):  # FIX : EXPERIMENTAL
         data["name"] = "Log"
 
         temp["GET"] = None
+        temp["DELETE"] = None
         data["method"] = temp.copy()
         temp.clear()
 
