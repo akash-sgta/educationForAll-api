@@ -110,10 +110,10 @@ class Assignment_View(APIView):
                         data["message"] = "USER_NOT_COORDINATOR"
                         return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
                     else:
-                        post_ref = Post.object.filter(
+                        post_ref = Post.objects.filter(
                             subject_ref__in=[
                                 int(sub["subject_ref"])
-                                for sub in Subject_Coordinator.objects.filter(coordinator_id=coordinator_id).values(
+                                for sub in Subject_Coordinator.objects.filter(coordinator_ref=coordinator_id).values(
                                     "subject_ref"
                                 )
                             ]

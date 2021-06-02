@@ -69,7 +69,7 @@ def check_for_drafts(flag=True):
 
 # SECURITY WARNING: keep the secret key used in production secret!
 with open(os.path.join(BASE_DIR, "config", "keys", "S_KEY.pk"), "r") as key_file:
-    SECRET_KEY = key_file.read().strip()[1:-2]
+    SECRET_KEY = key_file.read().strip()
 
 # Database in configFile
 DB_DEFAULT = {
@@ -83,7 +83,7 @@ DB_DEFAULT = {
 }
 # SECURITY WARNING: don't run with debug turned on in production!
 with open(os.path.join(BASE_DIR, "config", "debug.txt"), "r") as key_file:
-    DEBUG = key_file.read().strip()[1:-1]
+    DEBUG = key_file.read().strip()
     if DEBUG.lower() == "true":
         DEBUG = True
         from config.development.settings_extended import DATABASES as DB_CUSTOM, ALLOWED_HOSTS

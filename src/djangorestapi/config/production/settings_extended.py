@@ -3,10 +3,7 @@ import os
 
 # ----------OTHERS--------------
 
-ALLOWED_HOSTS = (
-    "127.0.0.1",
-    "localhost",
-)
+ALLOWED_HOSTS = ("jass.guru", "www.jass.guru")
 
 # ----------SSL--------------
 
@@ -18,7 +15,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 with open(os.path.join(BASE_DIR, "keys", "DB_KEY.pk"), "r") as db:
     text = db.readlines()
     for i in range(len(text)):
-        text[i] = text[i].strip()[1:-2]
+        text[i] = text[i].strip()
 
 DATABASES = dict()
 DATABASES["auth_db"] = {

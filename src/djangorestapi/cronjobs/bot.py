@@ -185,5 +185,5 @@ class TG_BOT(Bot):
 
 
 with open(os.path.join(BASE_DIR, "config", "keys", "TG_KEY.pk"), "r") as secret:
-    TG_TOKEN = secret.read().strip()[:-2]
+    TG_TOKEN = secret.read().strip()
 bot = TG_BOT(api_key=TG_TOKEN)
