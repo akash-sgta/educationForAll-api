@@ -67,6 +67,10 @@ def token_checker():
         log_file.writelines(log_data)
 
 
+def clear_permalinks():  # FIXME : Work left and add to crontab also
+    pass
+
+
 def test():
     print("\n---------------------------")
     print("TEST")

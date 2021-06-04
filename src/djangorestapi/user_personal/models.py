@@ -1,15 +1,6 @@
+from auth_prime.models import User
+from content_delivery.models import Assignment, AssignmentMCQ, Post, Subject
 from django.db import models
-
-from content_delivery.models import (
-    Assignment,
-    AssignmentMCQ,
-    Post,
-    Subject,
-)
-
-from auth_prime.models import (
-    User,
-)
 
 # Create your models here.
 
@@ -35,8 +26,8 @@ class Submission(models.Model):
     assignment_ref = models.ForeignKey(Assignment, null=True, blank=False, on_delete=models.SET_NULL)
 
     body = models.TextField(null=False, blank=False)
-    external_url_1 = models.URLField(max_length=255, null=True, blank=True)
-    external_url_2 = models.URLField(max_length=255, null=True, blank=True)
+    external_url_1 = models.CharField(max_length=128, null=True, blank=True)
+    external_url_2 = models.CharField(max_length=128, null=True, blank=True)
 
     made_date = models.DateTimeField(auto_now=True)
 

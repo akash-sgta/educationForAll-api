@@ -1,18 +1,12 @@
-from rest_framework.views import APIView
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.renderers import JSONRenderer
-
 from datetime import datetime, timedelta
-
-# ------------------------------------------------------------
-
-from auth_prime.important_modules import (
-    am_I_Authorized,
-)
 
 from analytics.models import Log
 from analytics.serializer import Log_Serializer
+from auth_prime.important_modules import am_I_Authorized
+from rest_framework import status
+from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 # ------------------------------------------------------------
 

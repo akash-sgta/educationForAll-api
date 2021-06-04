@@ -1,28 +1,69 @@
-from rest_framework.views import APIView
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.renderers import JSONRenderer
+import re
+import threading
 
-# ------------------------------------------------------------
-
-from auth_prime.important_modules import (
-    am_I_Authorized,
-)
-
-from content_delivery.models import (
-    Coordinator,
-    Assignment,
-    Subject_Coordinator,
-    Post,
-)
+from analytics.models import Permalink
+from auth_prime.important_modules import am_I_Authorized, random_generator
+from content_delivery.models import Assignment, Coordinator, Post, Subject_Coordinator
 from content_delivery.serializer import Assignment_Serializer
-
-from user_personal.models import (
-    Submission,
-)
+from rest_framework import status
+from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from user_personal.models import Submission
 from user_personal.serializer import Submission_Serializer
 
 # ------------------------------------------------------------
+
+
+class Clear_Permalink(threading.Thread):
+    def __init__(self, name):
+        super().__init__(name=f"PERML_{name}")
+        self.pk = int(name)
+
+    def run(self):
+        Permalink.objects.filter(ref__exact={"class": str(Submission), "pk": self.pk}).delete()
+
+
+class Set_Permalink(threading.Thread):
+    def __init__(self, name):
+        super().__init__(name=f"PERML_{name}")
+        self.pk = int(name)
+
+    def check(self, data):
+        if re.search("api/analytics/perm", data) != None:
+            return True
+        else:
+            return False
+
+    def run(self):
+        profile = Submission_Serializer(
+            Submission.objects.get(pk=self.pk), data=Submission_Serializer(Submission.objects.get(pk=self.pk), many=False).data
+        )
+
+        if profile.initial_data["external_url_1"] not in (None, ""):
+            if not self.check(profile.initial_data["external_url_1"]):
+                permalink_ref = Permalink(
+                    ref={"class": str(Submission), "pk": profile.initial_data["id"]},
+                    name=random_generator(16),
+                    body=profile.initial_data["external_url_1"],
+                )
+                permalink_ref.save()
+                profile.initial_data["external_url_1"] = f"/api/analytics/perm/{permalink_ref.name}"
+
+        if profile.initial_data["external_url_2"] not in (None, ""):
+            if not self.check(profile.initial_data["external_url_2"]):
+                permalink_ref = Permalink(
+                    ref={"class": str(Submission), "pk": profile.initial_data["id"]},
+                    name=random_generator(16),
+                    body=profile.initial_data["external_url_2"],
+                )
+                permalink_ref.save()
+                profile.initial_data["external_url_2"] = f"/api/analytics/perm/{permalink_ref.name}"
+
+        if profile.is_valid():
+            profile.save()
+        else:
+            print(profile.errors)
 
 
 class Submission_View(APIView):
@@ -51,6 +92,9 @@ class Submission_View(APIView):
             submission_de_serialized.initial_data["user_ref"] = int(isAuthorizedUSER[1])
             if submission_de_serialized.is_valid():
                 submission_de_serialized.save()
+
+                Set_Permalink(submission_de_serialized.data["id"]).start()
+
                 data["success"] = True
                 data["data"] = submission_de_serialized.data
                 return Response(data=data, status=status.HTTP_201_CREATED)
@@ -241,6 +285,10 @@ class Submission_View(APIView):
                     submission_serialized.initial_data["user_ref"] = isAuthorizedUSER[1]
                     if submission_serialized.is_valid():
                         submission_serialized.save()
+
+                        Clear_Permalink(submission_serialized.data["id"]).start()
+                        Set_Permalink(submission_serialized.data["id"]).start()
+
                         data["success"] = True
                         data["data"] = submission_serialized.data
                         return Response(data=data, status=status.HTTP_202_ACCEPTED)
@@ -276,6 +324,8 @@ class Submission_View(APIView):
                     data["message"] = "INVALID_SUBMISSION_ID"
                     return Response(data=data, status=status.HTTP_404_NOT_FOUND)
                 else:
+                    Clear_Permalink(submission_ref.pk).start()
+
                     submission_ref.delete()
                     data["success"] = True
                     data["message"] = "SUBMISSION_DELETED"

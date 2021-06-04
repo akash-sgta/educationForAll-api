@@ -1,18 +1,67 @@
-from rest_framework.views import APIView
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.renderers import JSONRenderer
+import re
+import threading
 
-# ------------------------------------------------------------
-
-from auth_prime.important_modules import (
-    am_I_Authorized,
-)
-
-from auth_prime.models import User, Profile, Image
+from analytics.models import Permalink
+from auth_prime.important_modules import am_I_Authorized, random_generator
+from auth_prime.models import Image, Profile, User
 from auth_prime.serializer import Profile_Serializer
+from rest_framework import status
+from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 # ------------------------------------------------------------
+
+
+class Clear_Permalink(threading.Thread):
+    def __init__(self, name):
+        super().__init__(name=f"PERML_{name}")
+        self.pk = int(name)
+
+    def run(self):
+        Permalink.objects.filter(ref__exact={"class": str(Profile), "pk": self.pk}).delete()
+
+
+class Set_Permalink(threading.Thread):
+    def __init__(self, name):
+        super().__init__(name=f"PERML_{name}")
+        self.pk = int(name)
+
+    def check(self, data):
+        if re.search("api/analytics/perm", data) != None:
+            return True
+        else:
+            return False
+
+    def run(self):
+        profile = Profile_Serializer(
+            Profile.objects.get(pk=self.pk), data=Profile_Serializer(Profile.objects.get(pk=self.pk), many=False).data
+        )
+
+        if profile.initial_data["git_profile"] not in (None, ""):
+            if not self.check(profile.initial_data["git_profile"]):
+                permalink_ref = Permalink(
+                    ref={"class": str(Profile), "pk": profile.initial_data["id"]},
+                    name=random_generator(16),
+                    body=profile.initial_data["git_profile"],
+                )
+                permalink_ref.save()
+                profile.initial_data["git_profile"] = f"/api/analytics/perm/{permalink_ref.name}"
+
+        if profile.initial_data["linkedin_profile"] not in (None, ""):
+            if not self.check(profile.initial_data["linkedin_profile"]):
+                permalink_ref = Permalink(
+                    ref={"class": str(Profile), "pk": profile.initial_data["id"]},
+                    name=random_generator(16),
+                    body=profile.initial_data["linkedin_profile"],
+                )
+                permalink_ref.save()
+                profile.initial_data["linkedin_profile"] = f"/api/analytics/perm/{permalink_ref.name}"
+
+        if profile.is_valid():
+            profile.save()
+        else:
+            print(profile.errors)
 
 
 class User_Profile_View(APIView):
@@ -56,6 +105,8 @@ class User_Profile_View(APIView):
                         profile_ref = Profile.objects.get(pk=profile_de_serialized.data["id"])
                         user_ref.profile_ref = profile_ref
                         user_ref.save()
+
+                        Set_Permalink(profile_de_serialized.data["id"]).start()
 
                         data["success"] = True
                         data["data"] = profile_de_serialized.data
@@ -166,6 +217,10 @@ class User_Profile_View(APIView):
                     else:
                         if profile_de_serialized.is_valid():
                             profile_de_serialized.save()
+
+                            Clear_Permalink(profile_de_serialized.data["id"]).start()
+                            Set_Permalink(profile_de_serialized.data["id"]).start()
+
                             data["success"] = True
                             data["data"] = profile_de_serialized.data
                             return Response(data=data, status=status.HTTP_202_ACCEPTED)
@@ -204,6 +259,9 @@ class User_Profile_View(APIView):
                         else:
                             if user_ref.profile_ref.image_ref != None:
                                 user_ref.profile_ref.image_ref.delete()
+
+                            Clear_Permalink(user_ref.profile_ref.pk).start()
+
                             user_ref.profile_ref.delete()
                             data["success"] = True
                             data["message"] = "USER_PROFILE_DELETED"

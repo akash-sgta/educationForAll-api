@@ -19,6 +19,8 @@ class Auto_Mark_MCQ(threading.Thread):
         self.assignment_ref = self.submission_ref.assignment_ref
         self.assignment = self.assignment_ref.body
         self.submission = self.submission_ref.body
+        if self.submission_ref.checked == True:
+            del self
 
     def run(self):
         total, count, scored = self.assignment_ref.total_score, 0, 0
@@ -34,6 +36,16 @@ class Auto_Mark_MCQ(threading.Thread):
             self.assignment_ref.save()
         self.submission_ref.checked = True
         self.submission_ref.save()
+
+
+class ReCheck_Submission(threading.Thread):
+    def __init__(self, name):
+        super().__init__(name=f"RECHECK_{name}")
+        self.pk = int(name)
+
+    def run(self):
+        for sub in SubmissionMCQ.objects.filter(assignment_ref=self.pk).values("pk"):
+            Auto_Mark_MCQ(sub["pk"]).start()
 
 
 # ------------------------------------------------------------
@@ -214,10 +226,9 @@ class Assignment_View(APIView):
                         assignment_de_serialized = AssignmentMCQ_Serializer(assignment_ref, data=request.data)
                         if assignment_de_serialized.is_valid():
                             assignment_de_serialized.save()
-                            for sub in SubmissionMCQ.objects.filter(
-                                assignment_ref=int(assignment_de_serialized.data["id"])
-                            ).values("pk"):
-                                Auto_Mark_MCQ(sub["pk"]).run()
+
+                            ReCheck_Submission(assignment_de_serialized.data["id"]).start()
+
                             data["success"] = True
                             data["data"] = assignment_de_serialized.data
                             return Response(data=data, status=status.HTTP_201_CREATED)

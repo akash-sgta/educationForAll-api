@@ -1,8 +1,5 @@
-from django.db import models
-
 from auth_prime.models import User
-
-# Create your models here.
+from django.db import models
 
 # ----------------------------------------------
 
@@ -40,7 +37,7 @@ class Subject_Coordinator(models.Model):
 
 
 class Video(models.Model):
-    url = models.URLField(max_length=256, null=False, blank=False)
+    url = models.CharField(max_length=128, null=False, blank=False)
 
     def __str__(self):
         data = f"V [{self.pk}, {self.url}]"
@@ -55,8 +52,8 @@ class Forum(models.Model):
 
 class Lecture(models.Model):
     body = models.TextField(default="", null=False, blank=False)
-    external_url_1 = models.URLField(max_length=255, null=True, blank=True)
-    external_url_2 = models.URLField(max_length=255, null=True, blank=True)
+    external_url_1 = models.CharField(max_length=128, null=True, blank=True)
+    external_url_2 = models.CharField(max_length=128, null=True, blank=True)
 
     def __str__(self):
         data = f"L [{self.pk}]"
@@ -65,8 +62,8 @@ class Lecture(models.Model):
 
 class Assignment(models.Model):
     body = models.TextField(null=False, blank=False)
-    external_url_1 = models.URLField(max_length=255, null=True, blank=True)
-    external_url_2 = models.URLField(max_length=255, null=True, blank=True)
+    external_url_1 = models.CharField(max_length=128, null=True, blank=True)
+    external_url_2 = models.CharField(max_length=128, null=True, blank=True)
     total_score = models.PositiveSmallIntegerField(default=100, null=True, blank=True)
 
     def __str__(self):

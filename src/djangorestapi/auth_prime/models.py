@@ -31,8 +31,8 @@ class Profile(models.Model):
     english_efficiency = models.PositiveSmallIntegerField(
         choices=((1, "BEGINNER"), (2, "INTERMEDIATE"), (3, "ADVANCED")), default=1
     )
-    git_profile = models.URLField(max_length=256, null=True, blank=True)
-    linkedin_profile = models.URLField(max_length=256, null=True, blank=True)
+    git_profile = models.CharField(max_length=128, null=True, blank=True)
+    linkedin_profile = models.CharField(max_length=128, null=True, blank=True)
     roll_number = models.CharField(
         max_length=14,
         validators=[

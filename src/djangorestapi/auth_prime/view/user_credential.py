@@ -1,22 +1,13 @@
 import threading
 
-from rest_framework.views import APIView
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.renderers import JSONRenderer
-
-# ------------------------------------------------------------
-
-from auth_prime.important_modules import (
-    am_I_Authorized,
-    create_password_hashed,
-    create_token,
-)
-
-from auth_prime.models import User, Profile, User_Token, Image
+from auth_prime.important_modules import create_token, am_I_Authorized, create_password_hashed
+from auth_prime.models import Image, Profile, User, User_Token
 from auth_prime.serializer import User_Serializer
-
 from cronjobs.bot import bot
+from rest_framework import status
+from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 # ------------------------------------------------------------
 
