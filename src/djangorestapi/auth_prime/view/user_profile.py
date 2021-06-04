@@ -155,7 +155,7 @@ class User_Profile_View(APIView):
                 else:
                     profile_de_serialized = Profile_Serializer(user_ref.profile_ref, data=request.data)
                     if profile_de_serialized.initial_data["prime"] == True and profile_de_serialized.initial_data[
-                        "user_roll_number"
+                        "roll_number"
                     ] in (
                         None,
                         "",
@@ -277,7 +277,7 @@ class User_Profile_View(APIView):
             "bio": "String : unl",
             "english_efficiency": "Number : 1",
             "git_profile": "String : 256",
-            "likedin_profile": "String : 256",
+            "linkedin_profile": "String : 256",
             "roll_number": "Number : 12",
             "prime": "Bool",
             "image_ref": "Number / null",
@@ -288,7 +288,7 @@ class User_Profile_View(APIView):
             "bio": "String : unl",
             "english_efficiency": "Number : 1",
             "git_profile": "String : 256",
-            "likedin_profile": "String : 256",
+            "linkedin_profile": "String : 256",
             "roll_number": "Number : 12",
             "prime": "Bool",
             "image_ref": "Number / null",

@@ -86,6 +86,7 @@ class Log_View(APIView):  # FIX : EXPERIMENTAL
                             data["message"] = "Invalid Log Id"
                             return Response(data=data, status=status.HTTP_404_NOT_FOUND)
                         else:
+                            log_ref.delete()
                             data["success"] = True
                             data["message"] = "ADMIN : Log Cleared"
                             return Response(data=data, status=status.HTTP_202_ACCEPTED)

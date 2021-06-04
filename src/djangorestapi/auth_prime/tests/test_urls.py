@@ -3,7 +3,7 @@ import random
 from django.test import SimpleTestCase
 from django.urls import resolve, reverse
 
-getRandom = lambda: random.randint(-1000, 1000)
+getRandom = lambda a=-1000, b=1000: random.randint(a, b)
 # -----------------------------------------------------------------------
 
 from auth_prime.view.admin_credential import Admin_Credential_View

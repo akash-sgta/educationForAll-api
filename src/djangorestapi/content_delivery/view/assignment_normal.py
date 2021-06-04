@@ -87,7 +87,7 @@ class Assignment_View(APIView):
                     enroll = Enroll.objects.filter(user_ref=isAuthorizedUSER[1]).values("subject_ref")
                     data["success"] = True
                     data["data"] = list()
-                    for post in Post.object.filter(subject_ref__in=[int(sub["subject_ref"]) for sub in enroll]):
+                    for post in Post.objects.filter(subject_ref__in=[int(sub["subject_ref"]) for sub in enroll]):
                         if post.assignment_ref != None:
                             assignment_ref = post.assignment_ref
                             data["data"].append(
