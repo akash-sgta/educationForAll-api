@@ -45,7 +45,7 @@ base_api
 ***
 
 __POSTMAN EXPORT FILE__\
-link : __soon__
+link : __<https://www.getpostman.com/collections/b90615eaf8db65f21004>__
 
 ***
 
