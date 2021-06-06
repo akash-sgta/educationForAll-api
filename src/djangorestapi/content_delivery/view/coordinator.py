@@ -229,9 +229,9 @@ class Coordinator_View(APIView):
                                     data["message"] = "SUBJECT_ADDED_TO_COORDINATOR"
                                     return Response(data=data, status=status.HTTP_202_ACCEPTED)
                                 else:
-                                    data["success"] = False
+                                    data["success"] = True
                                     data["message"] = "SUBJECT_ALREADY_BELONGS_TO_COORDINATOR"
-                                    return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+                                    return Response(data=data, status=status.HTTP_409_CONFLICT)
                 else:  # TODO : Admin with CAGP changing access of other coordinators
                     if am_I_Authorized(request, "ADMIN") < 1:
                         data["success"] = False
@@ -276,7 +276,7 @@ class Coordinator_View(APIView):
                                                     coordinator_ref=coordinator_ref,
                                                 )
                                             except Subject_Coordinator.DoesNotExist:
-                                                data["success"] = False
+                                                data["success"] = True
                                                 data["message"] = "ADMIN : SUBJECT_DOES_NOT_BELONG_TO_COORDINATOR"
                                                 return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
                                             else:
@@ -300,7 +300,7 @@ class Coordinator_View(APIView):
                                             else:
                                                 data["success"] = False
                                                 data["message"] = "ADMIN : SUBJECT_ALREADY_BELONGS_TO_COORDINATOR"
-                                                return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+                                                return Response(data=data, status=status.HTTP_409_CONFLICT)
         else:
             data["success"] = False
             data["message"] = {"METHOD": "PUT", "URL_FORMAT": "/api/content/coordinator/<id>"}

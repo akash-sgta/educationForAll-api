@@ -51,8 +51,7 @@ class User_Profile_Image_View(APIView):
                         image_ref = Image(image=image_file)
                         image_ref.save()
                         data["success"] = True
-                        serialized = Image_Serializer(image_ref, many=False).data
-                        data["data"] = serialized
+                        data["data"] = Image_Serializer(image_ref, many=False).data
                         return Response(data=data, status=status.HTTP_201_CREATED)
                     else:
                         data["success"] = False
@@ -120,59 +119,59 @@ class User_Profile_Image_View(APIView):
                 data["message"] = f"USER_NOT_AUTHORIZED"
                 return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
             else:
-                try:
-                    image_ref = Image.objects.get(pk=pk)
-                except Image.DoesNotExist:
-                    data["success"] = False
-                    data["message"] = "IMAGE_ID_INVALID"
-                    return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
-                else:
+                flag = (False, "TRY_AGAIN : ")
+                if int(pk) == 0:  # TODO : User changing own picture
                     user_ref = User.objects.get(pk=isAuthorizedUSER[1])
-                    flag = (False, "TRY_AGAIN : ")
                     if user_ref.profile_ref != None:
                         if user_ref.profile_ref.image_ref != None:
-                            if user_ref.profile_ref.image_ref.pk == pk:  # TODO : User changing own picture
-                                flag = (True, "")
-                            else:  # TODO : Admin changing any picture
-                                if am_I_Authorized(request, "ADMIN") > 0:
-                                    flag = (True, "ADMIN : ")
-                                else:
-                                    flag = (False, "ADMIN : ")
-
-                    if not flag[0]:
-                        data["success"] = False
-                        data["message"] = flag[1] + "NOT_AUTHORIZED"
-                        return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+                            image_ref = user_ref.profile_ref.image_ref
+                            flag = (True, "")
+                        else:
+                            flag = (False, "NO_IMAGE_TO_EDIT")
                     else:
-                        # create new
-                        image_file = request.FILES["image"]
-                        if str(image_file.content_type).startswith("image"):
-                            if image_file.size < 5000000:
-                                # delete old
-                                try:
-                                    image_ref = Image.objects.get(
-                                        pk=int(pk)
-                                    )  # TODO : double check because od concurrent access
-                                except Image.DoesNotExist:
-                                    data["success"] = False
-                                    data["message"] = flag[1] + "IMAGE_ID_INVALID"
-                                    return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
-                                else:
-                                    image_ref.image = image_file
-                                    image_ref.save()
-                                    data["success"] = True
-                                    serialized = Image_Serializer(image_ref, many=False).data
-                                    data["message"] = flag[1] + "NEW_IMAGE_SET"
-                                    data["data"] = serialized
-                                    return Response(data=data, status=status.HTTP_201_CREATED)
-                            else:
-                                data["success"] = False
-                                data["message"] = flag[1] + "IMAGE_SIZE_LESS_THAN_5MB"
-                                return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+                        flag = (False, "NO_PROFILE_TO_EDIT")
+                else:  # TODO : Admin changing any picture
+                    if am_I_Authorized(request, "ADMIN") < 1:
+                        data["success"] = False
+                        data["message"] = "USER_NOT_ADMIN"
+                        return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
+                    else:
+                        try:
+                            image_ref = Image.objects.get(pk=pk)
+                        except Image.DoesNotExist:
+                            data["success"] = False
+                            data["message"] = "IMAGE_ID_INVALID"
+                            return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+                        else:
+                            flag = (True, "ADMIN : ")
+
+                if not flag[0]:
+                    data["success"] = False
+                    data["message"] = flag[1]
+                    return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    # create new
+                    image_file = request.FILES["image"]
+                    if str(image_file.content_type).startswith("image"):
+                        if image_file.size < 5 * 1024 * 1024:
+                            # delete old
+                            image_ref.image.delete()
+                            # create new
+                            image_ref.image = image_file
+                            image_ref.image.save()
+                            image_ref.save()
+                            data["success"] = True
+                            data["message"] = flag[1] + "NEW_IMAGE_SET"
+                            data["data"] = Image_Serializer(image_ref, many=False).data
+                            return Response(data=data, status=status.HTTP_201_CREATED)
                         else:
                             data["success"] = False
-                            data["message"] = flag[1] + "FILE_SHOULD_BE_IMAGE"
+                            data["message"] = flag[1] + "IMAGE_SIZE_LESS_THAN_5MB"
                             return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+                    else:
+                        data["success"] = False
+                        data["message"] = flag[1] + "FILE_SHOULD_BE_IMAGE"
+                        return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
         else:
             data["success"] = False
             data["message"] = {"METHOD": "PUT", "URL_FORMAT": "/api/user/image/<id>"}
@@ -184,14 +183,14 @@ class User_Profile_Image_View(APIView):
         isAuthorizedAPI = am_I_Authorized(request, "API")
         if not isAuthorizedAPI[0]:
             data["success"] = False
-            data["message"] = "error:ENDPOINT_NOT_AUTHORIZED"
+            data["message"] = "ENDPOINT_NOT_AUTHORIZED"
             return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
 
         if pk not in (None, ""):
             isAuthorizedUSER = am_I_Authorized(request, "USER")
             if isAuthorizedUSER[0] == False:
                 data["success"] = False
-                data["message"] = f"error:USER_NOT_AUTHORIZED, message:{isAuthorizedUSER[1]}"
+                data["message"] = f"USER_NOT_AUTHORIZED"
                 return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
             else:
                 if int(pk) == 87795962440396049328460600526719:
@@ -207,32 +206,38 @@ class User_Profile_Image_View(APIView):
                 else:
                     user_ref = User.objects.get(pk=isAuthorizedUSER[1])
                     flag = (False, "TRY_AGAIN : ")
-                    if user_ref.profile_ref != None:
-                        if user_ref.profile_ref.image_ref != None:
-                            if user_ref.profile_ref.image_ref.pk == pk:  # TODO : User deleting own picture
+                    if int(pk) == 0:
+                        if user_ref.profile_ref != None:
+                            if user_ref.profile_ref.image_ref != None:
+                                image_ref = user_ref.profile_ref.image_ref
                                 flag = (True, "")
-                            else:  # TODO : Admin deleting any picture
-                                if am_I_Authorized(request, "ADMIN") > 0:
-                                    flag = (True, "ADMIN : ")
-                                else:
-                                    flag = (False, "ADMIN : ")
+                            else:
+                                flag = (False, "NO_IMAGE_TO_EDIT")
+                        else:
+                            flag = (False, "NO_PROFILE_TO_EDIT")
+                    else:
+                        if am_I_Authorized(request, "ADMIN") < 1:
+                            data["success"] = False
+                            data["message"] = "USER_NOT_ADMIN"
+                            return Response(data=data, status=status.HTTP_401_UNAUTHORIZED)
+                        else:
+                            flag = (True, "ADMIN : ")
+                            try:
+                                image_ref = Image.objects.get(pk=int(pk))
+                            except Image.DoesNotExist:
+                                data["success"] = False
+                                data["message"] = flag[1] + "IMAGE_ID_INVALID"
+                                return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
 
                     if not flag[0]:
                         data["success"] = False
                         data["message"] = flag[1] + "NOT_AUTHORIZED"
                         return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
                     else:
-                        try:
-                            image_ref = Image.objects.get(pk=int(pk))
-                        except Image.DoesNotExist:
-                            data["success"] = False
-                            data["message"] = flag[1] + "IMAGE_ID_INVALID"
-                            return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
-                        else:
-                            image_ref.delete()
-                            data["success"] = True
-                            data["data"] = flag[1] + "IMAGE_DELETED"
-                            return Response(data=data, status=status.HTTP_202_ACCEPTED)
+                        image_ref.delete()
+                        data["success"] = True
+                        data["data"] = flag[1] + "IMAGE_DELETED"
+                        return Response(data=data, status=status.HTTP_202_ACCEPTED)
         else:
             data["success"] = False
             data["message"] = {"METHOD": "DELETE", "URL_FORMAT": "/api/user/image/<id>"}

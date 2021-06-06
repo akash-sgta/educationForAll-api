@@ -166,7 +166,7 @@ class Post_View(APIView):
                     isAuthorizedADMIN = am_I_Authorized(request, "ADMIN")
                     if isAuthorizedADMIN > 0:
                         data["success"] = True
-                        data["data"] = Post_Serializer(Post.objects.all().order_by("-id"), many=True).data
+                        data["data"] = Post_Serializer(Post.objects.all().order_by("-pk"), many=True).data
                         return Response(data=data, status=status.HTTP_202_ACCEPTED)
                     else:
                         data["success"] = False
@@ -186,11 +186,10 @@ class Post_View(APIView):
                         ]
                         temp = list()
                         for sub_id in subjects:
-                            temp.extend(
-                                Post_Serializer(Post.objects.filter(subject_ref=sub_id).order_by("-id"), many=True).data
-                            )
+                            temp.extend([int(one["pk"]) for one in Post.objects.filter(subject_ref=sub_id).values("pk")])
+                        temp = tuple(set(temp))
                         data["success"] = True
-                        data["data"] = temp.copy()
+                        data["data"] = Post_Serializer(Post.objects.filter(pk__in=temp).order_by("-pk"), many=True).data
                         return Response(data=data, status=status.HTTP_202_ACCEPTED)
                 elif int(pk) == 0:  # TODO : User asking for all posts under enrolled subjects
                     subjects = [
@@ -198,9 +197,10 @@ class Post_View(APIView):
                     ]
                     temp = list()
                     for sub_id in subjects:
-                        temp.extend(Post_Serializer(Post.objects.filter(subject_ref=sub_id).order_by("-id"), many=True).data)
+                        temp.extend([int(one["pk"]) for one in Post.objects.filter(subject_ref=sub_id).values("pk")])
+                    temp = tuple(set(temp))
                     data["success"] = True
-                    data["data"] = temp.copy()
+                    data["data"] = Post_Serializer(Post.objects.filter(pk__in=temp).order_by("-pk"), many=True).data
                     return Response(data=data, status=status.HTTP_202_ACCEPTED)
                 else:  # TODO : User asking for specific post
                     try:

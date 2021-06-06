@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 # ------------------------------------------------------------------
 
-from user_personal.models import Diary, Submission, Notification, Enroll, User_Notification
+from user_personal.models import Diary, Submission, SubmissionMCQ, Notification, Enroll, User_Notification
 
 # ------------------------------------------------------------------
 
@@ -16,6 +16,12 @@ class Diary_Serializer(serializers.ModelSerializer):
 class Submission_Serializer(serializers.ModelSerializer):
     class Meta:
         model = Submission
+        fields = "__all__"
+
+
+class SubmissionMCQ_Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubmissionMCQ
         fields = "__all__"
 
 

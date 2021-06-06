@@ -1,15 +1,6 @@
+from auth_prime.models import User
+from content_delivery.models import Assignment, AssignmentMCQ, Post, Subject
 from django.db import models
-
-from content_delivery.models import (
-    Assignment,
-    AssignmentCode,
-    Post,
-    Subject,
-)
-
-from auth_prime.models import (
-    User,
-)
 
 # Create your models here.
 
@@ -24,7 +15,7 @@ class Diary(models.Model):
     made_date = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        data = f"D [{self.diary_id}] || {self.post_ref} || {self.user_ref}"
+        data = f"D [{self.pk}] || {self.post_ref} || {self.user_ref}"
         return data
 
 
@@ -35,32 +26,34 @@ class Submission(models.Model):
     assignment_ref = models.ForeignKey(Assignment, null=True, blank=False, on_delete=models.SET_NULL)
 
     body = models.TextField(null=False, blank=False)
-    external_url_1 = models.URLField(max_length=255, null=True, blank=True)
-    external_url_2 = models.URLField(max_length=255, null=True, blank=True)
+    external_url_1 = models.CharField(max_length=128, null=True, blank=True)
+    external_url_2 = models.CharField(max_length=128, null=True, blank=True)
 
     made_date = models.DateTimeField(auto_now=True)
 
     marks = models.PositiveSmallIntegerField(default=0)  # TODO : Only accessible by Coordinator
+    checked = models.BooleanField(default=False)  # TODO : Only accessible by Coordinator
 
     def __str__(self):
-        data = f"S [{self.submission_id}] || {self.user_ref} || {self.assignment_ref}"
+        data = f"S [{self.pk}] || {self.user_ref} || {self.assignment_ref}"
         return data
 
 
 # TODO : Assignment <=1======N=> SubmissionCode
 # TODO : User       <=1======N=> SubmissionCode
-class SubmissionCode(models.Model):
+class SubmissionMCQ(models.Model):
     user_ref = models.ForeignKey(User, null=False, blank=False, on_delete=models.CASCADE)
-    assignment_ref = models.ForeignKey(AssignmentCode, null=True, blank=False, on_delete=models.SET_NULL)
+    assignment_ref = models.ForeignKey(AssignmentMCQ, null=True, blank=False, on_delete=models.SET_NULL)
 
-    body = models.TextField(null=False, blank=False)
+    body = models.JSONField(null=False, blank=False)
 
     made_date = models.DateTimeField(auto_now=True)
 
     marks = models.PositiveSmallIntegerField(default=0)  # TODO : Only accessible by Coordinator
+    checked = models.BooleanField(default=False)  # TODO : Only accessible by Coordinator
 
     def __str__(self):
-        data = f"S [{self.submission_id}] || {self.user_ref} || {self.assignment_ref}"
+        data = f"S [{self.pk}] || {self.user_ref} || {self.assignment_ref}"
         return data
 
 
