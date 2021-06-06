@@ -104,9 +104,7 @@ DATABASE_ROUTERS = (
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
 # create user specific config and ini
-if check_for_drafts(False):
-    print("Config and ini checked")
-else:
+if not check_for_drafts(False):
     exit(1)
 
 # Application definition
@@ -240,7 +238,7 @@ CRONTAB_COMMAND_SUFFIX = "2>&1"  # log error
 FILE = os.path.join(BASE_DIR, "log", "cronlog.log")
 CRONJOBS = [
     # ('*/1 * * * *', 'cronjobs.cron.test', f'>> {FILE}'), # test module for cronjob
-    # ("0 */30 * * *", "cronjobs.cron.token_checker", f">> {FILE}"),  # token expiry checker
-    # ("0 */10 * * *", "cronjobs.cron.telegram_notification", f">> {FILE}"),  # notifications via TG
-    ("*/1 * * * *", "cronjobs.cron.clear_permalinks", f">> {FILE}"),  # clear invalid links
+    ("0 * * * *", "cronjobs.cron.token_checker", f">> {FILE}"),  # token expiry checker
+    ("*/30 * * * *", "cronjobs.cron.telegram_notification", f">> {FILE}"),  # notifications via TG
+    ("0 * * * *", "cronjobs.cron.clear_permalinks", f">> {FILE}"),  # clear invalid links
 ]
