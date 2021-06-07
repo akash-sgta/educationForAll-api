@@ -3,14 +3,15 @@
 import os
 import sys
 
+
 def main():
-    if(os.name == 'nt'):
-        os.system('cls')
-    else:
-        os.system('clear')
+    # if(os.name == 'nt'):
+    #     os.system('cls')
+    # else:
+    #     os.system('clear')
 
     """Run administrative tasks."""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'djangorestapi.settings')
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "djangorestapi.settings")
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
@@ -22,5 +23,5 @@ def main():
     execute_from_command_line(sys.argv)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

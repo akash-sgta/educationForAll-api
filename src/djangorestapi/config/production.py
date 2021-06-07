@@ -1,6 +1,6 @@
-from pathlib import Path
-import os
 import json
+import os
+from pathlib import Path
 
 # ----------OTHERS--------------
 
@@ -14,7 +14,7 @@ HTTP_SECURED = False
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 try:
-    with open(os.path.join(BASE_DIR, "all.pk.json"), "r") as secret_file:
+    with open(os.path.join(BASE_DIR, "config", "all.pk.json"), "r") as secret_file:
         data = json.load(secret_file)
         DB = data["database"]
         del data
