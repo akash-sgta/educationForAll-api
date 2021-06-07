@@ -7,7 +7,7 @@ ALLOWED_HOSTS = ["*"]
 
 # -----------DATABASE-------------
 
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 DATABASES = dict()
 DATABASES["auth_db"] = {
