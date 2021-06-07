@@ -184,6 +184,14 @@ class TG_BOT(Bot):
                 raise Exception("Could not start Polling ..")
 
 
-with open(os.path.join(BASE_DIR, "config", "keys", "TG_KEY.pk"), "r") as secret:
-    TG_TOKEN = secret.read().strip()
-bot = TG_BOT(api_key=TG_TOKEN)
+try:
+    with open(os.path.join(BASE_DIR, "config", "all.pk.json"), "r") as secret_file:
+        data = json.load(secret_file)
+        TG_TOKEN = data["telegram"]
+        del data
+except FileNotFoundError:
+    print("[x] Configuration file missing")
+    print("[x] Contact ADMIN")
+    exit(0)
+else:
+    bot = TG_BOT(api_key=TG_TOKEN)
