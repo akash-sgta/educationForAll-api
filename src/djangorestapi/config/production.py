@@ -4,7 +4,7 @@ from pathlib import Path
 
 # ----------OTHERS--------------
 
-ALLOWED_HOSTS = ("jass.guru", "localhost")
+ALLOWED_HOSTS = ("localhost", "127.0.0.1")
 
 # ----------SSL--------------
 

@@ -7,6 +7,25 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # =================================================================================================
 
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "file": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": "/tmp/api_debug.log",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["file"],
+            "level": "DEBUG",
+            "propagate": True,
+        },
+    },
+}
+
 
 def check_for_drafts(flag=True):
     # create user specific config and ini
@@ -123,10 +142,11 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # -----------------------------
     "rest_framework",
     "corsheaders",
     "django_crontab",
-    "drf_yasg",
+    # -----------------------------
     "auth_prime",
     "user_personal",
     "content_delivery",
@@ -230,13 +250,6 @@ CORS_ALLOW_HEADERS = [
     "content-type",
     "Access-Control-Allow-Origin",
 ]
-
-SWAGGER_SETTINGS = {
-    "SECURITY_DEFINITIONS": {
-        "API Token eg [Bearer (Token JWT) ]": {"type": "apiKey", "name": "Authorization", "in": "header"},
-        "User Token eg [Bearer (Token JWT) ]": {"type": "apiKey", "name": "uauth", "in": "header"},
-    }
-}
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 

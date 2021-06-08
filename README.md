@@ -89,6 +89,7 @@ python manage.py runserver
 __only if willing to test production readyness__
 ```
 python manage.py check --deploy
+tail -f /tmp/api_debug.log
 ```
 
 ***
