@@ -7,24 +7,24 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # =================================================================================================
 
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "handlers": {
-        "file": {
-            "level": "DEBUG",
-            "class": "logging.FileHandler",
-            "filename": "/tmp/api_debug.log",
-        },
-    },
-    "loggers": {
-        "django": {
-            "handlers": ["file"],
-            "level": "DEBUG",
-            "propagate": True,
-        },
-    },
-}
+# LOGGING = {
+#     "version": 1,
+#     "disable_existing_loggers": False,
+#     "handlers": {
+#         "file": {
+#             "level": "DEBUG",
+#             "class": "logging.FileHandler",
+#             "filename": f"{os.path.join(BASE_DIR, "log", "debug.log")}",
+#         },
+#     },
+#     "loggers": {
+#         "django": {
+#             "handlers": ["file"],
+#             "level": "DEBUG",
+#             "propagate": True,
+#         },
+#     },
+# }
 
 
 def check_for_drafts(flag=True):
@@ -130,8 +130,8 @@ DATABASES = dict(DB_DEFAULT, **DB_CUSTOM)
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
 # create user specific config and ini
-if not check_for_drafts(False):
-    exit(1)
+# if not check_for_drafts(False):
+#     exit(1)
 
 # Application definition
 
@@ -226,7 +226,7 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "Static"),
+    os.path.join(BASE_DIR, "staticfiles"),
 ]
 
 MEDIA_URL = "/media/"
