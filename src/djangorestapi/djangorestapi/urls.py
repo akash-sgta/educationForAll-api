@@ -1,3 +1,4 @@
+from auth_prime.view.api_web_view import API_Web_View
 from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
@@ -8,13 +9,13 @@ from rest_framework import permissions
 
 from djangorestapi import views
 
-
 urlpatterns = [
     url(r"^djadmin/", admin.site.urls),
     url(r"^api/auth/", include("auth_prime.urls")),
     url(r"^api/content/", include("content_delivery.urls")),
     url(r"^api/personal/", include("user_personal.urls")),
     url(r"^api/analytics/", include("analytics.urls")),
+    url(r"^web/(?P<word>\w*)", API_Web_View.as_view(), name="API_TOKEN"),
     url(r"^checkserver/", views.check_server_status, name="CHECK_SERVER_STATUS"),
 ]
 
