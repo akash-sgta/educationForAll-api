@@ -1,10 +1,30 @@
 import os
 from pathlib import Path
+import json
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # =================================================================================================
+
+# LOGGING = {
+#     "version": 1,
+#     "disable_existing_loggers": False,
+#     "handlers": {
+#         "file": {
+#             "level": "DEBUG",
+#             "class": "logging.FileHandler",
+#             "filename": f"{os.path.join(BASE_DIR, "log", "debug.log")}",
+#         },
+#     },
+#     "loggers": {
+#         "django": {
+#             "handlers": ["file"],
+#             "level": "DEBUG",
+#             "propagate": True,
+#         },
+#     },
+# }
 
 
 def check_for_drafts(flag=True):
@@ -56,8 +76,16 @@ def check_for_drafts(flag=True):
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-with open(os.path.join(BASE_DIR, "config", "keys", "S_KEY.pk"), "r") as key_file:
-    SECRET_KEY = key_file.read().strip()
+try:
+    with open(os.path.join(BASE_DIR, "config", "all.pk.json"), "r") as secret_file:
+        data = json.load(secret_file)
+        SECRET_KEY = data["secret"]
+        DEBUG = data["debug"]
+        del data
+except FileNotFoundError:
+    print("[x] Configuration file missing")
+    print("[x] Contact ADMIN")
+    exit(0)
 
 # Database in configFile
 DB_DEFAULT = {
@@ -69,43 +97,41 @@ DB_DEFAULT = {
         },
     }
 }
-# SECURITY WARNING: don't run with debug turned on in production!
-with open(os.path.join(BASE_DIR, "config", "debug.txt"), "r") as key_file:
-    DEBUG = key_file.read().strip()
-    if DEBUG.lower() == "true":
-        DEBUG = True
-        from config.development.settings_extended import ALLOWED_HOSTS
-        from config.development.settings_extended import DATABASES as DB_CUSTOM
-    else:
-        DEBUG = False
-        from config.production.settings_extended import ALLOWED_HOSTS
-        from config.production.settings_extended import DATABASES as DB_CUSTOM
-        from config.production.settings_extended import HTTP_SECURED
-
-        if HTTP_SECURED:
-            # HTTPS settings
-            SESSION_COOKIE_SECURE = True
-            CSRF_COOKIE_SECURE = True
-            SECURE_SSL_REDIRECT = True
-
-            # HSTS settings
-            SECURE_HSTS_SECONDS = 31536000  # 1y
-            SECURE_HSTS_RELOAD = True
-            SECURE_HSTS_INCLUDE_SUBDOMIANS = True
-DATABASES = dict(DB_DEFAULT, **DB_CUSTOM)
-
-# ALLOWED_HOSTS in configFile
 
 DATABASE_ROUTERS = (
     "routers.db_routers.Django_Auth_Router",
     "routers.db_routers.App_Router",
 )
 
+# SECURITY WARNING: don't run with debug turned on in production!
+if DEBUG:
+    from config.development import ALLOWED_HOSTS
+    from config.development import DATABASES as DB_CUSTOM
+else:
+    from config.production import ALLOWED_HOSTS
+    from config.production import DATABASES as DB_CUSTOM
+    from config.production import HTTP_SECURED
+
+    if HTTP_SECURED:
+        # HTTPS settings
+        SESSION_COOKIE_SECURE = True
+        CSRF_COOKIE_SECURE = True
+        SECURE_SSL_REDIRECT = True
+
+        # HSTS settings
+        SECURE_HSTS_SECONDS = 31536000  # 1y
+        SECURE_HSTS_RELOAD = True
+        SECURE_HSTS_INCLUDE_SUBDOMIANS = True
+
+DATABASES = dict(DB_DEFAULT, **DB_CUSTOM)
+
+# ALLOWED_HOSTS in configFile
+
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
 # create user specific config and ini
-if not check_for_drafts(False):
-    exit(1)
+# if not check_for_drafts(False):
+#     exit(1)
 
 # Application definition
 
@@ -116,10 +142,11 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # -----------------------------
     "rest_framework",
     "corsheaders",
     "django_crontab",
-    "drf_yasg",
+    # -----------------------------
     "auth_prime",
     "user_personal",
     "content_delivery",
@@ -199,7 +226,7 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "Static"),
+    os.path.join(BASE_DIR, "staticfiles"),
 ]
 
 MEDIA_URL = "/media/"
@@ -223,13 +250,6 @@ CORS_ALLOW_HEADERS = [
     "content-type",
     "Access-Control-Allow-Origin",
 ]
-
-SWAGGER_SETTINGS = {
-    "SECURITY_DEFINITIONS": {
-        "API Token eg [Bearer (Token JWT) ]": {"type": "apiKey", "name": "Authorization", "in": "header"},
-        "User Token eg [Bearer (Token JWT) ]": {"type": "apiKey", "name": "uauth", "in": "header"},
-    }
-}
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 

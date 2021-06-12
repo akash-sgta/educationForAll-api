@@ -1,26 +1,18 @@
-from django.views.decorators.csrf import csrf_exempt
-from django.http.response import JsonResponse
-from django.shortcuts import render, redirect
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.parsers import JSONParser
-
-from auth_prime.models import (
-    Api_Token,
-    User_Token,
-    User,
-    Admin,
-    Privilege,
-    Admin_Privilege,
-)
+import json
+import random
+import string
+import threading
+from hashlib import sha256
 
 from analytics.models import Log
+from django.http.response import JsonResponse
+from django.shortcuts import redirect, render
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework import status
+from rest_framework.parsers import JSONParser
+from rest_framework.response import Response
 
-from hashlib import sha256
-import string
-import random
-import json
-import threading
+from auth_prime.models import Admin, Admin_Privilege, Api_Token, Privilege, User, User_Token
 
 # --------------------------------------------------------
 

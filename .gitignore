@@ -143,5 +143,5 @@ djangorestapi.sock
 Static/
 *.conf
 *.ini
-*.pk
+*.pk.json
 secret.sh

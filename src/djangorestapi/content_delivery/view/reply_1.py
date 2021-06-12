@@ -15,7 +15,7 @@ from content_delivery.serializer import Reply_Serializer
 # ------------------------------------------------------------
 
 
-class Reply_1_View(APIView):
+class Reply_View(APIView):
 
     renderer_classes = [JSONRenderer]
 
