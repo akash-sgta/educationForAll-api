@@ -1,0 +1,4 @@
+REFRESH_TOKEN_LIMIT = 7  # days
+ACCESS_TOKEN_LIMIT = 10  # mins
+
+CRED = {1: "POST", 2: "GET", 3: "PUT", 4: "DELETE"}

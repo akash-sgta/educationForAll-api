@@ -143,6 +143,8 @@ INSTALLED_APPS = [
     "corsheaders",
     "django_crontab",
     # -----------------------------
+    "utilities",  # Important
+    "identityAccessManagement",
 ]
 
 MIDDLEWARE = [
@@ -201,7 +203,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
 LANGUAGE_CODE = "en-us"
-USE_TZ = True
+USE_TZ = False
 TIME_ZONE = "Asia/Kolkata"
 
 # Static files (CSS, JavaScript, Images)
@@ -233,8 +235,6 @@ CORS_ALLOW_HEADERS = [
     "content-type",
     "Access-Control-Allow-Origin",
 ]
-
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # CRONTAB_LOCK_JOBS = True
 # CRONTAB_COMMAND_SUFFIX = "2>&1"  # log error
